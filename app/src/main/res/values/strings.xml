@@ -1,49 +1,104 @@
 <resources>
-    <string name="app_name">Kids Quiz Game</string>
-    <string name="start_quiz">Start Quiz</string>
-    <string name="daily_tasks">Daily Tasks</string>
-    <string name="shop">Shop</string>
-    <string name="profile">Profile</string>
-    <string name="back">Back</string>
-    <string name="submit_answer">Submit Answer</string>
-    <string name="next_question">Next Question</string>
-    <string name="finish_quiz">Finish Quiz</string>
-    <string name="play_again">Play Again</string>
-    <string name="back_to_home">Back to Home</string>
-    <string name="coins_earned">coins earned!</string>
-    <string name="correct_answers">Correct Answers</string>
-    <string name="level">Level</string>
-    <string name="experience">XP</string>
-    <string name="day_streak">Day Streak!</string>
-    <string name="keep_learning">Keep learning every day!</string>
-    <string name="test_knowledge">Test your knowledge</string>
-    <string name="complete_challenges">Complete challenges</string>
-    <string name="spend_coins">Spend your coins</string>
-    <string name="view_progress">View your progress</string>
-    <string name="todays_progress">Today\'s Progress</string>
-    <string name="quizzes">Quizzes</string>
-    <string name="correct">Correct</string>
-    <string name="minutes">Minutes</string>
-    <string name="achievements">Achievements</string>
-    <string name="statistics">Statistics</string>
-    <string name="quizzes_completed">Quizzes Completed</string>
-    <string name="minutes_played">Minutes Played</string>
-    <string name="categories_played">Categories Played</string>
-    <string name="buy">Buy</string>
-    <string name="not_enough">Not Enough</string>
-    <string name="price">Price</string>
-    <string name="first_steps">First Steps</string>
-    <string name="knowledge_seeker">Knowledge Seeker</string>
-    <string name="perfect_score">Perfect Score</string>
-    <string name="streak_master">Streak Master</string>
-    <string name="level_up">Level Up</string>
-    <string name="coin_collector">Coin Collector</string>
-    <string name="complete_first_quiz">Complete your first quiz</string>
-    <string name="complete_10_quizzes">Complete 10 quizzes</string>
-    <string name="get_all_correct">Get all answers correct in a quiz</string>
-    <string name="maintain_7_day_streak">Maintain a 7-day streak</string>
-    <string name="reach_level_5">Reach level 5</string>
-    <string name="earn_1000_coins">Earn 1000 coins</string>
-    <string name="unlocked">Unlocked</string>
-    <string name="progress_to_level">Progress to Level</string>
+    <string name="app_name">Развивающая Викторина</string>
+
+    <!-- Home Screen -->
+    <string name="start_quiz">Начать Викторину</string>
+    <string name="daily_tasks">Ежедневные Задания</string>
+    <string name="shop">Магазин</string>
+    <string name="profile">Профиль</string>
+    <string name="level">Уровень</string>
+    <string name="coins">Монеты</string>
+    <string name="experience">Опыт</string>
+    <string name="daily_streak">Серия дней</string>
+
+    <!-- Quiz Screen -->
+    <string name="question">Вопрос</string>
+    <string name="of">из</string>
+    <string name="submit">Ответить</string>
+    <string name="next">Следующий</string>
+    <string name="finish">Завершить</string>
+
+    <!-- Quiz Result Screen -->
+    <string name="quiz_complete">Викторина завершена!</string>
+    <string name="correct_answers">Правильных ответов</string>
+    <string name="coins_earned">Заработано монет</string>
+    <string name="back_to_home">На главную</string>
+    <string name="play_again">Играть снова</string>
+
+    <!-- Daily Tasks Screen -->
+    <string name="todays_progress">Сегодняшний прогресс</string>
+    <string name="quizzes_completed">Викторин завершено</string>
+    <string name="correct_answers_short">Правильных ответов</string>
+    <string name="minutes_played">Минут играл</string>
+    <string name="daily_tasks_title">Ежедневные задания</string>
+    <string name="task_complete">Задание выполнено</string>
+    <string name="task_incomplete">Задание не выполнено</string>
+
+    <!-- Shop Screen -->
+    <string name="shop_title">Магазин</string>
+    <string name="your_coins">Ваши монеты</string>
+    <string name="buy">Купить</string>
+    <string name="not_enough_coins">Недостаточно монет</string>
+
+    <!-- Shop Items -->
+    <string name="double_coins">Двойные монеты</string>
+    <string name="double_coins_desc">Получайте в 2 раза больше монет за викторины</string>
+    <string name="extra_life">Дополнительная жизнь</string>
+    <string name="extra_life_desc">Получите дополнительную попытку в викторине</string>
+    <string name="hint_pack">Набор подсказок</string>
+    <string name="hint_pack_desc">5 подсказок для сложных вопросов</string>
+    <string name="premium_theme">Премиум тема</string>
+    <string name="premium_theme_desc">Красивая анимированная тема</string>
+
+    <!-- Profile Screen -->
+    <string name="profile_title">Профиль</string>
+    <string name="player_info">Информация об игроке</string>
+    <string name="progress_to_next_level">Прогресс до следующего уровня</string>
+    <string name="statistics">Статистика</string>
+    <string name="total_quizzes">Всего викторин</string>
+    <string name="total_correct">Всего правильных</string>
+    <string name="total_playtime">Общее время игры</string>
+    <string name="categories_played">Категорий сыграно</string>
+    <string name="achievements">Достижения</string>
+
+    <!-- Achievements -->
+    <string name="first_quiz">Первая викторина</string>
+    <string name="first_quiz_desc">Завершите свою первую викторину</string>
+    <string name="perfect_score">Отличный результат</string>
+    <string name="perfect_score_desc">Получите 100% в викторине</string>
+    <string name="streak_7">Недельная серия</string>
+    <string name="streak_7_desc">Играйте 7 дней подряд</string>
+    <string name="quiz_master">Мастер викторин</string>
+    <string name="quiz_master_desc">Завершите 50 викторин</string>
+
+    <!-- Notifications -->
+    <string name="notification_title">Время для викторины!</string>
+    <string name="notification_text">Не забудьте выполнить ежедневные задания</string>
+    <string name="notification_channel_name">Напоминания о викторине</string>
+    <string name="notification_channel_desc">Напоминания о ежедневных заданиях и викторинах</string>
+
+    <!-- Settings -->
+    <string name="settings">Настройки</string>
+    <string name="notifications">Уведомления</string>
+    <string name="daily_reminders">Ежедневные напоминания</string>
+    <string name="quiz_reminders">Напоминания о викторинах</string>
+    <string name="sound_enabled">Звук включен</string>
+    <string name="vibration_enabled">Вибрация включена</string>
+
+    <!-- Rewarded Ads -->
+    <string name="watch_ad_for_rewards">Смотрите рекламу за награды</string>
+    <string name="earn_extra_coins">Заработайте дополнительные монеты</string>
+    <string name="double_rewards">Двойные награды</string>
+    <string name="watch_ad">Смотреть рекламу</string>
+    <string name="ad_loading">Загрузка рекламы...</string>
+    <string name="ad_not_available">Реклама недоступна</string>
+
+    <!-- Common -->
+    <string name="back">Назад</string>
+    <string name="close">Закрыть</string>
+    <string name="save">Сохранить</string>
+    <string name="cancel">Отмена</string>
+    <string name="ok">ОК</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
 </resources>

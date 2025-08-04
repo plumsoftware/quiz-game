@@ -30,58 +30,74 @@ fun ShopScreen(
     onBack: () -> Unit,
     onPurchase: (itemId: Int, price: Int) -> Unit
 ) {
-    val shopItems = remember {
-        listOf(
-            ShopItem(
-                id = 1,
-                name = "Extra Lives",
-                description = "Get 3 extra lives for difficult questions",
-                price = 100,
-                icon = Icons.Default.Favorite,
-                color = Color(0xFFE91E63)
-            ),
-            ShopItem(
-                id = 2,
-                name = "Hint Pack",
-                description = "Get 5 hints to help with tough questions",
-                price = 150,
-                icon = Icons.Default.Lightbulb,
-                color = Color(0xFFFF9800)
-            ),
-            ShopItem(
-                id = 3,
-                name = "Double XP",
-                description = "Earn double experience for 1 hour",
-                price = 200,
-                icon = Icons.Default.TrendingUp,
-                color = Color(0xFF4CAF50)
-            ),
-            ShopItem(
-                id = 4,
-                name = "Perfect Score Bonus",
-                description = "Get 50% more coins for perfect scores",
-                price = 300,
-                icon = Icons.Default.Star,
-                color = Color(0xFFFFD700)
-            ),
-            ShopItem(
-                id = 5,
-                name = "Unlock All Categories",
-                description = "Access all question categories",
-                price = 500,
-                icon = Icons.Default.Category,
-                color = Color(0xFF9C27B0)
-            ),
-            ShopItem(
-                id = 6,
-                name = "Daily Bonus",
-                description = "Get 50 extra coins every day",
-                price = 1000,
-                icon = Icons.Default.CalendarToday,
-                color = Color(0xFF2196F3)
+            val shopItems = remember {
+            listOf(
+                ShopItem(
+                    id = 1,
+                    name = "Дополнительные жизни",
+                    description = "Получи 3 дополнительные жизни для сложных вопросов",
+                    price = 100,
+                    icon = Icons.Default.Favorite,
+                    color = Color(0xFFE91E63)
+                ),
+                ShopItem(
+                    id = 2,
+                    name = "Набор подсказок",
+                    description = "Получи 5 подсказок для сложных вопросов",
+                    price = 150,
+                    icon = Icons.Default.Lightbulb,
+                    color = Color(0xFFFF9800)
+                ),
+                ShopItem(
+                    id = 3,
+                    name = "Двойной опыт",
+                    description = "Получай двойной опыт на 1 час",
+                    price = 200,
+                    icon = Icons.Default.TrendingUp,
+                    color = Color(0xFF4CAF50)
+                ),
+                ShopItem(
+                    id = 4,
+                    name = "Бонус за отличный результат",
+                    description = "Получай на 50% больше монет за отличные результаты",
+                    price = 300,
+                    icon = Icons.Default.Star,
+                    color = Color(0xFFFFD700)
+                ),
+                ShopItem(
+                    id = 5,
+                    name = "Разблокировать все категории",
+                    description = "Доступ ко всем категориям вопросов",
+                    price = 500,
+                    icon = Icons.Default.Category,
+                    color = Color(0xFF9C27B0)
+                ),
+                ShopItem(
+                    id = 6,
+                    name = "Ежедневный бонус",
+                    description = "Получай 50 дополнительных монет каждый день",
+                    price = 1000,
+                    icon = Icons.Default.CalendarToday,
+                    color = Color(0xFF2196F3)
+                ),
+                ShopItem(
+                    id = 7,
+                    name = "Золотой пропуск",
+                    description = "Разблокируй все уровни викторины сразу",
+                    price = 1500,
+                    icon = Icons.Default.VpnKey,
+                    color = Color(0xFFFF6B35)
+                ),
+                ShopItem(
+                    id = 8,
+                    name = "Неограниченные подсказки",
+                    description = "Получай неограниченное количество подсказок навсегда",
+                    price = 2000,
+                    icon = Icons.Default.AutoAwesome,
+                    color = Color(0xFF9C27B0)
+                )
             )
-        )
-    }
+        }
 
     Column(
         modifier = Modifier
@@ -100,7 +116,7 @@ fun ShopScreen(
             }
             
             Text(
-                text = "Shop",
+                text = "Магазин",
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
@@ -124,6 +140,62 @@ fun ShopScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        // Rewarded Ads Section
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = Color(0xFF4CAF50).copy(alpha = 0.1f)
+            )
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    Icons.Default.PlayArrow,
+                    contentDescription = "Watch Ad",
+                    tint = Color(0xFF4CAF50),
+                    modifier = Modifier.size(48.dp)
+                )
+                
+                Spacer(modifier = Modifier.height(8.dp))
+                
+                Text(
+                    text = "Смотри рекламу за награды",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    textAlign = TextAlign.Center
+                )
+                
+                Text(
+                    text = "Заработай дополнительные монеты, посмотрев короткую рекламу",
+                    style = MaterialTheme.typography.bodyMedium,
+                    textAlign = TextAlign.Center,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                )
+                
+                Spacer(modifier = Modifier.height(12.dp))
+                
+                Button(
+                    onClick = { /* Handle ad watching */ },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF4CAF50)
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(
+                        Icons.Default.PlayArrow,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Смотреть рекламу")
+                }
+            }
+        }
+        
+        Spacer(modifier = Modifier.height(16.dp))
+        
         // Shop items
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(16.dp)
@@ -134,6 +206,10 @@ fun ShopScreen(
                     canAfford = coins >= item.price,
                     onPurchase = onPurchase
                 )
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }
@@ -229,7 +305,7 @@ fun ShopItemCard(
                     )
                 ) {
                     Text(
-                        text = if (canAfford) "Buy" else "Not Enough",
+                        text = if (canAfford) "Купить" else "Недостаточно",
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold
                     )

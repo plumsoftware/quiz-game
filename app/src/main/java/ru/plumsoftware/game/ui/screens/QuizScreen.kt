@@ -1,6 +1,5 @@
 package ru.plumsoftware.game.ui.screens
 
-import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,11 +14,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import ru.plumsoftware.game.data.GameData
 import ru.plumsoftware.game.data.Question
 
 @Composable
 fun QuizScreen(
+    currentLevel: Int,
+    questions: List<Question>,
     onBack: () -> Unit,
     onQuizComplete: (correctAnswers: Int, totalQuestions: Int) -> Unit
 ) {
@@ -27,7 +27,6 @@ fun QuizScreen(
     var selectedAnswer by remember { mutableStateOf<Int?>(null) }
     var showResult by remember { mutableStateOf(false) }
     var correctAnswers by remember { mutableStateOf(0) }
-    var questions by remember { mutableStateOf(GameData.questions.shuffled().take(5)) }
     
     val currentQuestion = questions.getOrNull(currentQuestionIndex)
 
@@ -47,11 +46,20 @@ fun QuizScreen(
                 Icon(Icons.Default.ArrowBack, contentDescription = "Back")
             }
             
-            Text(
-                text = "Question ${currentQuestionIndex + 1}/${questions.size}",
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = "Уровень $currentLevel",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    text = "Вопрос ${currentQuestionIndex + 1}/${questions.size}",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
             
             // Progress indicator
             LinearProgressIndicator(
@@ -84,9 +92,17 @@ fun QuizScreen(
                     Spacer(modifier = Modifier.height(16.dp))
                     
                     Text(
-                        text = "Category: ${question.category}",
+                        text = "Категория: ${question.category}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                    )
+                    
+                    Spacer(modifier = Modifier.height(8.dp))
+                    
+                    Text(
+                        text = "Сложность: ${"★".repeat(question.difficulty)}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color(0xFFFFD700)
                     )
                 }
             }
@@ -172,7 +188,7 @@ fun QuizScreen(
                     modifier = Modifier.fillMaxWidth(),
                     enabled = selectedAnswer != null
                 ) {
-                    Text("Submit Answer")
+                    Text("Ответить")
                 }
             } else {
                 Row(
@@ -192,7 +208,7 @@ fun QuizScreen(
                         modifier = Modifier.weight(1f)
                     ) {
                         Text(
-                            if (currentQuestionIndex < questions.size - 1) "Next Question" else "Finish Quiz"
+                            if (currentQuestionIndex < questions.size - 1) "Следующий" else "Завершить"
                         )
                     }
                 }
@@ -206,9 +222,18 @@ fun QuizResultScreen(
     correctAnswers: Int,
     totalQuestions: Int,
     coinsEarned: Int,
+    currentLevel: Int,
     onBackToHome: () -> Unit,
     onPlayAgain: () -> Unit
 ) {
+    val isPerfectScore = correctAnswers == totalQuestions
+    val levelColor = when (currentLevel) {
+        1 -> Color(0xFF4CAF50)
+        2 -> Color(0xFFFF9800)
+        3 -> Color(0xFFE91E63)
+        else -> MaterialTheme.colorScheme.primary
+    }
+    
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -217,12 +242,28 @@ fun QuizResultScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        // Level indicator
+        Card(
+            colors = CardDefaults.cardColors(
+                containerColor = levelColor.copy(alpha = 0.1f)
+            ),
+            modifier = Modifier.padding(bottom = 16.dp)
+        ) {
+            Text(
+                text = "Уровень $currentLevel",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = levelColor,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+        }
+        
         // Result icon
         Icon(
-            imageVector = if (correctAnswers == totalQuestions) Icons.Default.Star else Icons.Default.EmojiEvents,
+            imageVector = if (isPerfectScore) Icons.Default.Star else Icons.Default.EmojiEvents,
             contentDescription = "Result",
             modifier = Modifier.size(80.dp),
-            tint = if (correctAnswers == totalQuestions) Color(0xFFFFD700) else MaterialTheme.colorScheme.primary
+            tint = if (isPerfectScore) Color(0xFFFFD700) else levelColor
         )
         
         Spacer(modifier = Modifier.height(24.dp))
@@ -232,14 +273,31 @@ fun QuizResultScreen(
             text = "$correctAnswers/$totalQuestions",
             style = MaterialTheme.typography.displayLarge,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
+            color = levelColor
         )
         
         Text(
-            text = "Correct Answers",
+            text = "Правильных ответов",
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
         )
+        
+        if (isPerfectScore) {
+            Spacer(modifier = Modifier.height(16.dp))
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFFFFD700).copy(alpha = 0.2f)
+                )
+            ) {
+                Text(
+                    text = "Отличный результат! 🎉",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFFFD700),
+                    modifier = Modifier.padding(16.dp)
+                )
+            }
+        }
         
         Spacer(modifier = Modifier.height(32.dp))
         
@@ -260,7 +318,7 @@ fun QuizResultScreen(
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "+$coinsEarned coins earned!",
+                    text = "+$coinsEarned монет заработано!",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -277,14 +335,14 @@ fun QuizResultScreen(
                 onClick = onBackToHome,
                 modifier = Modifier.weight(1f)
             ) {
-                Text("Back to Home")
+                Text("На главную")
             }
             
             Button(
                 onClick = onPlayAgain,
                 modifier = Modifier.weight(1f)
             ) {
-                Text("Play Again")
+                Text("Играть снова")
             }
         }
     }

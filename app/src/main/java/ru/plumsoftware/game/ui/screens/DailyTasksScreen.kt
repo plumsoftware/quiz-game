@@ -42,7 +42,7 @@ fun DailyTasksScreen(
             }
             
             Text(
-                text = "Daily Tasks",
+                text = "Ежедневные задания",
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
@@ -62,7 +62,7 @@ fun DailyTasksScreen(
                 modifier = Modifier.padding(16.dp)
             ) {
                 Text(
-                    text = "Today's Progress",
+                    text = "Сегодняшний прогресс",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
@@ -75,21 +75,21 @@ fun DailyTasksScreen(
                 ) {
                     ProgressItem(
                         icon = Icons.Default.Quiz,
-                        label = "Quizzes",
+                        label = "Викторины",
                         value = tasksProgress["quizzes_completed"] ?: 0,
                         target = 3
                     )
                     
                     ProgressItem(
                         icon = Icons.Default.Check,
-                        label = "Correct",
+                        label = "Правильно",
                         value = tasksProgress["correct_answers"] ?: 0,
                         target = 5
                     )
                     
                     ProgressItem(
                         icon = Icons.Default.Timer,
-                        label = "Minutes",
+                        label = "Минуты",
                         value = tasksProgress["play_time_minutes"] ?: 0,
                         target = 10
                     )
@@ -110,6 +110,10 @@ fun DailyTasksScreen(
                     onTaskCompleted = onTaskCompleted
                 )
             }
+
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
         }
     }
 }
@@ -126,6 +130,8 @@ fun TaskCard(
         3 -> (progress["play_time_minutes"] ?: 0) >= 10
         4 -> (progress["categories_played"] ?: 0) >= GameData.getCategories().size
         5 -> false // Perfect score is handled separately
+        6 -> (progress["quiz_levels_completed"] ?: 0) >= 1
+        7 -> (progress["coins_earned"] ?: 0) >= 100
         else -> false
     }
     
@@ -135,6 +141,8 @@ fun TaskCard(
         3 -> (progress["play_time_minutes"] ?: 0).toFloat() / 10f
         4 -> (progress["categories_played"] ?: 0).toFloat() / GameData.getCategories().size.toFloat()
         5 -> 0f
+        6 -> (progress["quiz_levels_completed"] ?: 0).toFloat() / 1f
+        7 -> (progress["coins_earned"] ?: 0).toFloat() / 100f
         else -> 0f
     }
 
@@ -207,11 +215,13 @@ fun TaskCard(
                 
                 Text(
                     text = when (task.id) {
-                        1 -> "${progress["quizzes_completed"] ?: 0}/3 quizzes completed"
-                        2 -> "${progress["correct_answers"] ?: 0}/5 correct answers"
-                        3 -> "${progress["play_time_minutes"] ?: 0}/10 minutes played"
-                        4 -> "${progress["categories_played"] ?: 0}/${GameData.getCategories().size} categories"
-                        5 -> "Get all answers correct in one quiz"
+                        1 -> "${progress["quizzes_completed"] ?: 0}/3 викторин завершено"
+                        2 -> "${progress["correct_answers"] ?: 0}/5 правильных ответов"
+                        3 -> "${progress["play_time_minutes"] ?: 0}/10 минут сыграно"
+                        4 -> "${progress["categories_played"] ?: 0}/${GameData.getCategories().size} категорий"
+                        5 -> "Получи все ответы правильно в одной викторине"
+                        6 -> "${progress["quiz_levels_completed"] ?: 0}/1 новый уровень пройден"
+                        7 -> "${progress["coins_earned"] ?: 0}/100 монет собрано"
                         else -> ""
                     },
                     style = MaterialTheme.typography.bodySmall,

@@ -3,7 +3,6 @@ package ru.plumsoftware.game.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -12,7 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import ru.plumsoftware.game.data.GameState
 
@@ -20,7 +18,8 @@ import ru.plumsoftware.game.data.GameState
 fun ProfileScreen(
     gameState: GameState,
     stats: Map<String, Int>,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onNavigateToSettings: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -39,12 +38,14 @@ fun ProfileScreen(
             }
             
             Text(
-                text = "Profile",
+                text = "Профиль",
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
             
-            Spacer(modifier = Modifier.width(48.dp))
+            IconButton(onClick = onNavigateToSettings) {
+                Icon(Icons.Default.Settings, contentDescription = "Settings")
+            }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -65,6 +66,10 @@ fun ProfileScreen(
             // Achievements card
             item {
                 AchievementsCard(gameState, stats)
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }
@@ -104,13 +109,13 @@ fun PlayerInfoCard(gameState: GameState) {
             Spacer(modifier = Modifier.height(16.dp))
             
             Text(
-                text = "Level ${gameState.level}",
+                text = "Уровень ${gameState.level}",
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
             
             Text(
-                text = "${gameState.experience} XP",
+                text = "${gameState.experience} ОП",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
             )
@@ -125,7 +130,7 @@ fun PlayerInfoCard(gameState: GameState) {
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = "Progress to Level ${gameState.level + 1}",
+                        text = "Прогресс до уровня ${gameState.level + 1}",
                         style = MaterialTheme.typography.bodySmall
                     )
                     Text(
@@ -149,7 +154,7 @@ fun StatisticsCard(stats: Map<String, Int>) {
             modifier = Modifier.padding(16.dp)
         ) {
             Text(
-                text = "Statistics",
+                text = "Статистика",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -157,10 +162,10 @@ fun StatisticsCard(stats: Map<String, Int>) {
             Spacer(modifier = Modifier.height(16.dp))
             
             val statItems = listOf(
-                Triple(Icons.Default.Quiz, "Quizzes Completed", stats["quizzes_completed"] ?: 0),
-                Triple(Icons.Default.Check, "Correct Answers", stats["correct_answers"] ?: 0),
-                Triple(Icons.Default.Timer, "Minutes Played", stats["play_time_minutes"] ?: 0),
-                Triple(Icons.Default.Category, "Categories Played", stats["categories_played"] ?: 0)
+                Triple(Icons.Default.Quiz, "Викторин завершено", stats["quizzes_completed"] ?: 0),
+                Triple(Icons.Default.Check, "Правильных ответов", stats["correct_answers"] ?: 0),
+                Triple(Icons.Default.Timer, "Минут сыграно", stats["play_time_minutes"] ?: 0),
+                Triple(Icons.Default.Category, "Категорий сыграно", stats["categories_played"] ?: 0)
             )
             
             statItems.forEach { (icon, label, value) ->
@@ -205,7 +210,7 @@ fun AchievementsCard(gameState: GameState, stats: Map<String, Int>) {
             modifier = Modifier.padding(16.dp)
         ) {
             Text(
-                text = "Achievements",
+                text = "Достижения",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -213,44 +218,44 @@ fun AchievementsCard(gameState: GameState, stats: Map<String, Int>) {
             Spacer(modifier = Modifier.height(16.dp))
             
             val achievements = listOf(
-                Achievement(
-                    title = "First Steps",
-                    description = "Complete your first quiz",
+                AchievementProfile(
+                    title = "Первые шаги",
+                    description = "Заверши свою первую викторину",
                     icon = Icons.Default.Star,
                     isUnlocked = (stats["quizzes_completed"] ?: 0) >= 1,
                     color = Color(0xFFFFD700)
                 ),
-                Achievement(
-                    title = "Knowledge Seeker",
-                    description = "Complete 10 quizzes",
+                AchievementProfile(
+                    title = "Искатель знаний",
+                    description = "Заверши 10 викторин",
                     icon = Icons.Default.School,
                     isUnlocked = (stats["quizzes_completed"] ?: 0) >= 10,
                     color = Color(0xFF4CAF50)
                 ),
-                Achievement(
-                    title = "Perfect Score",
-                    description = "Get all answers correct in a quiz",
+                AchievementProfile(
+                    title = "Отличный результат",
+                    description = "Получи все ответы правильно в викторине",
                     icon = Icons.Default.EmojiEvents,
                     isUnlocked = false, // This would need to be tracked separately
                     color = Color(0xFFE91E63)
                 ),
-                Achievement(
-                    title = "Streak Master",
-                    description = "Maintain a 7-day streak",
+                AchievementProfile(
+                    title = "Мастер серий",
+                    description = "Поддержи серию 7 дней",
                     icon = Icons.Default.LocalFireDepartment,
                     isUnlocked = gameState.streakDays >= 7,
                     color = Color(0xFFFF6B6B)
                 ),
-                Achievement(
-                    title = "Level Up",
-                    description = "Reach level 5",
+                AchievementProfile(
+                    title = "Повышение уровня",
+                    description = "Достигни 5 уровня",
                     icon = Icons.Default.TrendingUp,
                     isUnlocked = gameState.level >= 5,
                     color = Color(0xFF2196F3)
                 ),
-                Achievement(
-                    title = "Coin Collector",
-                    description = "Earn 1000 coins",
+                AchievementProfile(
+                    title = "Собиратель монет",
+                    description = "Заработай 1000 монет",
                     icon = Icons.Default.MonetizationOn,
                     isUnlocked = gameState.coins >= 1000,
                     color = Color(0xFFFF9800)
@@ -264,7 +269,7 @@ fun AchievementsCard(gameState: GameState, stats: Map<String, Int>) {
     }
 }
 
-data class Achievement(
+data class AchievementProfile(
     val title: String,
     val description: String,
     val icon: androidx.compose.ui.graphics.vector.ImageVector,
@@ -273,7 +278,7 @@ data class Achievement(
 )
 
 @Composable
-fun AchievementItem(achievement: Achievement) {
+fun AchievementItem(achievement: AchievementProfile) {
     Row(
         modifier = Modifier
             .fillMaxWidth()

@@ -3,7 +3,6 @@ package ru.plumsoftware.game
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -12,7 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import ru.plumsoftware.game.data.GameState
+import androidx.compose.ui.unit.dp
 import ru.plumsoftware.game.ui.GameScreen
 import ru.plumsoftware.game.ui.GameViewModel
 import ru.plumsoftware.game.ui.screens.*
@@ -23,10 +22,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         setContent {
             GameTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                Scaffold(modifier = Modifier.fillMaxSize().padding(vertical = 16.dp)) { innerPadding ->
                     GameApp(
                         modifier = Modifier.padding(innerPadding),
                         viewModel = viewModel
@@ -34,6 +32,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+    
+    override fun onBackPressed() {
+        viewModel.navigateUp(this@MainActivity)
     }
 }
 
@@ -47,13 +49,22 @@ fun GameApp(
     val tasksProgress by viewModel.tasksProgress.collectAsState()
     val showQuizResult by viewModel.showQuizResult.collectAsState()
     val quizResult by viewModel.quizResult.collectAsState()
+    val availableQuizLevels by viewModel.availableQuizLevels.collectAsState()
+    val currentQuizLevel by viewModel.currentQuizLevel.collectAsState()
 
     when {
+        currentScreen == GameScreen.SPLASH -> {
+            SplashScreen(
+                onSplashComplete = viewModel::onSplashComplete
+            )
+        }
+
         showQuizResult -> {
             QuizResultScreen(
                 correctAnswers = quizResult.correctAnswers,
                 totalQuestions = quizResult.totalQuestions,
                 coinsEarned = quizResult.coinsEarned,
+                currentLevel = currentQuizLevel,
                 onBackToHome = viewModel::onBackToHome,
                 onPlayAgain = viewModel::onPlayAgain
             )
@@ -62,15 +73,23 @@ fun GameApp(
         currentScreen == GameScreen.HOME -> {
             HomeScreen(
                 gameState = gameState,
-                onNavigateToQuiz = { viewModel.navigateTo(GameScreen.QUIZ) },
+                availableQuizLevels = availableQuizLevels,
+                onNavigateToQuiz = { level ->
+                    viewModel.setCurrentQuizLevel(level)
+                    viewModel.navigateTo(GameScreen.QUIZ)
+                },
                 onNavigateToDailyTasks = { viewModel.navigateTo(GameScreen.DAILY_TASKS) },
                 onNavigateToShop = { viewModel.navigateTo(GameScreen.SHOP) },
-                onNavigateToProfile = { viewModel.navigateTo(GameScreen.PROFILE) }
+                onNavigateToProfile = { viewModel.navigateTo(GameScreen.PROFILE) },
+                onNavigateToSettings = { viewModel.navigateTo(GameScreen.SETTINGS) },
+                onNavigateToAchievements = { viewModel.navigateTo(GameScreen.ACHIEVEMENTS) }
             )
         }
 
         currentScreen == GameScreen.QUIZ -> {
             QuizScreen(
+                currentLevel = currentQuizLevel,
+                questions = viewModel.getQuestionsForCurrentLevel().shuffled().take(5),
                 onBack = { viewModel.navigateTo(GameScreen.HOME) },
                 onQuizComplete = viewModel::onQuizComplete
             )
@@ -96,7 +115,22 @@ fun GameApp(
             ProfileScreen(
                 gameState = gameState,
                 stats = tasksProgress,
-                onBack = { viewModel.navigateTo(GameScreen.HOME) }
+                onBack = { viewModel.navigateTo(GameScreen.HOME) },
+                onNavigateToSettings = { viewModel.navigateTo(GameScreen.SETTINGS) }
+            )
+        }
+        
+        currentScreen == GameScreen.SETTINGS -> {
+            SettingsScreen(
+                onBack = { viewModel.navigateTo(GameScreen.HOME) },
+                notificationScheduler = viewModel.getNotificationScheduler()
+            )
+        }
+        
+        currentScreen == GameScreen.ACHIEVEMENTS -> {
+            AchievementsScreen(
+                gameState = gameState,
+                onNavigateToSettings = { viewModel.navigateTo(GameScreen.SETTINGS) }
             )
         }
     }
