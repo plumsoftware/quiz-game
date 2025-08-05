@@ -26,7 +26,7 @@ class GameManager(private val context: Context) {
         val PLAY_TIME_MINUTES = intPreferencesKey("play_time_minutes")
         val CATEGORIES_PLAYED = stringSetPreferencesKey("categories_played")
         val UNLOCKED_QUIZ_LEVELS = intPreferencesKey("unlocked_quiz_levels")
-        val COMPLETED_QUIZ_LEVELS = stringSetPreferencesKey("completed_quiz_levels")
+        val COMPLETED_QUIZZES = stringSetPreferencesKey("completed_quizzes")
     }
 
     val gameState: Flow<GameState> = context.dataStore.data.map { preferences ->
@@ -87,6 +87,21 @@ class GameManager(private val context: Context) {
         // Unlock level 3 at player level 5
         if (playerLevel >= 5 && currentUnlockedLevels < 3) {
             preferences[PreferencesKeys.UNLOCKED_QUIZ_LEVELS] = 3
+        }
+        
+        // Unlock level 4 at player level 7
+        if (playerLevel >= 7 && currentUnlockedLevels < 4) {
+            preferences[PreferencesKeys.UNLOCKED_QUIZ_LEVELS] = 4
+        }
+        
+        // Unlock level 5 at player level 10
+        if (playerLevel >= 10 && currentUnlockedLevels < 5) {
+            preferences[PreferencesKeys.UNLOCKED_QUIZ_LEVELS] = 5
+        }
+        
+        // Unlock level 6 at player level 15
+        if (playerLevel >= 15 && currentUnlockedLevels < 6) {
+            preferences[PreferencesKeys.UNLOCKED_QUIZ_LEVELS] = 6
         }
     }
 
@@ -155,10 +170,10 @@ class GameManager(private val context: Context) {
         }
     }
 
-    suspend fun completeQuizLevel(level: Int) {
+    suspend fun completeQuiz(quizId: Int) {
         context.dataStore.edit { preferences ->
-            val completedLevels = preferences[PreferencesKeys.COMPLETED_QUIZ_LEVELS] ?: emptySet()
-            preferences[PreferencesKeys.COMPLETED_QUIZ_LEVELS] = completedLevels + level.toString()
+            val completedQuizzes = preferences[PreferencesKeys.COMPLETED_QUIZZES] ?: emptySet()
+            preferences[PreferencesKeys.COMPLETED_QUIZZES] = completedQuizzes + quizId.toString()
         }
     }
 
@@ -169,7 +184,7 @@ class GameManager(private val context: Context) {
             "play_time_minutes" to (preferences[PreferencesKeys.PLAY_TIME_MINUTES] ?: 0),
             "categories_played" to (preferences[PreferencesKeys.CATEGORIES_PLAYED]?.size ?: 0),
             "coins_earned" to (preferences[PreferencesKeys.COINS] ?: 0),
-            "quiz_levels_completed" to (preferences[PreferencesKeys.COMPLETED_QUIZ_LEVELS]?.size ?: 0)
+            "quizzes_completed" to (preferences[PreferencesKeys.COMPLETED_QUIZZES]?.size ?: 0)
         )
     }
 
@@ -186,8 +201,8 @@ class GameManager(private val context: Context) {
         level <= unlockedLevels
     }
 
-    fun isQuizLevelCompleted(level: Int): Flow<Boolean> = context.dataStore.data.map { preferences ->
-        val completedLevels = preferences[PreferencesKeys.COMPLETED_QUIZ_LEVELS] ?: emptySet()
-        level.toString() in completedLevels
+    fun isQuizCompleted(quizId: Int): Flow<Boolean> = context.dataStore.data.map { preferences ->
+        val completedQuizzes = preferences[PreferencesKeys.COMPLETED_QUIZZES] ?: emptySet()
+        quizId.toString() in completedQuizzes
     }
 } 

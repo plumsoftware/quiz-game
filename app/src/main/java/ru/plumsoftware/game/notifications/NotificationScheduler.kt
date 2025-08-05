@@ -68,12 +68,12 @@ class NotificationScheduler(private val context: Context) {
         // Schedule notification for 9:00 AM
         val targetTime = LocalTime.of(9, 0)
         val now = LocalTime.now()
-        
+
         var delay = targetTime.toSecondOfDay() - now.toSecondOfDay()
         if (delay <= 0) {
             delay += 24 * 60 * 60 // Add 24 hours if target time has passed
         }
-        
+
         return delay * 1000L // Convert to milliseconds
     }
 } 

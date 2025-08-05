@@ -49,7 +49,7 @@ fun GameApp(
     val tasksProgress by viewModel.tasksProgress.collectAsState()
     val showQuizResult by viewModel.showQuizResult.collectAsState()
     val quizResult by viewModel.quizResult.collectAsState()
-    val availableQuizLevels by viewModel.availableQuizLevels.collectAsState()
+    val availableQuizzes by viewModel.availableQuizzes.collectAsState()
     val currentQuizLevel by viewModel.currentQuizLevel.collectAsState()
 
     when {
@@ -73,11 +73,8 @@ fun GameApp(
         currentScreen == GameScreen.HOME -> {
             HomeScreen(
                 gameState = gameState,
-                availableQuizLevels = availableQuizLevels,
-                onNavigateToQuiz = { level ->
-                    viewModel.setCurrentQuizLevel(level)
-                    viewModel.navigateTo(GameScreen.QUIZ)
-                },
+                availableQuizzes = availableQuizzes,
+                onNavigateToQuiz = { viewModel.navigateTo(GameScreen.QUIZ_MENU) },
                 onNavigateToDailyTasks = { viewModel.navigateTo(GameScreen.DAILY_TASKS) },
                 onNavigateToShop = { viewModel.navigateTo(GameScreen.SHOP) },
                 onNavigateToProfile = { viewModel.navigateTo(GameScreen.PROFILE) },
@@ -86,11 +83,25 @@ fun GameApp(
             )
         }
 
+        currentScreen == GameScreen.QUIZ_MENU -> {
+            val completedQuizzes by viewModel.completedQuizzes.collectAsState()
+            QuizMenuScreen(
+                gameState = gameState,
+                availableQuizzes = availableQuizzes,
+                completedQuizzes = completedQuizzes,
+                onNavigateToQuiz = { quizId ->
+                    viewModel.setCurrentQuizLevel(quizId)
+                    viewModel.navigateTo(GameScreen.QUIZ)
+                },
+                onBack = { viewModel.navigateTo(GameScreen.HOME) }
+            )
+        }
+
         currentScreen == GameScreen.QUIZ -> {
             QuizScreen(
                 currentLevel = currentQuizLevel,
-                questions = viewModel.getQuestionsForCurrentLevel().shuffled().take(5),
-                onBack = { viewModel.navigateTo(GameScreen.HOME) },
+                questions = viewModel.getQuestionsForCurrentQuiz(),
+                onBack = { viewModel.navigateTo(GameScreen.QUIZ_MENU) },
                 onQuizComplete = viewModel::onQuizComplete
             )
         }

@@ -1,12 +1,10 @@
 package ru.plumsoftware.game.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -14,18 +12,18 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import ru.plumsoftware.game.data.GameState
-import ru.plumsoftware.game.data.QuizLevel
+import ru.plumsoftware.game.data.Quiz
 
 @Composable
 fun HomeScreen(
     gameState: GameState,
-    availableQuizLevels: List<QuizLevel>,
-    onNavigateToQuiz: (level: Int) -> Unit,
+    availableQuizzes: List<Quiz>,
+    onNavigateToQuiz: () -> Unit,
     onNavigateToDailyTasks: () -> Unit,
     onNavigateToShop: () -> Unit,
     onNavigateToProfile: () -> Unit,
@@ -64,6 +62,16 @@ fun HomeScreen(
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
+                    
+                    // Level progress indicator
+                    val nextLevelExp = (gameState.level * 100) - gameState.experience
+                    if (nextLevelExp > 0) {
+                        Text(
+                            text = "До следующего уровня: ${nextLevelExp} ОП",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                        )
+                    }
                 }
 
                 Row(
@@ -137,28 +145,92 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Quiz Levels Section
-        Text(
-            text = "Уровни викторины",
-            style = MaterialTheme.typography.titleLarge,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+        // Quiz Section
+        Card(
             modifier = Modifier
-                .wrapContentHeight()
                 .fillMaxWidth()
+                .height(120.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = Color(0xFF6200EE)
+            ),
+            onClick = onNavigateToQuiz
         ) {
-            items(availableQuizLevels) { quizLevel ->
-                QuizLevelCard(
-                    quizLevel = quizLevel,
-                    isUnlocked = quizLevel.level <= gameState.unlockedQuizLevels,
-                    onClick = { onNavigateToQuiz(quizLevel.level) }
-                )
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        brush = androidx.compose.ui.graphics.Brush.verticalGradient(
+                            colors = listOf(
+                                Color(0xFF6200EE),
+                                Color(0xFF3700B3),
+                                Color(0xFF03DAC6)
+                            )
+                        )
+                    )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(20.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Animated icon with glow effect
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.White.copy(alpha = 0.2f)
+                        ),
+                        modifier = Modifier.size(48.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Image(
+                                painter = painterResource(ru.plumsoftware.game.R.drawable.quiz_button_icon),
+                                contentDescription = "Quiz",
+                                modifier = Modifier.size(48.dp)
+                            )
+                        }
+                    }
+                    
+                    Spacer(modifier = Modifier.width(16.dp))
+                    
+                    Column(
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Text(
+                            text = "🎮 Играть в викторину",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                        Text(
+                            text = "Доступно ${availableQuizzes.size} викторин",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White.copy(alpha = 0.8f)
+                        )
+                    }
+                    
+                    // Play button with glow
+                    Card(
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color.White.copy(alpha = 0.3f)
+                        ),
+                        modifier = Modifier.size(48.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.PlayArrow,
+                                contentDescription = "Play",
+                                tint = Color.White,
+                                modifier = Modifier.size(28.dp)
+                            )
+                        }
+                    }
+                }
             }
         }
 
@@ -214,111 +286,7 @@ fun HomeScreen(
     }
 }
 
-@Composable
-fun QuizLevelCard(
-    quizLevel: QuizLevel,
-    isUnlocked: Boolean,
-    onClick: () -> Unit
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isUnlocked) {
-                when (quizLevel.level) {
-                    1 -> Color(0xFF4CAF50).copy(alpha = 0.1f)
-                    2 -> Color(0xFFFF9800).copy(alpha = 0.1f)
-                    3 -> Color(0xFFE91E63).copy(alpha = 0.1f)
-                    else -> MaterialTheme.colorScheme.surface
-                }
-            } else {
-                Color.Gray.copy(alpha = 0.1f)
-            }
-        ),
-        onClick = if (isUnlocked) onClick else {
-            {}
-        }
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Level icon
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = if (isUnlocked) {
-                        when (quizLevel.level) {
-                            1 -> Color(0xFF4CAF50)
-                            2 -> Color(0xFFFF9800)
-                            3 -> Color(0xFFE91E63)
-                            else -> Color.Gray
-                        }
-                    } else {
-                        Color.Gray
-                    }
-                ),
-                modifier = Modifier.size(48.dp)
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (isUnlocked) {
-                        Text(
-                            text = "${quizLevel.level}",
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp
-                        )
-                    } else {
-                        Icon(
-                            imageVector = Icons.Default.Lock,
-                            contentDescription = "Locked",
-                            tint = Color.White,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                }
-            }
 
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // Level info
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = quizLevel.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = if (isUnlocked) MaterialTheme.colorScheme.onSurface else Color.Gray
-                )
-                Text(
-                    text = quizLevel.description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = if (isUnlocked) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f) else Color.Gray
-                )
-                if (!isUnlocked) {
-                    Text(
-                        text = "Требуется уровень ${quizLevel.requiredLevel}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray
-                    )
-                }
-            }
-
-            if (isUnlocked) {
-                Icon(
-                    imageVector = Icons.Default.PlayArrow,
-                    contentDescription = "Play",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
-        }
-    }
-}
 
 @Composable
 fun MenuButton(

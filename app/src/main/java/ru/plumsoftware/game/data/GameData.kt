@@ -37,10 +37,12 @@ data class GameState(
     val categoriesPlayed: Set<String> = emptySet()
 )
 
-data class QuizLevel(
-    val level: Int,
+data class Quiz(
+    val id: Int,
     val title: String,
     val description: String,
+    val category: String,
+    val difficulty: Int,
     val requiredLevel: Int,
     val questions: List<Question>
 )
@@ -598,29 +600,841 @@ object GameData {
         )
     )
 
-    val allQuestions = level1Questions + level2Questions + level3Questions
+    // Level 4 - Expert questions (IDs 61-80)
+    val level4Questions = listOf(
+        Question(
+            id = 61,
+            question = "Какая самая длинная река в Европе?",
+            options = listOf("Дунай", "Волга", "Рейн", "Днепр"),
+            correctAnswer = 1,
+            category = "География",
+            difficulty = 4,
+            level = 4
+        ),
+        Question(
+            id = 62,
+            question = "Сколько хромосом у шимпанзе?",
+            options = listOf("44", "46", "48", "50"),
+            correctAnswer = 2,
+            category = "Биология",
+            difficulty = 4,
+            level = 4
+        ),
+        Question(
+            id = 63,
+            question = "Какая самая высокая гора в Африке?",
+            options = listOf("Килиманджаро", "Эльбрус", "Монблан", "Эверест"),
+            correctAnswer = 0,
+            category = "География",
+            difficulty = 4,
+            level = 4
+        ),
+        Question(
+            id = 64,
+            question = "Сколько планет в Солнечной системе имеют спутники?",
+            options = listOf("5", "6", "7", "8"),
+            correctAnswer = 2,
+            category = "Космос",
+            difficulty = 4,
+            level = 4
+        ),
+        Question(
+            id = 65,
+            question = "Какая самая большая пустыня в Азии?",
+            options = listOf("Гоби", "Сахара", "Аравийская", "Калахари"),
+            correctAnswer = 0,
+            category = "География",
+            difficulty = 4,
+            level = 4
+        ),
+        Question(
+            id = 66,
+            question = "Сколько костей в теле новорожденного ребенка?",
+            options = listOf("206", "270", "300", "350"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 4,
+            level = 4
+        ),
+        Question(
+            id = 67,
+            question = "Какая самая быстрая рыба в мире?",
+            options = listOf("Тунец", "Марлин", "Парусник", "Акула"),
+            correctAnswer = 2,
+            category = "Животные",
+            difficulty = 4,
+            level = 4
+        ),
+        Question(
+            id = 68,
+            question = "Сколько спутников у Юпитера?",
+            options = listOf("50", "60", "70", "80"),
+            correctAnswer = 2,
+            category = "Космос",
+            difficulty = 4,
+            level = 4
+        ),
+        Question(
+            id = 69,
+            question = "Какая самая длинная кость в теле человека?",
+            options = listOf("Плечевая", "Бедренная", "Большеберцовая", "Локтевая"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 4,
+            level = 4
+        ),
+        Question(
+            id = 70,
+            question = "Сколько цветов в радуге?",
+            options = listOf("5", "6", "7", "8"),
+            correctAnswer = 2,
+            category = "Физика",
+            difficulty = 4,
+            level = 4
+        ),
+        Question(
+            id = 71,
+            question = "Какая самая маленькая планета в Солнечной системе?",
+            options = listOf("Меркурий", "Марс", "Венера", "Земля"),
+            correctAnswer = 0,
+            category = "Космос",
+            difficulty = 4,
+            level = 4
+        ),
+        Question(
+            id = 72,
+            question = "Сколько мышц в человеческом теле?",
+            options = listOf("400", "600", "800", "1000"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 4,
+            level = 4
+        ),
+        Question(
+            id = 73,
+            question = "Какая самая глубокая точка океана?",
+            options = listOf("Марианская впадина", "Пуэрто-Рико", "Яванская впадина", "Филиппинская впадина"),
+            correctAnswer = 0,
+            category = "География",
+            difficulty = 4,
+            level = 4
+        ),
+        Question(
+            id = 74,
+            question = "Сколько хромосом у человека?",
+            options = listOf("42", "44", "46", "48"),
+            correctAnswer = 2,
+            category = "Биология",
+            difficulty = 4,
+            level = 4
+        ),
+        Question(
+            id = 75,
+            question = "Какая самая быстрая птица в мире?",
+            options = listOf("Орел", "Сокол", "Стриж", "Ястреб"),
+            correctAnswer = 1,
+            category = "Животные",
+            difficulty = 4,
+            level = 4
+        ),
+        Question(
+            id = 76,
+            question = "Сколько спутников у Земли?",
+            options = listOf("0", "1", "2", "3"),
+            correctAnswer = 1,
+            category = "Космос",
+            difficulty = 4,
+            level = 4
+        ),
+        Question(
+            id = 77,
+            question = "Какая самая большая пустыня в мире?",
+            options = listOf("Сахара", "Гоби", "Аравийская", "Калахари"),
+            correctAnswer = 0,
+            category = "География",
+            difficulty = 4,
+            level = 4
+        ),
+        Question(
+            id = 78,
+            question = "Сколько костей в черепе взрослого человека?",
+            options = listOf("20", "22", "24", "26"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 4,
+            level = 4
+        ),
+        Question(
+            id = 79,
+            question = "Какая самая длинная змея в мире?",
+            options = listOf("Питон", "Анаконда", "Кобра", "Гадюка"),
+            correctAnswer = 1,
+            category = "Животные",
+            difficulty = 4,
+            level = 4
+        ),
+        Question(
+            id = 80,
+            question = "Сколько планет в Солнечной системе имеют кольца?",
+            options = listOf("1", "2", "3", "4"),
+            correctAnswer = 3,
+            category = "Космос",
+            difficulty = 4,
+            level = 4
+        )
+    )
 
-    val quizLevels = listOf(
-        QuizLevel(
-            level = 1,
-            title = "Начинающий",
-            description = "Простые вопросы для самых маленьких",
+    // Level 5 - Master questions (IDs 81-100)
+    val level5Questions = listOf(
+        Question(
+            id = 81,
+            question = "Какая самая большая клетка в человеческом теле?",
+            options = listOf("Нейрон", "Яйцеклетка", "Мышечная клетка", "Клетка печени"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 5,
+            level = 5
+        ),
+        Question(
+            id = 82,
+            question = "Сколько атомов в молекуле воды?",
+            options = listOf("2", "3", "4", "5"),
+            correctAnswer = 1,
+            category = "Химия",
+            difficulty = 5,
+            level = 5
+        ),
+        Question(
+            id = 83,
+            question = "Какая самая быстрая частица в природе?",
+            options = listOf("Электрон", "Фотон", "Нейтрино", "Протон"),
+            correctAnswer = 1,
+            category = "Физика",
+            difficulty = 5,
+            level = 5
+        ),
+        Question(
+            id = 84,
+            question = "Сколько костей в человеческой руке?",
+            options = listOf("25", "27", "29", "31"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 5,
+            level = 5
+        ),
+        Question(
+            id = 85,
+            question = "Какая самая длинная кость в теле человека?",
+            options = listOf("Плечевая", "Бедренная", "Большеберцовая", "Локтевая"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 5,
+            level = 5
+        ),
+        Question(
+            id = 86,
+            question = "Сколько хромосом у собаки?",
+            options = listOf("36", "38", "40", "42"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 5,
+            level = 5
+        ),
+        Question(
+            id = 87,
+            question = "Какая самая маленькая кость в человеческом теле?",
+            options = listOf("Молоточек", "Наковальня", "Стремечко", "Височная кость"),
+            correctAnswer = 2,
+            category = "Биология",
+            difficulty = 5,
+            level = 5
+        ),
+        Question(
+            id = 88,
+            question = "Сколько мышц в человеческом лице?",
+            options = listOf("20", "30", "40", "50"),
+            correctAnswer = 2,
+            category = "Биология",
+            difficulty = 5,
+            level = 5
+        ),
+        Question(
+            id = 89,
+            question = "Какая самая большая артерия в человеческом теле?",
+            options = listOf("Аорта", "Сонная артерия", "Бедренная артерия", "Подключичная артерия"),
+            correctAnswer = 0,
+            category = "Биология",
+            difficulty = 5,
+            level = 5
+        ),
+        Question(
+            id = 90,
+            question = "Сколько костей в человеческой ноге?",
+            options = listOf("24", "26", "28", "30"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 5,
+            level = 5
+        ),
+        Question(
+            id = 91,
+            question = "Какая самая длинная мышца в человеческом теле?",
+            options = listOf("Двуглавая мышца", "Портняжная мышца", "Икроножная мышца", "Четырехглавая мышца"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 5,
+            level = 5
+        ),
+        Question(
+            id = 92,
+            question = "Сколько хромосом у кошки?",
+            options = listOf("36", "38", "40", "42"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 5,
+            level = 5
+        ),
+        Question(
+            id = 93,
+            question = "Какая самая большая вена в человеческом теле?",
+            options = listOf("Верхняя полая вена", "Нижняя полая вена", "Яремная вена", "Бедренная вена"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 5,
+            level = 5
+        ),
+        Question(
+            id = 94,
+            question = "Сколько костей в человеческом позвоночнике?",
+            options = listOf("30", "32", "33", "35"),
+            correctAnswer = 2,
+            category = "Биология",
+            difficulty = 5,
+            level = 5
+        ),
+        Question(
+            id = 95,
+            question = "Какая самая маленькая мышца в человеческом теле?",
+            options = listOf("Мышца стремени", "Мышца молоточка", "Мышца наковальни", "Мышца барабанной перепонки"),
+            correctAnswer = 0,
+            category = "Биология",
+            difficulty = 5,
+            level = 5
+        ),
+        Question(
+            id = 96,
+            question = "Сколько хромосом у лошади?",
+            options = listOf("60", "62", "64", "66"),
+            correctAnswer = 2,
+            category = "Биология",
+            difficulty = 5,
+            level = 5
+        ),
+        Question(
+            id = 97,
+            question = "Какая самая большая кость в человеческом черепе?",
+            options = listOf("Лобная кость", "Теменная кость", "Височная кость", "Затылочная кость"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 5,
+            level = 5
+        ),
+        Question(
+            id = 98,
+            question = "Сколько мышц в человеческом сердце?",
+            options = listOf("1", "2", "3", "4"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 5,
+            level = 5
+        ),
+        Question(
+            id = 99,
+            question = "Какая самая длинная кость в человеческом черепе?",
+            options = listOf("Височная кость", "Теменная кость", "Лобная кость", "Затылочная кость"),
+            correctAnswer = 0,
+            category = "Биология",
+            difficulty = 5,
+            level = 5
+        ),
+        Question(
+            id = 100,
+            question = "Сколько хромосом у коровы?",
+            options = listOf("58", "60", "62", "64"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 5,
+            level = 5
+        )
+    )
+
+    // Level 6 - Grand Master questions (IDs 101-120)
+    val level6Questions = listOf(
+        Question(
+            id = 101,
+            question = "Какая самая большая молекула в природе?",
+            options = listOf("ДНК", "Белки", "Углеводы", "Липиды"),
+            correctAnswer = 0,
+            category = "Биология",
+            difficulty = 6,
+            level = 6
+        ),
+        Question(
+            id = 102,
+            question = "Сколько нейронов в человеческом мозге?",
+            options = listOf("50 миллиардов", "86 миллиардов", "100 миллиардов", "150 миллиардов"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 6,
+            level = 6
+        ),
+        Question(
+            id = 103,
+            question = "Какая самая быстрая химическая реакция?",
+            options = listOf("Горение", "Взрыв", "Ядерная реакция", "Фотосинтез"),
+            correctAnswer = 2,
+            category = "Химия",
+            difficulty = 6,
+            level = 6
+        ),
+        Question(
+            id = 104,
+            question = "Сколько костей в человеческом ухе?",
+            options = listOf("2", "3", "4", "5"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 6,
+            level = 6
+        ),
+        Question(
+            id = 105,
+            question = "Какая самая маленькая клетка в человеческом теле?",
+            options = listOf("Сперматозоид", "Яйцеклетка", "Клетка крови", "Нейрон"),
+            correctAnswer = 0,
+            category = "Биология",
+            difficulty = 6,
+            level = 6
+        ),
+        Question(
+            id = 106,
+            question = "Сколько мышц в человеческом языке?",
+            options = listOf("6", "8", "10", "12"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 6,
+            level = 6
+        ),
+        Question(
+            id = 107,
+            question = "Какая самая большая железа в человеческом теле?",
+            options = listOf("Печень", "Поджелудочная железа", "Щитовидная железа", "Надпочечники"),
+            correctAnswer = 0,
+            category = "Биология",
+            difficulty = 6,
+            level = 6
+        ),
+        Question(
+            id = 108,
+            question = "Сколько хромосом у шимпанзе?",
+            options = listOf("44", "46", "48", "50"),
+            correctAnswer = 2,
+            category = "Биология",
+            difficulty = 6,
+            level = 6
+        ),
+        Question(
+            id = 109,
+            question = "Какая самая длинная кость в человеческом черепе?",
+            options = listOf("Височная кость", "Теменная кость", "Лобная кость", "Затылочная кость"),
+            correctAnswer = 0,
+            category = "Биология",
+            difficulty = 6,
+            level = 6
+        ),
+        Question(
+            id = 110,
+            question = "Сколько мышц в человеческом глазе?",
+            options = listOf("4", "6", "8", "10"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 6,
+            level = 6
+        ),
+        Question(
+            id = 111,
+            question = "Какая самая маленькая кость в человеческом теле?",
+            options = listOf("Молоточек", "Наковальня", "Стремечко", "Височная кость"),
+            correctAnswer = 2,
+            category = "Биология",
+            difficulty = 6,
+            level = 6
+        ),
+        Question(
+            id = 112,
+            question = "Сколько хромосом у гориллы?",
+            options = listOf("44", "46", "48", "50"),
+            correctAnswer = 2,
+            category = "Биология",
+            difficulty = 6,
+            level = 6
+        ),
+        Question(
+            id = 113,
+            question = "Какая самая большая мышца в человеческом теле?",
+            options = listOf("Четырехглавая мышца", "Ягодичная мышца", "Икроножная мышца", "Двуглавая мышца"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 6,
+            level = 6
+        ),
+        Question(
+            id = 114,
+            question = "Сколько костей в человеческом пальце?",
+            options = listOf("2", "3", "4", "5"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 6,
+            level = 6
+        ),
+        Question(
+            id = 115,
+            question = "Какая самая длинная мышца в человеческом теле?",
+            options = listOf("Двуглавая мышца", "Портняжная мышца", "Икроножная мышца", "Четырехглавая мышца"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 6,
+            level = 6
+        ),
+        Question(
+            id = 116,
+            question = "Сколько хромосом у орангутанга?",
+            options = listOf("44", "46", "48", "50"),
+            correctAnswer = 2,
+            category = "Биология",
+            difficulty = 6,
+            level = 6
+        ),
+        Question(
+            id = 117,
+            question = "Какая самая маленькая мышца в человеческом теле?",
+            options = listOf("Мышца стремени", "Мышца молоточка", "Мышца наковальни", "Мышца барабанной перепонки"),
+            correctAnswer = 0,
+            category = "Биология",
+            difficulty = 6,
+            level = 6
+        ),
+        Question(
+            id = 118,
+            question = "Сколько костей в человеческом запястье?",
+            options = listOf("6", "8", "10", "12"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 6,
+            level = 6
+        ),
+        Question(
+            id = 119,
+            question = "Какая самая большая кость в человеческом черепе?",
+            options = listOf("Лобная кость", "Теменная кость", "Височная кость", "Затылочная кость"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 6,
+            level = 6
+        ),
+        Question(
+            id = 120,
+            question = "Сколько хромосом у человека?",
+            options = listOf("42", "44", "46", "48"),
+            correctAnswer = 2,
+            category = "Биология",
+            difficulty = 6,
+            level = 6
+        )
+    )
+
+    val allQuestions = level1Questions + level2Questions + level3Questions + level4Questions + level5Questions + level6Questions
+
+    val quizzes = listOf(
+        // Easy Quizzes (Level 1)
+        Quiz(
+            id = 1,
+            title = "🌱 Основы знаний",
+            description = "Простые вопросы для начинающих",
+            category = "Общие знания",
+            difficulty = 1,
             requiredLevel = 1,
-            questions = level1Questions
+            questions = level1Questions.take(8)
         ),
-        QuizLevel(
-            level = 2,
-            title = "Средний",
+        Quiz(
+            id = 2,
+            title = "🎨 Цвета и формы",
+            description = "Изучаем цвета и геометрические фигуры",
+            category = "Цвета и формы",
+            difficulty = 1,
+            requiredLevel = 1,
+            questions = level1Questions.filter { it.category == "Цвета" || it.category == "Фигуры" }.take(10)
+        ),
+        Quiz(
+            id = 3,
+            title = "🐾 Животный мир",
+            description = "Узнаем о животных",
+            category = "Животные",
+            difficulty = 1,
+            requiredLevel = 1,
+            questions = level1Questions.filter { it.category == "Животные" }.take(7)
+        ),
+        Quiz(
+            id = 4,
+            title = "🔢 Числа и счет",
+            description = "Изучаем числа и математику",
+            category = "Математика",
+            difficulty = 1,
+            requiredLevel = 1,
+            questions = level1Questions.filter { it.category == "Числа" || it.category == "Буквы" }.take(9)
+        ),
+        Quiz(
+            id = 5,
+            title = "🌍 Природа вокруг нас",
+            description = "Изучаем окружающий мир",
+            category = "Природа",
+            difficulty = 1,
+            requiredLevel = 1,
+            questions = level1Questions.filter { it.category == "Природа" || it.category == "Времена года" }.take(6)
+        ),
+        
+        // Medium Quizzes (Level 2)
+        Quiz(
+            id = 6,
+            title = "🌿 Средний уровень",
             description = "Вопросы средней сложности",
-            requiredLevel = 3,
-            questions = level2Questions
+            category = "Общие знания",
+            difficulty = 2,
+            requiredLevel = 2,
+            questions = level2Questions.take(12)
         ),
-        QuizLevel(
-            level = 3,
-            title = "Продвинутый",
-            description = "Сложные вопросы для опытных игроков",
+        Quiz(
+            id = 7,
+            title = "🏔️ География мира",
+            description = "Изучаем географию",
+            category = "География",
+            difficulty = 2,
+            requiredLevel = 2,
+            questions = level2Questions.filter { it.category == "География" }.take(8)
+        ),
+        Quiz(
+            id = 8,
+            title = "🚀 Космические знания",
+            description = "Изучаем космос и планеты",
+            category = "Космос",
+            difficulty = 2,
+            requiredLevel = 2,
+            questions = level2Questions.filter { it.category == "Космос" }.take(7)
+        ),
+        Quiz(
+            id = 9,
+            title = "👤 Человеческое тело",
+            description = "Изучаем анатомию",
+            category = "Биология",
+            difficulty = 2,
+            requiredLevel = 2,
+            questions = level2Questions.filter { it.category == "Человек" }.take(9)
+        ),
+        Quiz(
+            id = 10,
+            title = "🦁 Дикие животные",
+            description = "Узнаем о диких животных",
+            category = "Животные",
+            difficulty = 2,
+            requiredLevel = 2,
+            questions = level2Questions.filter { it.category == "Животные" }.take(10)
+        ),
+        
+        // Hard Quizzes (Level 3)
+        Quiz(
+            id = 11,
+            title = "🌳 Продвинутый уровень",
+            description = "Сложные вопросы для опытных",
+            category = "Общие знания",
+            difficulty = 3,
+            requiredLevel = 3,
+            questions = level3Questions.take(15)
+        ),
+        Quiz(
+            id = 12,
+            title = "🧬 Биология человека",
+            description = "Углубленное изучение биологии",
+            category = "Биология",
+            difficulty = 3,
+            requiredLevel = 3,
+            questions = level3Questions.filter { it.category == "Человек" }.take(11)
+        ),
+        Quiz(
+            id = 13,
+            title = "🌊 Океаны и моря",
+            description = "Изучаем водный мир",
+            category = "География",
+            difficulty = 3,
+            requiredLevel = 3,
+            questions = level3Questions.filter { it.category == "География" }.take(8)
+        ),
+        Quiz(
+            id = 14,
+            title = "🦅 Птицы мира",
+            description = "Узнаем о птицах",
+            category = "Животные",
+            difficulty = 3,
+            requiredLevel = 3,
+            questions = level3Questions.filter { it.category == "Животные" }.take(9)
+        ),
+        Quiz(
+            id = 15,
+            title = "⚡ Физика и химия",
+            description = "Основы физики и химии",
+            category = "Наука",
+            difficulty = 3,
+            requiredLevel = 3,
+            questions = level3Questions.filter { it.category == "Физика" || it.category == "Химия" }.take(7)
+        ),
+        
+        // Expert Quizzes (Level 4)
+        Quiz(
+            id = 16,
+            title = "🏆 Эксперт знаний",
+            description = "Специализированные вопросы",
+            category = "Общие знания",
+            difficulty = 4,
+            requiredLevel = 4,
+            questions = level4Questions.take(13)
+        ),
+        Quiz(
+            id = 17,
+            title = "🧠 Нервная система",
+            description = "Изучаем мозг и нервы",
+            category = "Биология",
+            difficulty = 4,
+            requiredLevel = 4,
+            questions = level4Questions.filter { it.category == "Биология" }.take(10)
+        ),
+        Quiz(
+            id = 18,
+            title = "🌍 Континенты мира",
+            description = "Изучаем континенты",
+            category = "География",
+            difficulty = 4,
+            requiredLevel = 4,
+            questions = level4Questions.filter { it.category == "География" }.take(8)
+        ),
+        Quiz(
+            id = 19,
+            title = "🐋 Морские обитатели",
+            description = "Узнаем о морских животных",
+            category = "Животные",
+            difficulty = 4,
+            requiredLevel = 4,
+            questions = level4Questions.filter { it.category == "Животные" }.take(9)
+        ),
+        Quiz(
+            id = 20,
+            title = "🔬 Научные открытия",
+            description = "Великие научные открытия",
+            category = "Наука",
+            difficulty = 4,
+            requiredLevel = 4,
+            questions = level4Questions.filter { it.category == "Физика" || it.category == "Химия" }.take(6)
+        ),
+        
+        // Master Quizzes (Level 5)
+        Quiz(
+            id = 21,
+            title = "👑 Мастер знаний",
+            description = "Сложнейшие вопросы",
+            category = "Общие знания",
+            difficulty = 5,
             requiredLevel = 5,
-            questions = level3Questions
+            questions = level5Questions.take(14)
+        ),
+        Quiz(
+            id = 22,
+            title = "💓 Сердечно-сосудистая система",
+            description = "Изучаем сердце и сосуды",
+            category = "Биология",
+            difficulty = 5,
+            requiredLevel = 5,
+            questions = level5Questions.filter { it.category == "Биология" }.take(12)
+        ),
+        Quiz(
+            id = 23,
+            title = "🗺️ Картография",
+            description = "Изучаем карты и навигацию",
+            category = "География",
+            difficulty = 5,
+            requiredLevel = 5,
+            questions = level5Questions.filter { it.category == "География" }.take(7)
+        ),
+        Quiz(
+            id = 24,
+            title = "🦁 Хищники мира",
+            description = "Узнаем о хищных животных",
+            category = "Животные",
+            difficulty = 5,
+            requiredLevel = 5,
+            questions = level5Questions.filter { it.category == "Животные" }.take(8)
+        ),
+        Quiz(
+            id = 25,
+            title = "⚛️ Атомная физика",
+            description = "Изучаем атомы и частицы",
+            category = "Физика",
+            difficulty = 5,
+            requiredLevel = 5,
+            questions = level5Questions.filter { it.category == "Физика" || it.category == "Химия" }.take(9)
+        ),
+        
+        // Grand Master Quizzes (Level 6)
+        Quiz(
+            id = 26,
+            title = "💎 Гроссмейстер знаний",
+            description = "Ультимативные вопросы",
+            category = "Общие знания",
+            difficulty = 6,
+            requiredLevel = 6,
+            questions = level6Questions.take(15)
+        ),
+        Quiz(
+            id = 27,
+            title = "🧬 Генетика и ДНК",
+            description = "Изучаем гены и наследственность",
+            category = "Биология",
+            difficulty = 6,
+            requiredLevel = 6,
+            questions = level6Questions.filter { it.category == "Биология" }.take(13)
+        ),
+        Quiz(
+            id = 28,
+            title = "🌋 Вулканы и землетрясения",
+            description = "Изучаем геологические процессы",
+            category = "География",
+            difficulty = 6,
+            requiredLevel = 6,
+            questions = level6Questions.filter { it.category == "География" }.take(8)
+        ),
+        Quiz(
+            id = 29,
+            title = "🦕 Динозавры и древние животные",
+            description = "Узнаем о вымерших животных",
+            category = "Животные",
+            difficulty = 6,
+            requiredLevel = 6,
+            questions = level6Questions.filter { it.category == "Животные" }.take(9)
+        ),
+        Quiz(
+            id = 30,
+            title = "🔬 Квантовая физика",
+            description = "Изучаем квантовую механику",
+            category = "Физика",
+            difficulty = 6,
+            requiredLevel = 6,
+            questions = level6Questions.filter { it.category == "Физика" || it.category == "Химия" }.take(7)
         )
     )
 
@@ -675,16 +1489,23 @@ object GameData {
         return allQuestions.map { it.category }.distinct()
     }
 
-    fun getQuestionsForLevel(level: Int): List<Question> {
-        return when (level) {
-            1 -> level1Questions
-            2 -> level2Questions
-            3 -> level3Questions
-            else -> level1Questions
-        }
+    fun getQuestionsForQuiz(quizId: Int): List<Question> {
+        return quizzes.find { it.id == quizId }?.questions ?: emptyList()
     }
 
-    fun getQuizLevel(level: Int): QuizLevel? {
-        return quizLevels.find { it.level == level }
+    fun getQuiz(quizId: Int): Quiz? {
+        return quizzes.find { it.id == quizId }
+    }
+
+    fun getAllQuizzes(): List<Quiz> {
+        return quizzes
+    }
+
+    fun getQuizzesForDifficulty(difficulty: Int): List<Quiz> {
+        return quizzes.filter { it.difficulty == difficulty }
+    }
+
+    fun getQuizzesForCategory(category: String): List<Quiz> {
+        return quizzes.filter { it.category == category }
     }
 } 

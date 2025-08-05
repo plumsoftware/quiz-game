@@ -1,120 +1,88 @@
-# Kids Quiz Game 🎮
+# Quiz Game
 
-A fun and educational quiz game designed specifically for kids! This Android app features interactive quizzes, daily challenges, in-game currency, and achievement systems to make learning engaging and rewarding.
+An educational quiz game for Android built with Jetpack Compose.
 
-## Features 🌟
+## Features
 
-### 🧩 Quiz System
-- **Educational Questions**: Age-appropriate questions covering various topics like colors, numbers, animals, shapes, and more
-- **Multiple Choice**: Easy-to-understand multiple choice format
-- **Instant Feedback**: Immediate visual feedback for correct/incorrect answers
-- **Progress Tracking**: Visual progress indicator during quizzes
+### Quiz System
+- **Progressive Quiz Levels**: Users can only play the next quiz after passing the current one
+- **Quiz Menu**: Dedicated screen showing all available quiz levels with completion status
+- **Level Progression**: 3 difficulty levels (Beginner, Intermediate, Advanced)
+- **Completion Tracking**: Visual indicators for completed, available, and locked quizzes
 
-### 🎯 Daily Tasks
-- **Daily Challenges**: New tasks refresh every day to keep kids engaged
-- **Progress Tracking**: Visual progress bars for each task
-- **Rewards**: Earn coins by completing daily challenges
-- **Task Types**:
-  - Complete 3 quizzes
-  - Get 5 correct answers
-  - Play for 10 minutes
-  - Answer questions from all categories
-  - Get a perfect score
+### Game Features
+- **Daily Tasks**: Complete daily challenges to earn rewards
+- **Achievement System**: Track progress and unlock achievements
+- **Shop**: Spend earned coins on items
+- **Profile**: View statistics and progress
+- **Settings**: Customize notifications and preferences
+- **Streak System**: Maintain daily playing streaks
 
-### 💰 In-Game Currency System
-- **Coins**: Earn coins by answering questions correctly
-- **Bonus Rewards**: Extra coins for perfect scores
-- **Shop**: Spend coins on various items and upgrades
-- **Level System**: Earn experience points and level up
+### Quiz Levels
+1. **Beginner Level**: Simple questions for young learners (unlocked at player level 1)
+2. **Intermediate Level**: Medium difficulty questions (unlocked at player level 3)
+3. **Advanced Level**: Complex questions (unlocked at player level 5)
+4. **Expert Level**: Specialized questions for experts (unlocked at player level 7)
+5. **Master Level**: Challenging questions for masters (unlocked at player level 10)
+6. **Grand Master Level**: Ultimate questions for champions (unlocked at player level 15)
 
-### 🏆 Achievement System
-- **Unlockable Achievements**: Various achievements to unlock
-- **Progress Tracking**: See your progress towards achievements
-- **Rewards**: Special rewards for completing achievements
+### Quiz Menu Features
+- **Progress Tracking**: Shows completion progress with visual indicators
+- **Level Status**: 
+  - ✅ Completed levels (green with checkmark)
+  - ▶️ Available levels (can be played)
+  - 🔒 Locked levels (require previous level completion)
+- **Progression Logic**: Users must complete the previous quiz to unlock the next one
+- **Visual Feedback**: Clear indication of what can be played and what's locked
 
-### 🛍️ Shop
-- **Extra Lives**: Get help with difficult questions
-- **Hint Packs**: Get hints for tough questions
-- **Double XP**: Earn double experience for a limited time
-- **Perfect Score Bonus**: Get more coins for perfect scores
-- **Category Unlocks**: Access all question categories
-- **Daily Bonus**: Get extra coins every day
+## Navigation Flow
+1. **Home Screen** → "Play Quiz" button
+2. **Quiz Menu Screen** → Select available quiz level
+3. **Quiz Screen** → Answer questions
+4. **Quiz Result Screen** → See results and return to menu
+5. **Back to Quiz Menu** → Continue with next available quiz
 
-### 📊 Profile & Statistics
-- **Player Level**: Track your current level and experience
-- **Statistics**: View detailed statistics about your gameplay
-- **Achievements**: See all unlocked and available achievements
-- **Streak Tracking**: Track your daily playing streak
+## Technical Implementation
 
-## Game Mechanics 🎲
+### Quiz Menu Screen (`QuizMenuScreen.kt`)
+- Displays all available quiz levels
+- Shows completion status for each level
+- Implements progression logic (can only play next after completing current)
+- Visual progress indicator
+- Back navigation to home screen
 
-### Earning Coins
-- **Correct Answer**: 10 coins per correct answer
-- **Perfect Score**: +50 bonus coins for getting all answers right
-- **Daily Tasks**: Complete tasks to earn additional coins
-- **Level Up**: Bonus coins when you level up
+### Game State Management
+- Tracks completed quiz levels in `GameManager`
+- Updates progression based on quiz completion
+- Maintains unlock status for different difficulty levels
 
-### Experience & Leveling
-- **Experience Points**: Earn XP for each correct answer
-- **Level Up**: Every 100 XP = 1 level
-- **Level Bonuses**: Extra coins when you level up
+### Quiz Progression Logic
+```kotlin
+private fun canPlayQuizLevel(
+    level: Int,
+    completedLevels: Set<Int>,
+    unlockedLevels: Int
+): Boolean {
+    // Level must be unlocked
+    if (level > unlockedLevels) return false
+    
+    // Level 1 can always be played if unlocked
+    if (level == 1) return true
+    
+    // For other levels, previous level must be completed
+    return completedLevels.contains(level - 1)
+}
+```
 
-### Daily Streak
-- **Daily Tracking**: App tracks if you play each day
-- **Streak Bonuses**: Maintain streaks for extra rewards
-- **Motivation**: Encourages daily learning habits
+## Building and Running
 
-## Technical Features 🔧
+1. Open the project in Android Studio
+2. Sync Gradle files
+3. Build and run on an Android device or emulator
 
-- **Modern UI**: Built with Jetpack Compose for smooth animations
-- **Data Persistence**: Game progress saved locally
-- **Responsive Design**: Works on various screen sizes
-- **Material Design 3**: Modern, accessible design
-- **Offline Play**: No internet required to play
+## Dependencies
 
-## Educational Value 📚
-
-This game helps kids develop:
-- **Critical Thinking**: Analyzing questions and choosing answers
-- **Memory Skills**: Remembering facts and information
-- **Learning Motivation**: Gamification encourages continued learning
-- **Daily Habits**: Regular play builds learning routines
-- **Achievement Mindset**: Setting and reaching goals
-
-## Age-Appropriate Content 👶
-
-- **Simple Language**: Easy-to-understand questions and answers
-- **Visual Feedback**: Clear visual indicators for correct/incorrect answers
-- **Positive Reinforcement**: Encouraging messages and rewards
-- **Safe Content**: All content is child-friendly
-- **No Ads**: Clean, distraction-free experience
-
-## Getting Started 🚀
-
-1. **Install the App**: Download and install the APK
-2. **Start Playing**: Tap "Start Quiz" to begin
-3. **Complete Daily Tasks**: Check the daily tasks for extra rewards
-4. **Visit the Shop**: Spend your coins on helpful items
-5. **Track Progress**: Check your profile to see your achievements
-
-## Development 🛠️
-
-This app is built using:
-- **Kotlin**: Modern Android development
-- **Jetpack Compose**: Declarative UI framework
-- **MVVM Architecture**: Clean separation of concerns
-- **DataStore**: Modern data persistence
-- **Material Design 3**: Latest design guidelines
-
-## Future Enhancements 🚀
-
-- **More Questions**: Expand the question database
-- **Categories**: Add more educational categories
-- **Multiplayer**: Friend challenges and leaderboards
-- **Customization**: Avatar and theme customization
-- **Parent Dashboard**: Progress tracking for parents
-- **Offline Sync**: Cloud save functionality
-
----
-
-**Made with ❤️ for kids who love to learn!** 
+- Jetpack Compose for UI
+- DataStore for persistent storage
+- WorkManager for notifications
+- Material Design 3 theming 

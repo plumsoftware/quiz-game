@@ -2,21 +2,17 @@ package ru.plumsoftware.game.ui
 
 import android.app.Activity
 import android.app.Application
-import android.content.Context
-import androidx.compose.ui.geometry.times
-import androidx.compose.ui.unit.times
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import ru.plumsoftware.game.data.GameManager
 import ru.plumsoftware.game.data.GameState
 import ru.plumsoftware.game.data.GameData
 import ru.plumsoftware.game.notifications.NotificationScheduler
-import kotlin.system.exitProcess
-import kotlin.time.times
 
 class GameViewModel(application: Application) : AndroidViewModel(application) {
     
@@ -41,14 +37,17 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val _currentQuizLevel = MutableStateFlow(1)
     val currentQuizLevel: StateFlow<Int> = _currentQuizLevel.asStateFlow()
     
-    private val _availableQuizLevels = MutableStateFlow<List<ru.plumsoftware.game.data.QuizLevel>>(emptyList())
-    val availableQuizLevels: StateFlow<List<ru.plumsoftware.game.data.QuizLevel>> = _availableQuizLevels.asStateFlow()
+    private val _availableQuizzes = MutableStateFlow<List<ru.plumsoftware.game.data.Quiz>>(emptyList())
+    val availableQuizzes: StateFlow<List<ru.plumsoftware.game.data.Quiz>> = _availableQuizzes.asStateFlow()
+    
+    private val _completedQuizzes = MutableStateFlow<Set<Int>>(emptySet())
+    val completedQuizzes: StateFlow<Set<Int>> = _completedQuizzes.asStateFlow()
     
     init {
         viewModelScope.launch {
             gameManager.gameState.collect { state ->
                 _gameState.value = state
-                updateAvailableQuizLevels(state.unlockedQuizLevels)
+                updateAvailableQuizzes(state.unlockedQuizLevels)
             }
         }
         
@@ -57,16 +56,29 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 _tasksProgress.value = progress
             }
         }
-    }
-    
-    private fun updateAvailableQuizLevels(unlockedLevels: Int) {
-        val availableLevels = mutableListOf<ru.plumsoftware.game.data.QuizLevel>()
-        for (i in 1..unlockedLevels) {
-            GameData.getQuizLevel(i)?.let { level ->
-                availableLevels.add(level)
+        
+        viewModelScope.launch {
+            // Track completed quizzes
+            gameManager.gameState.collect { state ->
+                val completedQuizzes = mutableSetOf<Int>()
+                for (quiz in GameData.getAllQuizzes()) {
+                    if (quiz.requiredLevel <= state.unlockedQuizLevels) {
+                        val isCompleted = gameManager.isQuizCompleted(quiz.id).first()
+                        if (isCompleted) {
+                            completedQuizzes.add(quiz.id)
+                        }
+                    }
+                }
+                _completedQuizzes.value = completedQuizzes.toSet()
             }
         }
-        _availableQuizLevels.value = availableLevels
+    }
+    
+    private fun updateAvailableQuizzes(unlockedLevels: Int) {
+        val availableQuizzes = GameData.getAllQuizzes().filter { quiz ->
+            quiz.requiredLevel <= unlockedLevels
+        }
+        _availableQuizzes.value = availableQuizzes
     }
     
     fun navigateTo(screen: GameScreen) {
@@ -79,36 +91,42 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     
     fun onQuizComplete(correctAnswers: Int, totalQuestions: Int) {
         viewModelScope.launch {
-            val currentLevel = _currentQuizLevel.value
-            val levelMultiplier = when (currentLevel) {
+            val currentQuizId = _currentQuizLevel.value
+            val currentQuiz = GameData.getQuiz(currentQuizId)
+            val difficultyMultiplier = when (currentQuiz?.difficulty) {
                 1 -> 1.0
                 2 -> 1.5
                 3 -> 2.0
+                4 -> 2.5
+                5 -> 3.0
+                6 -> 3.5
                 else -> 1.0
             }
             
             val baseCoins = correctAnswers * 10
             val bonusCoins = if (correctAnswers == totalQuestions) 50 else 0
-            val coinsEarned = ((baseCoins + bonusCoins) * levelMultiplier).toInt()
+            val coinsEarned = ((baseCoins + bonusCoins) * difficultyMultiplier).toInt()
             
             // Update game state
             gameManager.addCoins(coinsEarned)
-            gameManager.addExperience(correctAnswers * 5 * currentLevel)
+            gameManager.addExperience(correctAnswers * 5 * (currentQuiz?.difficulty ?: 1))
             gameManager.incrementQuizzesCompleted()
             gameManager.addCorrectAnswers(correctAnswers)
             gameManager.addTotalAnswers(totalQuestions)
             gameManager.updateLastPlayDate()
             
-            // Mark quiz level as completed if all answers are correct
+            // Mark quiz as completed if all answers are correct
             if (correctAnswers == totalQuestions) {
-                gameManager.completeQuizLevel(currentLevel)
+                gameManager.completeQuiz(currentQuizId)
             }
             
             // Add play time (estimate 2 minutes per quiz)
             gameManager.addPlayTime(2)
             
-            // Add categories played (simplified - just add one category per quiz)
-            gameManager.addCategoryPlayed("General")
+            // Add categories played
+            currentQuiz?.let { quiz ->
+                gameManager.addCategoryPlayed(quiz.category)
+            }
             
             _quizResult.value = QuizResult(correctAnswers, totalQuestions, coinsEarned)
             _showQuizResult.value = true
@@ -138,7 +156,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     
     fun navigateUp(activity: Activity) {
         when (_currentScreen.value) {
-            GameScreen.QUIZ -> _currentScreen.value = GameScreen.HOME
+            GameScreen.QUIZ -> _currentScreen.value = GameScreen.QUIZ_MENU
+            GameScreen.QUIZ_MENU -> _currentScreen.value = GameScreen.HOME
             GameScreen.DAILY_TASKS -> _currentScreen.value = GameScreen.HOME
             GameScreen.SHOP -> _currentScreen.value = GameScreen.HOME
             GameScreen.PROFILE -> _currentScreen.value = GameScreen.HOME
@@ -152,19 +171,21 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         return notificationScheduler
     }
     
-    fun getQuestionsForCurrentLevel(): List<ru.plumsoftware.game.data.Question> {
-        return GameData.getQuestionsForLevel(_currentQuizLevel.value)
+    fun getQuestionsForCurrentQuiz(): List<ru.plumsoftware.game.data.Question> {
+        return GameData.getQuestionsForQuiz(_currentQuizLevel.value)
     }
     
-    fun canPlayQuizLevel(level: Int): Boolean {
+    fun canPlayQuiz(quizId: Int): Boolean {
         val gameState = _gameState.value
-        return level <= gameState.unlockedQuizLevels
+        val quiz = GameData.getQuiz(quizId)
+        return quiz?.requiredLevel ?: 0 <= gameState.unlockedQuizLevels
     }
 }
 
 enum class GameScreen {
     SPLASH,
     HOME,
+    QUIZ_MENU,
     QUIZ,
     DAILY_TASKS,
     SHOP,
