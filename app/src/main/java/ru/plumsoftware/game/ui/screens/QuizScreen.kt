@@ -27,7 +27,7 @@ fun QuizScreen(
     var selectedAnswer by remember { mutableStateOf<Int?>(null) }
     var showResult by remember { mutableStateOf(false) }
     var correctAnswers by remember { mutableStateOf(0) }
-    
+
     val currentQuestion = questions.getOrNull(currentQuestionIndex)
 
     Column(
@@ -45,7 +45,7 @@ fun QuizScreen(
             IconButton(onClick = onBack) {
                 Icon(Icons.Default.ArrowBack, contentDescription = "Back")
             }
-            
+
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -60,9 +60,10 @@ fun QuizScreen(
                     fontWeight = FontWeight.Bold
                 )
             }
-            
+
             // Progress indicator
             LinearProgressIndicator(
+                trackColor = MaterialTheme.colorScheme.primary,
                 progress = (currentQuestionIndex + 1).toFloat() / questions.size,
                 modifier = Modifier.width(100.dp)
             )
@@ -75,7 +76,7 @@ fun QuizScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                    containerColor = Color(0xFFE0E1FE)
                 )
             ) {
                 Column(
@@ -88,17 +89,17 @@ fun QuizScreen(
                         textAlign = TextAlign.Center,
                         fontWeight = FontWeight.Bold
                     )
-                    
+
                     Spacer(modifier = Modifier.height(16.dp))
-                    
+
                     Text(
                         text = "Категория: ${question.category}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
                     )
-                    
+
                     Spacer(modifier = Modifier.height(8.dp))
-                    
+
                     Text(
                         text = "Сложность: ${"★".repeat(question.difficulty)}",
                         style = MaterialTheme.typography.bodySmall,
@@ -118,7 +119,7 @@ fun QuizScreen(
                     val isSelected = selectedAnswer == index
                     val isCorrect = index == question.correctAnswer
                     val showCorrectAnswer = showResult
-                    
+
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         colors = CardDefaults.cardColors(
@@ -147,13 +148,13 @@ fun QuizScreen(
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.width(40.dp)
                             )
-                            
+
                             Text(
                                 text = option,
                                 style = MaterialTheme.typography.bodyLarge,
                                 modifier = Modifier.weight(1f)
                             )
-                            
+
                             if (showCorrectAnswer && isCorrect) {
                                 Icon(
                                     Icons.Default.Check,
@@ -177,6 +178,9 @@ fun QuizScreen(
             // Action buttons
             if (!showResult) {
                 Button(
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary
+                    ),
                     onClick = {
                         if (selectedAnswer != null) {
                             showResult = true
@@ -233,7 +237,7 @@ fun QuizResultScreen(
         3 -> Color(0xFFE91E63)
         else -> MaterialTheme.colorScheme.primary
     }
-    
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -257,7 +261,7 @@ fun QuizResultScreen(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
         }
-        
+
         // Result icon
         Icon(
             imageVector = if (isPerfectScore) Icons.Default.Star else Icons.Default.EmojiEvents,
@@ -265,9 +269,9 @@ fun QuizResultScreen(
             modifier = Modifier.size(80.dp),
             tint = if (isPerfectScore) Color(0xFFFFD700) else levelColor
         )
-        
+
         Spacer(modifier = Modifier.height(24.dp))
-        
+
         // Score
         Text(
             text = "$correctAnswers/$totalQuestions",
@@ -275,13 +279,13 @@ fun QuizResultScreen(
             fontWeight = FontWeight.Bold,
             color = levelColor
         )
-        
+
         Text(
             text = "Правильных ответов",
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
         )
-        
+
         if (isPerfectScore) {
             Spacer(modifier = Modifier.height(16.dp))
             Card(
@@ -298,9 +302,9 @@ fun QuizResultScreen(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.height(32.dp))
-        
+
         // Coins earned
         Card(
             colors = CardDefaults.cardColors(
@@ -324,9 +328,9 @@ fun QuizResultScreen(
                 )
             }
         }
-        
+
         Spacer(modifier = Modifier.height(32.dp))
-        
+
         // Action buttons
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
@@ -337,7 +341,7 @@ fun QuizResultScreen(
             ) {
                 Text("На главную")
             }
-            
+
             Button(
                 onClick = onPlayAgain,
                 modifier = Modifier.weight(1f)

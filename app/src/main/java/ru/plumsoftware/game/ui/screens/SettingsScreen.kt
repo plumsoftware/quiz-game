@@ -64,6 +64,9 @@ fun SettingsScreen(
                     }
 
                     Switch(
+                        colors = SwitchDefaults.colors(
+                            checkedTrackColor = MaterialTheme.colorScheme.primary
+                        ),
                         checked = dailyRemindersEnabled,
                         onCheckedChange = {
                             dailyRemindersEnabled = it
@@ -81,6 +84,9 @@ fun SettingsScreen(
                     )
 
                     Switch(
+                        colors = SwitchDefaults.colors(
+                            checkedTrackColor = MaterialTheme.colorScheme.primary
+                        ),
                         checked = quizRemindersEnabled,
                         onCheckedChange = {
                             quizRemindersEnabled = it
@@ -155,6 +161,9 @@ fun SettingsScreen(
                     )
 
                     Button(
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary
+                        ),
                         onClick = { /* Handle ad watching */ },
                         modifier = Modifier.fillMaxWidth()
                     ) {

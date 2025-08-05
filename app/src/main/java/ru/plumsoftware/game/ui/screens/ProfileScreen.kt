@@ -79,7 +79,7 @@ fun ProfileScreen(
 fun PlayerInfoCard(gameState: GameState) {
     Card(
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
+            containerColor = Color(0xFFE9EAFF)
         )
     ) {
         Column(
@@ -89,7 +89,7 @@ fun PlayerInfoCard(gameState: GameState) {
             // Avatar placeholder
             Card(
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primary
+                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
                 ),
                 modifier = Modifier.size(80.dp)
             ) {
@@ -183,7 +183,7 @@ fun StatisticsCard(stats: Map<String, Int>) {
                         Icon(
                             imageVector = icon,
                             contentDescription = label,
-                            tint = MaterialTheme.colorScheme.primary,
+                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                             modifier = Modifier.size(20.dp)
                         )
                         Text(

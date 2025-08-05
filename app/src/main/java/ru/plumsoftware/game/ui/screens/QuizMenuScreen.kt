@@ -55,7 +55,7 @@ fun QuizMenuScreen(
             // Progress indicator
             Card(
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer
+                    containerColor = Color(0xFFE0E1FE)
                 ),
                 modifier = Modifier.size(40.dp)
             ) {
@@ -78,7 +78,7 @@ fun QuizMenuScreen(
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
-                containerColor = Color(0xFF6200EE).copy(alpha = 0.1f)
+                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
             )
         ) {
             Column(
@@ -213,7 +213,7 @@ fun QuizMenuItem(
         colors = CardDefaults.cardColors(
             containerColor = when {
                 isCompleted -> Color(0xFF4CAF50).copy(alpha = 0.1f)
-                canPlay -> MaterialTheme.colorScheme.primaryContainer
+                canPlay -> Color(0xFFE5E6FA)
                 else -> Color.Gray.copy(alpha = 0.1f)
             }
         ),
@@ -353,7 +353,7 @@ fun QuizMenuItem(
                     Icon(
                         imageVector = Icons.Default.PlayArrow,
                         contentDescription = "Play",
-                        tint = MaterialTheme.colorScheme.primary,
+                        tint = Color(0xFF4CAF50),
                         modifier = Modifier.size(24.dp)
                     )
                 }

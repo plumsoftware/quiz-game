@@ -55,7 +55,7 @@ fun DailyTasksScreen(
         // Progress summary
         Card(
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer
+                containerColor = Color(0xFFE9EAFF)
             )
         ) {
             Column(
@@ -246,7 +246,7 @@ fun ProgressItem(
             imageVector = icon,
             contentDescription = label,
             modifier = Modifier.size(24.dp),
-            tint = MaterialTheme.colorScheme.primary
+            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
         )
         
         Text(

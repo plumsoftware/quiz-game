@@ -68,6 +68,9 @@ dependencies {
     
     // WorkManager for scheduled notifications
     implementation("androidx.work:work-runtime-ktx:2.9.0")
+
+    // Ads
+    implementation("com.yandex.android:mobileads:7.15.0")
     
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
