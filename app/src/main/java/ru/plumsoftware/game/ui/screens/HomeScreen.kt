@@ -161,7 +161,7 @@ fun HomeScreen(
                     .background(
                         brush = androidx.compose.ui.graphics.Brush.verticalGradient(
                             colors = listOf(
-                                Color(0xFF6200EE),
+                                MaterialTheme.colorScheme.primary,
                                 Color(0xFF3700B3),
                                 Color(0xFF03DAC6)
                             )
@@ -179,7 +179,7 @@ fun HomeScreen(
                         colors = CardDefaults.cardColors(
                             containerColor = Color.White.copy(alpha = 0.2f)
                         ),
-                        modifier = Modifier.size(48.dp)
+                        modifier = Modifier.size(60.dp)
                     ) {
                         Box(
                             modifier = Modifier.fillMaxSize(),
@@ -248,7 +248,7 @@ fun HomeScreen(
                     icon = Icons.Default.Assignment,
                     title = "Ежедневные задания",
                     subtitle = "Выполняй задачи",
-                    color = MaterialTheme.colorScheme.secondary,
+                    color = Color(0xFF43C243),
                     onClick = onNavigateToDailyTasks
                 )
             }
@@ -258,7 +258,7 @@ fun HomeScreen(
                     icon = Icons.Default.Store,
                     title = "Магазин",
                     subtitle = "Трать свои монеты",
-                    color = MaterialTheme.colorScheme.tertiary,
+                    color = Color(0xFF3E99C9),
                     onClick = onNavigateToShop
                 )
             }
