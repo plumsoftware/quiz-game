@@ -1,5 +1,6 @@
 package ru.plumsoftware.game.ui.screens
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,9 +12,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import ru.plumsoftware.game.App
+import ru.plumsoftware.game.MainActivity
+import ru.plumsoftware.game.ads.AdsManager
 import ru.plumsoftware.game.data.Question
 
 @Composable
@@ -230,6 +235,10 @@ fun QuizResultScreen(
     onBackToHome: () -> Unit,
     onPlayAgain: () -> Unit
 ) {
+    val context = LocalContext.current
+    val activity = LocalActivity.current ?: MainActivity()
+    val adsManager = AdsManager(App.adsBase, activity)
+
     val isPerfectScore = correctAnswers == totalQuestions
     val levelColor = when (currentLevel) {
         1 -> Color(0xFF4CAF50)
@@ -336,14 +345,22 @@ fun QuizResultScreen(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             OutlinedButton(
-                onClick = onBackToHome,
+                onClick = {
+                    adsManager.showInterstitial {
+                        onBackToHome()
+                    }
+                },
                 modifier = Modifier.weight(1f)
             ) {
                 Text("На главную")
             }
 
             Button(
-                onClick = onPlayAgain,
+                onClick = {
+                    adsManager.showInterstitial {
+                        onPlayAgain()
+                    }
+                },
                 modifier = Modifier.weight(1f)
             ) {
                 Text("Играть снова")

@@ -12,6 +12,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.yandex.mobile.ads.common.MobileAds
 import ru.plumsoftware.game.ui.GameScreen
 import ru.plumsoftware.game.ui.GameViewModel
 import ru.plumsoftware.game.ui.screens.*
@@ -22,9 +23,16 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        MobileAds.initialize(this) {}
+
         setContent {
             GameTheme {
-                Scaffold(modifier = Modifier.fillMaxSize().padding(vertical = 16.dp)) { innerPadding ->
+                Scaffold(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(vertical = 16.dp)
+                ) { innerPadding ->
                     GameApp(
                         modifier = Modifier.padding(innerPadding),
                         viewModel = viewModel
@@ -33,7 +41,7 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
-    
+
     override fun onBackPressed() {
         viewModel.navigateUp(this@MainActivity)
     }
@@ -130,14 +138,14 @@ fun GameApp(
                 onNavigateToSettings = { viewModel.navigateTo(GameScreen.SETTINGS) }
             )
         }
-        
+
         currentScreen == GameScreen.SETTINGS -> {
             SettingsScreen(
                 onBack = { viewModel.navigateTo(GameScreen.HOME) },
                 notificationScheduler = viewModel.getNotificationScheduler()
             )
         }
-        
+
         currentScreen == GameScreen.ACHIEVEMENTS -> {
             AchievementsScreen(
                 gameState = gameState,
