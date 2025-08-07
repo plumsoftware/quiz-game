@@ -125,6 +125,7 @@ fun GameApp(
         currentScreen == GameScreen.SHOP -> {
             ShopScreen(
                 coins = gameState.coins,
+                addCoins = viewModel::onAdsRewarded,
                 onBack = { viewModel.navigateTo(GameScreen.HOME) },
                 onPurchase = viewModel::onPurchaseItem
             )
@@ -141,6 +142,7 @@ fun GameApp(
 
         currentScreen == GameScreen.SETTINGS -> {
             SettingsScreen(
+                addCoins = viewModel::onAdsRewarded,
                 onBack = { viewModel.navigateTo(GameScreen.HOME) },
                 notificationScheduler = viewModel.getNotificationScheduler()
             )

@@ -1,5 +1,6 @@
 package ru.plumsoftware.game.ui.screens
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -13,11 +14,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import ru.plumsoftware.game.App
+import ru.plumsoftware.game.MainActivity
 import ru.plumsoftware.game.R
+import ru.plumsoftware.game.ads.AdsManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
+    addCoins: (Int) -> Unit,
     onBack: () -> Unit,
     notificationScheduler: ru.plumsoftware.game.notifications.NotificationScheduler? = null
 ) {
@@ -25,6 +30,9 @@ fun SettingsScreen(
     var quizRemindersEnabled by remember { mutableStateOf(true) }
     var soundEnabled by remember { mutableStateOf(true) }
     var vibrationEnabled by remember { mutableStateOf(true) }
+
+    val activity = LocalActivity.current ?: MainActivity()
+    val adsManager = AdsManager(App.adsBase, activity)
 
     Scaffold(
         topBar = {
@@ -164,7 +172,11 @@ fun SettingsScreen(
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.primary
                         ),
-                        onClick = { /* Handle ad watching */ },
+                        onClick = {
+                            adsManager.showRewarded { reward ->
+                                addCoins(reward)
+                            }
+                        },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(stringResource(R.string.watch_ad))

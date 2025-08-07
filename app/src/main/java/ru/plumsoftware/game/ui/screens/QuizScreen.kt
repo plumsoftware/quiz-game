@@ -176,49 +176,51 @@ fun QuizScreen(
                         }
                     }
                 }
-            }
 
-            Spacer(modifier = Modifier.height(24.dp))
+                item {
+                    Spacer(modifier = Modifier.height(24.dp))
 
-            // Action buttons
-            if (!showResult) {
-                Button(
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    ),
-                    onClick = {
-                        if (selectedAnswer != null) {
-                            showResult = true
-                            if (selectedAnswer == question.correctAnswer) {
-                                correctAnswers++
+                    // Action buttons
+                    if (!showResult) {
+                        Button(
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MaterialTheme.colorScheme.primary
+                            ),
+                            onClick = {
+                                if (selectedAnswer != null) {
+                                    showResult = true
+                                    if (selectedAnswer == question.correctAnswer) {
+                                        correctAnswers++
+                                    }
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = selectedAnswer != null
+                        ) {
+                            Text("Ответить")
+                        }
+                    } else {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Button(
+                                onClick = {
+                                    if (currentQuestionIndex < questions.size - 1) {
+                                        currentQuestionIndex++
+                                        selectedAnswer = null
+                                        showResult = false
+                                    } else {
+                                        onQuizComplete(correctAnswers, questions.size)
+                                    }
+                                },
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Text(
+                                    if (currentQuestionIndex < questions.size - 1) "Следующий" else "Завершить"
+                                )
                             }
                         }
-                    },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = selectedAnswer != null
-                ) {
-                    Text("Ответить")
-                }
-            } else {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Button(
-                        onClick = {
-                            if (currentQuestionIndex < questions.size - 1) {
-                                currentQuestionIndex++
-                                selectedAnswer = null
-                                showResult = false
-                            } else {
-                                onQuizComplete(correctAnswers, questions.size)
-                            }
-                        },
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(
-                            if (currentQuestionIndex < questions.size - 1) "Следующий" else "Завершить"
-                        )
                     }
                 }
             }

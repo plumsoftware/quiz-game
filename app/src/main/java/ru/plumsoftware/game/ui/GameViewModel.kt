@@ -132,6 +132,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             _showQuizResult.value = true
         }
     }
+
+    fun onAdsRewarded(reward: Int) {
+        viewModelScope.launch {
+            gameManager.addCoins(reward)
+        }
+    }
     
     fun onPurchaseItem(itemId: Int, price: Int) {
         viewModelScope.launch {

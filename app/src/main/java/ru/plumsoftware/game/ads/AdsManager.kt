@@ -149,7 +149,7 @@ class AdsManager(
     }
 
     fun showRewarded(
-        onGotRewarded: () -> Unit
+        onGotRewarded: (Int) -> Unit
     ) {
         isAdLoading = true
 
@@ -174,7 +174,7 @@ class AdsManager(
                             override fun onAdImpression(impressionData: ImpressionData?) {}
 
                             override fun onRewarded(reward: Reward) {
-                                onGotRewarded()
+                                onGotRewarded(reward.amount)
                             }
                         })
                         show(activity)
