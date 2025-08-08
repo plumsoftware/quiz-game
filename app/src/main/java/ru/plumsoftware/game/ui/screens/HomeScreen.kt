@@ -1,5 +1,11 @@
 package ru.plumsoftware.game.ui.screens
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -12,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -30,6 +37,20 @@ fun HomeScreen(
     onNavigateToSettings: () -> Unit,
     onNavigateToAchievements: () -> Unit
 ) {
+    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+
+    val pulse by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.085f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = 900,
+                easing = FastOutSlowInEasing
+            ),
+            repeatMode = RepeatMode.Reverse
+        ), label = "pulse"
+    )
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -41,7 +62,8 @@ fun HomeScreen(
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
-                containerColor = Color(0xFFE9EAFF)
+                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                contentColor = Color.White
             )
         ) {
             Row(
@@ -60,7 +82,6 @@ fun HomeScreen(
                     Text(
                         text = "${gameState.experience} ОП",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                     
                     // Level progress indicator
@@ -69,7 +90,7 @@ fun HomeScreen(
                         Text(
                             text = "До следующего уровня: ${nextLevelExp} ОП",
                             style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                            color = LocalContentColor.current.copy(alpha = 0.7f)
                         )
                     }
                 }
@@ -98,7 +119,7 @@ fun HomeScreen(
                         Icon(
                             Icons.Default.Settings,
                             contentDescription = "Settings",
-                            tint = MaterialTheme.colorScheme.onPrimaryContainer
+                            tint = LocalContentColor.current
                         )
                     }
                 }
@@ -149,10 +170,11 @@ fun HomeScreen(
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(120.dp),
-            colors = CardDefaults.cardColors(
-                containerColor = Color(0xFF6200EE)
-            ),
+                .height(120.dp)
+                .graphicsLayer {
+                    scaleX = pulse
+                    scaleY = pulse
+                },
             onClick = onNavigateToQuiz
         ) {
             Box(
@@ -161,9 +183,8 @@ fun HomeScreen(
                     .background(
                         brush = androidx.compose.ui.graphics.Brush.verticalGradient(
                             colors = listOf(
+                                Color(0xFF4CAF50),
                                 MaterialTheme.colorScheme.primary,
-                                Color(0xFF3700B3),
-                                Color(0xFF03DAC6)
                             )
                         )
                     )

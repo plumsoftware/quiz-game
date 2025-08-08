@@ -16,6 +16,7 @@ import com.yandex.mobile.ads.common.MobileAds
 import ru.plumsoftware.game.ui.GameScreen
 import ru.plumsoftware.game.ui.GameViewModel
 import ru.plumsoftware.game.ui.screens.*
+import ru.plumsoftware.game.ui.theme.ExtendedTheme
 import ru.plumsoftware.game.ui.theme.GameTheme
 
 class MainActivity : ComponentActivity() {
@@ -27,7 +28,7 @@ class MainActivity : ComponentActivity() {
         MobileAds.initialize(this) {}
 
         setContent {
-            GameTheme {
+            ExtendedTheme {
                 Scaffold(
                     modifier = Modifier
                         .fillMaxSize()

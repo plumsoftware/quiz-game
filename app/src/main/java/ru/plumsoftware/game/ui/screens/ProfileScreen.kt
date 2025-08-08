@@ -149,7 +149,12 @@ fun PlayerInfoCard(gameState: GameState) {
 
 @Composable
 fun StatisticsCard(stats: Map<String, Int>) {
-    Card {
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            contentColor = MaterialTheme.colorScheme.onBackground
+        )
+    ) {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {
@@ -183,7 +188,7 @@ fun StatisticsCard(stats: Map<String, Int>) {
                         Icon(
                             imageVector = icon,
                             contentDescription = label,
-                            tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
+                            tint = LocalContentColor.current.copy(alpha = 0.5f),
                             modifier = Modifier.size(20.dp)
                         )
                         Text(
@@ -205,7 +210,12 @@ fun StatisticsCard(stats: Map<String, Int>) {
 
 @Composable
 fun AchievementsCard(gameState: GameState, stats: Map<String, Int>) {
-    Card {
+    Card(
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            contentColor = MaterialTheme.colorScheme.onBackground
+        )
+    ) {
         Column(
             modifier = Modifier.padding(16.dp)
         ) {

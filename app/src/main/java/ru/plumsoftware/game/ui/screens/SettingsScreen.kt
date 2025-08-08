@@ -1,17 +1,27 @@
 package ru.plumsoftware.game.ui.screens
 
 import androidx.activity.compose.LocalActivity
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import ru.plumsoftware.game.App
@@ -34,6 +44,20 @@ fun SettingsScreen(
     val activity = LocalActivity.current ?: MainActivity()
     val adsManager = AdsManager(App.adsBase, activity)
 
+    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+
+    val pulse by infiniteTransition.animateFloat(
+        initialValue = 1f,
+        targetValue = 1.1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = 400,
+                easing = FastOutSlowInEasing
+            ),
+            repeatMode = RepeatMode.Reverse
+        ), label = "pulse"
+    )
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -55,7 +79,12 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Notifications Section
-            Card {
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    contentColor = MaterialTheme.colorScheme.onBackground
+                )
+            ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -114,7 +143,12 @@ fun SettingsScreen(
             }
 
             // Sound & Vibration Section
-            Card {
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    contentColor = MaterialTheme.colorScheme.onBackground
+                )
+            ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -153,7 +187,12 @@ fun SettingsScreen(
             }
 
             // Rewarded Ads Section
-            Card {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFF4CAF50).copy(alpha = 0.1f)
+                )
+            ) {
                 Column(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -170,16 +209,42 @@ fun SettingsScreen(
 
                     Button(
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primary
+                            containerColor = Color(0xFF4CAF50)
                         ),
                         onClick = {
                             adsManager.showRewarded { reward ->
                                 addCoins(reward)
                             }
                         },
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(vertical = 16.dp)
                     ) {
-                        Text(stringResource(R.string.watch_ad))
+                        Text(
+                            stringResource(R.string.watch_ad),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                        Spacer(Modifier.width(10.dp))
+                        Row(
+                            modifier = Modifier
+                                .wrapContentSize()
+                                .rotate(20f)
+                                .graphicsLayer {
+                                    scaleX = pulse
+                                    scaleY = pulse
+                                },
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(
+                                space = 4.dp,
+                                alignment = Alignment.CenterHorizontally
+                            )
+                        ) {
+                            Text("+50", style = MaterialTheme.typography.titleLarge)
+                            Icon(
+                                imageVector = Icons.Default.MonetizationOn,
+                                contentDescription = "плюс 50 монет",
+                                tint = Color(0xFFFFD700)
+                            )
+                        }
                     }
                 }
             }

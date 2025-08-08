@@ -81,7 +81,8 @@ fun QuizScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFE0E1FE)
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
                 )
             ) {
                 Column(
@@ -100,7 +101,7 @@ fun QuizScreen(
                     Text(
                         text = "Категория: ${question.category}",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
+                        color = LocalContentColor.current.copy(alpha = 0.85f)
                     )
 
                     Spacer(modifier = Modifier.height(8.dp))
@@ -194,10 +195,11 @@ fun QuizScreen(
                                     }
                                 }
                             },
+                            contentPadding = PaddingValues(vertical = 16.dp),
                             modifier = Modifier.fillMaxWidth(),
                             enabled = selectedAnswer != null
                         ) {
-                            Text("Ответить")
+                            Text("Ответить", style = MaterialTheme.typography.bodyMedium)
                         }
                     } else {
                         Row(
@@ -205,6 +207,9 @@ fun QuizScreen(
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             Button(
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.primary
+                                ),
                                 onClick = {
                                     if (currentQuestionIndex < questions.size - 1) {
                                         currentQuestionIndex++
@@ -214,10 +219,12 @@ fun QuizScreen(
                                         onQuizComplete(correctAnswers, questions.size)
                                     }
                                 },
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier.weight(1f),
+                                contentPadding = PaddingValues(vertical = 16.dp),
                             ) {
                                 Text(
-                                    if (currentQuestionIndex < questions.size - 1) "Следующий" else "Завершить"
+                                    text = if (currentQuestionIndex < questions.size - 1) "Следующий" else "Завершить",
+                                    style = MaterialTheme.typography.bodyMedium
                                 )
                             }
                         }

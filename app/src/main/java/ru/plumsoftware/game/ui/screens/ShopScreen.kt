@@ -176,7 +176,7 @@ fun ShopScreen(
                 )
 
                 Text(
-                    text = "Заработай дополнительные монеты, посмотрев короткую рекламу",
+                    text = "Заработай дополнительные монеты (+50), посмотрев короткую рекламу",
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)

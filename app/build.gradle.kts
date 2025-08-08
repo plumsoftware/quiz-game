@@ -12,8 +12,8 @@ android {
         applicationId = "ru.plumsoftware.game"
         minSdk = 26
         targetSdk = 36
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = 2
+        versionName = "1.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -74,6 +74,9 @@ dependencies {
 
     // Ads
     implementation("com.yandex.android:mobileads:7.15.0")
+
+    // Fonts
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.8.3") // Or the latest stable version
     
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

@@ -45,17 +45,18 @@ fun QuizMenuScreen(
                     tint = MaterialTheme.colorScheme.onSurface
                 )
             }
-            
+
             Text(
                 text = "Викторины",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
-            
+
             // Progress indicator
             Card(
                 colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFFE0E1FE)
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                    contentColor = MaterialTheme.colorScheme.onSurface
                 ),
                 modifier = Modifier.size(40.dp)
             ) {
@@ -74,90 +75,93 @@ fun QuizMenuScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Progress card
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-            )
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp)
-            ) {
-                Text(
-                    text = "Прогресс",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                LinearProgressIndicator(
-                    progress = if (availableQuizzes.isNotEmpty()) {
-                        completedQuizzes.size.toFloat() / availableQuizzes.size
-                    } else 0f,
-                    modifier = Modifier.fillMaxWidth(),
-                    color = MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.3f)
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "Пройдено ${completedQuizzes.size} из ${availableQuizzes.size} викторин",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSecondaryContainer
-                )
-                
-                // Level requirement indicator
-                val lockedQuizzes = GameData.getAllQuizzes().filter { quiz ->
-                    quiz.requiredLevel > gameState.unlockedQuizLevels
-                }
-                
-                if (lockedQuizzes.isNotEmpty()) {
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = Color(0xFFFF9800).copy(alpha = 0.1f)
-                        )
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(12.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Lock,
-                                contentDescription = "Locked",
-                                tint = Color(0xFFFF9800),
-                                modifier = Modifier.size(20.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Column {
-                                Text(
-                                    text = "🔒 Заблокированные викторины",
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xFFFF9800)
-                                )
-                                Text(
-                                    text = "Требуется уровень ${gameState.unlockedQuizLevels + 1} для разблокировки",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = Color(0xFFFF9800).copy(alpha = 0.8f)
-                                )
-                                Text(
-                                    text = "Доступно еще ${lockedQuizzes.size} викторин",
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = Color(0xFFFF9800).copy(alpha = 0.6f)
-                                )
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
         // Quiz list
         LazyColumn(
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            item {
+                // Progress card
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface,
+                        contentColor = MaterialTheme.colorScheme.onSurface
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp)
+                    ) {
+                        Text(
+                            text = "Прогресс",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        LinearProgressIndicator(
+                            progress = if (availableQuizzes.isNotEmpty()) {
+                                completedQuizzes.size.toFloat() / availableQuizzes.size
+                            } else 0f,
+                            modifier = Modifier.fillMaxWidth(),
+                            color = LocalContentColor.current,
+                            trackColor = LocalContentColor.current.copy(alpha = 0.3f)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Пройдено ${completedQuizzes.size} из ${availableQuizzes.size} викторин",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = LocalContentColor.current
+                        )
+
+                        // Level requirement indicator
+                        val lockedQuizzes = GameData.getAllQuizzes().filter { quiz ->
+                            quiz.requiredLevel > gameState.unlockedQuizLevels
+                        }
+
+                        if (lockedQuizzes.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Card(
+                                colors = CardDefaults.cardColors(
+                                    containerColor = Color(0xFFFF9800).copy(alpha = 0.1f)
+                                )
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(12.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Lock,
+                                        contentDescription = "Locked",
+                                        tint = Color(0xFFFF9800),
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Column {
+                                        Text(
+                                            text = "🔒 Заблокированные викторины",
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color(0xFFFF9800)
+                                        )
+                                        Text(
+                                            text = "Требуется уровень ${gameState.unlockedQuizLevels + 1} для разблокировки",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = Color(0xFFFF9800).copy(alpha = 0.8f)
+                                        )
+                                        Text(
+                                            text = "Доступно еще ${lockedQuizzes.size} викторин",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = Color(0xFFFF9800).copy(alpha = 0.8f)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
             items(availableQuizzes) { quiz ->
                 QuizMenuItem(
                     quiz = quiz,
@@ -212,8 +216,8 @@ fun QuizMenuItem(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
             containerColor = when {
-                isCompleted -> Color(0xFF4CAF50).copy(alpha = 0.1f)
-                canPlay -> Color(0xFFE5E6FA)
+                isCompleted -> Color(0xFF205B07).copy(alpha = 0.05f)
+                canPlay -> Color(0xFF44FF00).copy(alpha = 0.1f)
                 else -> Color.Gray.copy(alpha = 0.1f)
             }
         ),
