@@ -5,12 +5,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -57,7 +59,7 @@ fun QuizScreen(
                 Text(
                     text = "Уровень $currentLevel",
                     style = MaterialTheme.typography.titleSmall,
-                    color = MaterialTheme.colorScheme.primary
+                    color = MaterialTheme.colorScheme.secondary
                 )
                 Text(
                     text = "Вопрос ${currentQuestionIndex + 1}/${questions.size}",
@@ -68,9 +70,10 @@ fun QuizScreen(
 
             // Progress indicator
             LinearProgressIndicator(
-                trackColor = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.background,
+                color = MaterialTheme.colorScheme.secondary,
                 progress = (currentQuestionIndex + 1).toFloat() / questions.size,
-                modifier = Modifier.width(100.dp)
+                modifier = Modifier.width(100.dp).clip(RoundedCornerShape(2.dp))
             )
         }
 
@@ -90,6 +93,7 @@ fun QuizScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
+                        modifier = Modifier.fillMaxWidth(),
                         text = question.question,
                         style = MaterialTheme.typography.headlineSmall,
                         textAlign = TextAlign.Center,
@@ -132,7 +136,7 @@ fun QuizScreen(
                             containerColor = when {
                                 showCorrectAnswer && isCorrect -> Color(0xFF4CAF50)
                                 showCorrectAnswer && isSelected && !isCorrect -> Color(0xFFF44336)
-                                isSelected -> MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                                isSelected -> MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.2f)
                                 else -> MaterialTheme.colorScheme.surface
                             }
                         ),
@@ -185,7 +189,7 @@ fun QuizScreen(
                     if (!showResult) {
                         Button(
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer
                             ),
                             onClick = {
                                 if (selectedAnswer != null) {

@@ -4,12 +4,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -101,7 +103,7 @@ fun QuizMenuScreen(
                             progress = if (availableQuizzes.isNotEmpty()) {
                                 completedQuizzes.size.toFloat() / availableQuizzes.size
                             } else 0f,
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(2.dp)),
                             color = LocalContentColor.current,
                             trackColor = LocalContentColor.current.copy(alpha = 0.3f)
                         )

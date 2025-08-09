@@ -3,12 +3,14 @@ package ru.plumsoftware.game.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -79,7 +81,7 @@ fun ProfileScreen(
 fun PlayerInfoCard(gameState: GameState) {
     Card(
         colors = CardDefaults.cardColors(
-            containerColor = Color(0xFFE9EAFF)
+            containerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.1f)
         )
     ) {
         Column(
@@ -89,7 +91,7 @@ fun PlayerInfoCard(gameState: GameState) {
             // Avatar placeholder
             Card(
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
+                    containerColor = MaterialTheme.colorScheme.error
                 ),
                 modifier = Modifier.size(80.dp)
             ) {
@@ -140,7 +142,9 @@ fun PlayerInfoCard(gameState: GameState) {
                 }
                 LinearProgressIndicator(
                     progress = progressToNextLevel,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(2.dp)),
+                    trackColor = MaterialTheme.colorScheme.onError,
+                    color = MaterialTheme.colorScheme.error.copy(alpha = 0.4f)
                 )
             }
         }
