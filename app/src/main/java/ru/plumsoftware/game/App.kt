@@ -1,10 +1,10 @@
 package ru.plumsoftware.game
 
 import android.app.Application
-import ru.plumsoftware.game.ads.AdsRuStore
+import ru.plumsoftware.game.ads.AdsHuaweiAppGallery
 
 class App : Application() {
     companion object {
-        val adsBase = AdsRuStore()
+        val adsBase = AdsHuaweiAppGallery()
     }
 }
