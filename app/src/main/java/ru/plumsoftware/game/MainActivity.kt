@@ -12,12 +12,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.google.firebase.Firebase
+import com.google.firebase.remoteconfig.FirebaseRemoteConfig
+import com.google.firebase.remoteconfig.remoteConfig
+import com.google.firebase.remoteconfig.remoteConfigSettings
 import com.yandex.mobile.ads.common.MobileAds
 import ru.plumsoftware.game.ui.GameScreen
 import ru.plumsoftware.game.ui.GameViewModel
 import ru.plumsoftware.game.ui.screens.*
 import ru.plumsoftware.game.ui.theme.ExtendedTheme
-import ru.plumsoftware.game.ui.theme.GameTheme
 
 class MainActivity : ComponentActivity() {
     private val viewModel: GameViewModel by viewModels()
@@ -26,6 +29,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         MobileAds.initialize(this) {}
+        val remoteConfig: FirebaseRemoteConfig = Firebase.remoteConfig
+        val configSettings = remoteConfigSettings {
+            minimumFetchIntervalInSeconds = 0
+        }
+        remoteConfig.setConfigSettingsAsync(configSettings)
+        remoteConfig.fetchAndActivate().addOnCompleteListener { task-> }
 
         setContent {
             ExtendedTheme {

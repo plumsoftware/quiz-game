@@ -24,9 +24,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.google.firebase.Firebase
+import com.google.firebase.remoteconfig.remoteConfig
 import ru.plumsoftware.game.App
 import ru.plumsoftware.game.MainActivity
 import ru.plumsoftware.game.R
+import ru.plumsoftware.game.ads.AdsGooglePlay
 import ru.plumsoftware.game.ads.AdsManager
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,6 +46,9 @@ fun SettingsScreen(
 
     val activity = LocalActivity.current ?: MainActivity()
     val adsManager = AdsManager(App.adsBase, activity)
+
+    val displayAds by remember { mutableStateOf(Firebase.remoteConfig.getBoolean("display_ads")) }
+    println("displayAds: $displayAds")
 
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
 
@@ -78,6 +84,134 @@ fun SettingsScreen(
                 .padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // Rewarded Ads Section
+            if (App.adsBase == AdsGooglePlay()) {
+                if (displayAds)
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = Color(0xFF4CAF50).copy(alpha = 0.1f)
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Text(
+                                text = stringResource(R.string.watch_ad_for_rewards),
+                                style = MaterialTheme.typography.titleMedium
+                            )
+
+                            Text(
+                                text = stringResource(R.string.earn_extra_coins),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+
+                            Button(
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF4CAF50)
+                                ),
+                                onClick = {
+                                    adsManager.showRewarded { reward ->
+                                        addCoins(reward)
+                                    }
+                                },
+                                modifier = Modifier.fillMaxWidth(),
+                                contentPadding = PaddingValues(vertical = 16.dp)
+                            ) {
+                                Text(
+                                    stringResource(R.string.watch_ad),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                                Spacer(Modifier.width(10.dp))
+                                Row(
+                                    modifier = Modifier
+                                        .wrapContentSize()
+                                        .rotate(20f)
+                                        .graphicsLayer {
+                                            scaleX = pulse
+                                            scaleY = pulse
+                                        },
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(
+                                        space = 4.dp,
+                                        alignment = Alignment.CenterHorizontally
+                                    )
+                                ) {
+                                    Text("+50", style = MaterialTheme.typography.titleLarge)
+                                    Icon(
+                                        imageVector = Icons.Default.MonetizationOn,
+                                        contentDescription = "плюс 50 монет",
+                                        tint = Color(0xFFFFD700)
+                                    )
+                                }
+                            }
+                        }
+                    }
+            } else {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFF4CAF50).copy(alpha = 0.1f)
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Text(
+                            text = stringResource(R.string.watch_ad_for_rewards),
+                            style = MaterialTheme.typography.titleMedium
+                        )
+
+                        Text(
+                            text = stringResource(R.string.earn_extra_coins),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+
+                        Button(
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF4CAF50)
+                            ),
+                            onClick = {
+                                adsManager.showRewarded { reward ->
+                                    addCoins(reward)
+                                }
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            contentPadding = PaddingValues(vertical = 16.dp)
+                        ) {
+                            Text(
+                                stringResource(R.string.watch_ad),
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            Spacer(Modifier.width(10.dp))
+                            Row(
+                                modifier = Modifier
+                                    .wrapContentSize()
+                                    .rotate(20f)
+                                    .graphicsLayer {
+                                        scaleX = pulse
+                                        scaleY = pulse
+                                    },
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(
+                                    space = 4.dp,
+                                    alignment = Alignment.CenterHorizontally
+                                )
+                            ) {
+                                Text("+50", style = MaterialTheme.typography.titleLarge)
+                                Icon(
+                                    imageVector = Icons.Default.MonetizationOn,
+                                    contentDescription = "плюс 50 монет",
+                                    tint = Color(0xFFFFD700)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
             // Notifications Section
             Card(
                 colors = CardDefaults.cardColors(
@@ -183,69 +317,6 @@ fun SettingsScreen(
                         text = stringResource(R.string.vibration_enabled),
                         style = MaterialTheme.typography.bodyMedium
                     )
-                }
-            }
-
-            // Rewarded Ads Section
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFF4CAF50).copy(alpha = 0.1f)
-                )
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Text(
-                        text = stringResource(R.string.watch_ad_for_rewards),
-                        style = MaterialTheme.typography.titleMedium
-                    )
-
-                    Text(
-                        text = stringResource(R.string.earn_extra_coins),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-
-                    Button(
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF4CAF50)
-                        ),
-                        onClick = {
-                            adsManager.showRewarded { reward ->
-                                addCoins(reward)
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        contentPadding = PaddingValues(vertical = 16.dp)
-                    ) {
-                        Text(
-                            stringResource(R.string.watch_ad),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                        Spacer(Modifier.width(10.dp))
-                        Row(
-                            modifier = Modifier
-                                .wrapContentSize()
-                                .rotate(20f)
-                                .graphicsLayer {
-                                    scaleX = pulse
-                                    scaleY = pulse
-                                },
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(
-                                space = 4.dp,
-                                alignment = Alignment.CenterHorizontally
-                            )
-                        ) {
-                            Text("+50", style = MaterialTheme.typography.titleLarge)
-                            Icon(
-                                imageVector = Icons.Default.MonetizationOn,
-                                contentDescription = "плюс 50 монет",
-                                tint = Color(0xFFFFD700)
-                            )
-                        }
-                    }
                 }
             }
 

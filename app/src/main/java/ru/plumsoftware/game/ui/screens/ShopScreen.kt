@@ -15,8 +15,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.google.firebase.Firebase
+import com.google.firebase.remoteconfig.remoteConfig
 import ru.plumsoftware.game.App
 import ru.plumsoftware.game.MainActivity
+import ru.plumsoftware.game.ads.AdsGooglePlay
 import ru.plumsoftware.game.ads.AdsManager
 
 data class ShopItem(
@@ -37,6 +40,7 @@ fun ShopScreen(
 ) {
     val activity = LocalActivity.current ?: MainActivity()
     val adsManager = AdsManager(App.adsBase, activity)
+    val displayAds by remember { mutableStateOf(Firebase.remoteConfig.getBoolean("display_ads")) }
 
     val shopItems = remember {
         listOf(
@@ -149,59 +153,119 @@ fun ShopScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         // Rewarded Ads Section
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = Color(0xFF4CAF50).copy(alpha = 0.1f)
-            )
-        ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                Icon(
-                    Icons.Default.PlayArrow,
-                    contentDescription = "Watch Ad",
-                    tint = Color(0xFF4CAF50),
-                    modifier = Modifier.size(48.dp)
-                )
+        if (App.adsBase == AdsGooglePlay()) {
+            if (displayAds)
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFF4CAF50).copy(alpha = 0.1f)
+                    )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            Icons.Default.PlayArrow,
+                            contentDescription = "Watch Ad",
+                            tint = Color(0xFF4CAF50),
+                            modifier = Modifier.size(48.dp)
+                        )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
 
-                Text(
-                    text = "Смотри рекламу за награды",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    textAlign = TextAlign.Center
-                )
+                        Text(
+                            text = "Смотри рекламу за награды",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        )
 
-                Text(
-                    text = "Заработай дополнительные монеты (+50), посмотрев короткую рекламу",
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                )
+                        Text(
+                            text = "Заработай дополнительные монеты (+50), посмотрев короткую рекламу",
+                            style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Center,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                        )
 
-                Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(12.dp))
 
-                Button(
-                    onClick = {
-                        adsManager.showRewarded { reward ->
-                            addCoins(reward)
+                        Button(
+                            onClick = {
+                                adsManager.showRewarded { reward ->
+                                    addCoins(reward)
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF4CAF50)
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Icon(
+                                Icons.Default.PlayArrow,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Смотреть рекламу")
                         }
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF4CAF50)
-                    ),
-                    modifier = Modifier.fillMaxWidth()
+                    }
+                }
+        } else {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFF4CAF50).copy(alpha = 0.1f)
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Icon(
                         Icons.Default.PlayArrow,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp)
+                        contentDescription = "Watch Ad",
+                        tint = Color(0xFF4CAF50),
+                        modifier = Modifier.size(48.dp)
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Смотреть рекламу")
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Text(
+                        text = "Смотри рекламу за награды",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center
+                    )
+
+                    Text(
+                        text = "Заработай дополнительные монеты (+50), посмотрев короткую рекламу",
+                        style = MaterialTheme.typography.bodyMedium,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Button(
+                        onClick = {
+                            adsManager.showRewarded { reward ->
+                                addCoins(reward)
+                            }
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFF4CAF50)
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Icon(
+                            Icons.Default.PlayArrow,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Смотреть рекламу")
+                    }
                 }
             }
         }

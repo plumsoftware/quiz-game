@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.google.gms.google.services)
 }
 
 android {
@@ -12,8 +13,8 @@ android {
         applicationId = "ru.plumsoftware.game"
         minSdk = 26
         targetSdk = 36
-        versionCode = 3
-        versionName = "1.2.1"
+        versionCode = 4
+        versionName = "1.2.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -76,7 +77,12 @@ dependencies {
     implementation("com.yandex.android:mobileads:7.15.0")
 
     // Fonts
-    implementation("androidx.compose.ui:ui-text-google-fonts:1.8.3") // Or the latest stable version
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.8.3")
+
+    // Firebase
+    implementation(libs.firebase.messaging)
+    implementation(libs.firebase.inappmessaging.display)
+    implementation(libs.firebase.config) // Or the latest stable version
     
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
