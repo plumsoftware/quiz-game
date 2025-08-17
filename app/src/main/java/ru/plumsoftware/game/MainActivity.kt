@@ -83,6 +83,8 @@ fun GameApp(
     val availableQuizzes by viewModel.availableQuizzes.collectAsState()
     val currentQuizLevel by viewModel.currentQuizLevel.collectAsState()
 
+    val displayAds by remember { mutableStateOf(Firebase.remoteConfig.getBoolean("display_ads")) }
+
     var hasNotificationPermission by remember {
         mutableStateOf(
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -121,7 +123,8 @@ fun GameApp(
                 coinsEarned = quizResult.coinsEarned,
                 currentLevel = currentQuizLevel,
                 onBackToHome = viewModel::onBackToHome,
-                onPlayAgain = viewModel::onPlayAgain
+                onPlayAgain = viewModel::onPlayAgain,
+                displayAds = displayAds
             )
         }
 

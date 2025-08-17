@@ -22,10 +22,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="PLACEHOLDER" />
-                  <option name="mobileSdkAppId" value="" />
-                  <option name="projectId" value="" />
-                  <option name="projectNumber" value="" />
+                  <option name="appId" value="ru.plumsoftware.game" />
+                  <option name="mobileSdkAppId" value="1:99813304340:android:1508d3773d7bc34b0e9f01" />
+                  <option name="projectId" value="games-6af99" />
+                  <option name="projectNumber" value="99813304340" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />

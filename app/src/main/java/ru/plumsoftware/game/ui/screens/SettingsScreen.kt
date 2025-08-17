@@ -29,7 +29,7 @@ import com.google.firebase.remoteconfig.remoteConfig
 import ru.plumsoftware.game.App
 import ru.plumsoftware.game.MainActivity
 import ru.plumsoftware.game.R
-import ru.plumsoftware.game.ads.AdsGooglePlay
+import ru.plumsoftware.game.ads.AdsBase
 import ru.plumsoftware.game.ads.AdsManager
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -84,7 +84,7 @@ fun SettingsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Rewarded Ads Section
-            if (App.adsBase == AdsGooglePlay()) {
+            if (App.adsBase == AdsBase.AdsGooglePlay()) {
                 if (displayAds)
                     Card(
                         modifier = Modifier.fillMaxWidth(),

@@ -18,8 +18,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.google.firebase.Firebase
+import com.google.firebase.remoteconfig.remoteConfig
 import ru.plumsoftware.game.App
 import ru.plumsoftware.game.MainActivity
+import ru.plumsoftware.game.ads.AdsBase
 import ru.plumsoftware.game.ads.AdsManager
 import ru.plumsoftware.game.data.Question
 
@@ -73,7 +76,9 @@ fun QuizScreen(
                 trackColor = MaterialTheme.colorScheme.background,
                 color = MaterialTheme.colorScheme.secondary,
                 progress = (currentQuestionIndex + 1).toFloat() / questions.size,
-                modifier = Modifier.width(100.dp).clip(RoundedCornerShape(2.dp))
+                modifier = Modifier
+                    .width(100.dp)
+                    .clip(RoundedCornerShape(2.dp))
             )
         }
 
@@ -136,7 +141,10 @@ fun QuizScreen(
                             containerColor = when {
                                 showCorrectAnswer && isCorrect -> Color(0xFF4CAF50)
                                 showCorrectAnswer && isSelected && !isCorrect -> Color(0xFFF44336)
-                                isSelected -> MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.2f)
+                                isSelected -> MaterialTheme.colorScheme.secondaryContainer.copy(
+                                    alpha = 0.2f
+                                )
+
                                 else -> MaterialTheme.colorScheme.surface
                             }
                         ),
@@ -246,7 +254,8 @@ fun QuizResultScreen(
     coinsEarned: Int,
     currentLevel: Int,
     onBackToHome: () -> Unit,
-    onPlayAgain: () -> Unit
+    onPlayAgain: () -> Unit,
+    displayAds: Boolean
 ) {
     val context = LocalContext.current
     val activity = LocalActivity.current ?: MainActivity()
@@ -359,9 +368,15 @@ fun QuizResultScreen(
         ) {
             OutlinedButton(
                 onClick = {
-                    adsManager.showInterstitial {
-                        onBackToHome()
-                    }
+                    if (App.adsBase == AdsBase.AdsGooglePlay()) {
+                        if (displayAds)
+                            adsManager.showInterstitial {
+                                onBackToHome()
+                            }
+                    } else
+                        adsManager.showInterstitial {
+                            onBackToHome()
+                        }
                 },
                 modifier = Modifier.weight(1f)
             ) {
@@ -370,9 +385,15 @@ fun QuizResultScreen(
 
             Button(
                 onClick = {
-                    adsManager.showInterstitial {
-                        onPlayAgain()
-                    }
+                    if (App.adsBase == AdsBase.AdsGooglePlay()) {
+                        if (displayAds)
+                            adsManager.showInterstitial {
+                                onPlayAgain()
+                            }
+                    } else
+                        adsManager.showInterstitial {
+                            onPlayAgain()
+                        }
                 },
                 modifier = Modifier.weight(1f)
             ) {

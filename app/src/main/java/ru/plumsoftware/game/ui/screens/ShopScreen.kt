@@ -19,7 +19,7 @@ import com.google.firebase.Firebase
 import com.google.firebase.remoteconfig.remoteConfig
 import ru.plumsoftware.game.App
 import ru.plumsoftware.game.MainActivity
-import ru.plumsoftware.game.ads.AdsGooglePlay
+import ru.plumsoftware.game.ads.AdsBase
 import ru.plumsoftware.game.ads.AdsManager
 
 data class ShopItem(
@@ -153,7 +153,7 @@ fun ShopScreen(
         Spacer(modifier = Modifier.height(24.dp))
 
         // Rewarded Ads Section
-        if (App.adsBase == AdsGooglePlay()) {
+        if (App.adsBase == AdsBase.AdsGooglePlay()) {
             if (displayAds)
                 Card(
                     modifier = Modifier.fillMaxWidth(),
