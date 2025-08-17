@@ -18,4 +18,6 @@
     <color name="info_blue">#FF2196F3</color>
     <color name="streak_red">#FFFF6B6B</color>
     <color name="achievement_purple">#FF9C27B0</color>
+
+    <color name="default_notification_color">#FF9800</color>
 </resources>

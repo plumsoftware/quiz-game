@@ -48,7 +48,6 @@ fun SettingsScreen(
     val adsManager = AdsManager(App.adsBase, activity)
 
     val displayAds by remember { mutableStateOf(Firebase.remoteConfig.getBoolean("display_ads")) }
-    println("displayAds: $displayAds")
 
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
 
