@@ -373,6 +373,8 @@ fun QuizResultScreen(
                             adsManager.showInterstitial {
                                 onBackToHome()
                             }
+                        else
+                            onBackToHome()
                     } else
                         adsManager.showInterstitial {
                             onBackToHome()
@@ -390,6 +392,8 @@ fun QuizResultScreen(
                             adsManager.showInterstitial {
                                 onPlayAgain()
                             }
+                        else
+                            onPlayAgain()
                     } else
                         adsManager.showInterstitial {
                             onPlayAgain()
