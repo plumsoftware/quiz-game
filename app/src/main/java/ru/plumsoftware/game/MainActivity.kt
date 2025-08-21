@@ -32,6 +32,7 @@ import ru.plumsoftware.game.ui.screens.*
 import ru.plumsoftware.game.ui.theme.ExtendedTheme
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.compose.runtime.LaunchedEffect
+import ru.plumsoftware.game.notifications.NotificationScheduler
 
 class MainActivity : ComponentActivity() {
     private val viewModel: GameViewModel by viewModels()
@@ -96,6 +97,12 @@ fun GameApp(
                 true
             }
         )
+    }
+
+    if (hasNotificationPermission) {
+        viewModel.getNotificationScheduler().cancelAllNotifications()
+        viewModel.getNotificationScheduler().scheduleDailyNotification()
+        viewModel.getNotificationScheduler().scheduleQuizReminder()
     }
 
     val permissionLauncher = rememberLauncherForActivityResult(
