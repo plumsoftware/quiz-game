@@ -11,12 +11,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
@@ -66,6 +68,13 @@ fun HomeScreen(
             contentDescription = null,
             colorFilter = ColorFilter.tint(Color.Gray.copy(alpha = 0.2f))
         )
+        Image(
+            modifier = Modifier.align(Alignment.BottomCenter),
+            painter = painterResource(R.drawable.quiz_back),
+            contentScale = ContentScale.FillHeight,
+            contentDescription = null,
+            colorFilter = ColorFilter.tint(Color.Gray.copy(alpha = 0.2f))
+        )
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -76,6 +85,83 @@ fun HomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         )
         {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp, alignment = Alignment.CenterHorizontally)
+            ) {
+                Card(
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .clip(RoundedCornerShape(12.dp)),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFFF6F7D7)
+                    ),
+                    onClick = onNavigateToAchievements
+                )
+                {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(
+                            8.dp,
+                            Alignment.CenterHorizontally
+                        ),
+                        modifier = Modifier
+                            .padding(vertical = 4.dp, horizontal = 6.dp)
+                            .wrapContentSize()
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Star,
+                            contentDescription = null,
+                            tint = Color(0xFFFFD700),
+                            modifier = Modifier.size(38.dp)
+                        )
+                        Text(
+                            text = "Достижения",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.weight(1.0f))
+                Card(
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .clip(RoundedCornerShape(12.dp)),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFFEFE2D9)
+                    ),
+                    onClick = onNavigateToProfile
+                )
+                {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(
+                            8.dp,
+                            Alignment.CenterHorizontally
+                        ),
+                        modifier = Modifier
+                            .padding(vertical = 4.dp, horizontal = 6.dp)
+                            .wrapContentSize()
+                    ) {
+                        Text(
+                            text = "Профиль",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        )
+                        Image(
+                            painter = painterResource(R.drawable.profile),
+                            contentDescription = null,
+                            modifier = Modifier.size(38.dp)
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             // Header with coins and level
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -133,13 +219,13 @@ fun HomeScreen(
                             )
                         }
 
-                        IconButton(onClick = onNavigateToSettings) {
-                            Icon(
-                                Icons.Default.Settings,
-                                contentDescription = "Settings",
-                                tint = LocalContentColor.current
-                            )
-                        }
+//                        IconButton(onClick = onNavigateToAchievements) {
+//                            Icon(
+//                                Icons.Default.Star,
+//                                contentDescription = "Achievements",
+//                                tint = Color(0xFFFFD700)
+//                            )
+//                        }
                     }
                 }
             }
@@ -273,6 +359,97 @@ fun HomeScreen(
                 }
             }
 
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Quiz Section
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .graphicsLayer {
+                        scaleX = pulse
+                        scaleY = pulse
+                    },
+                onClick = onNavigateToQuiz
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            brush = androidx.compose.ui.graphics.Brush.verticalGradient(
+                                colors = listOf(
+                                    Color(0xFF4CAF50),
+                                    MaterialTheme.colorScheme.primary,
+                                )
+                            )
+                        )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(20.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Animated icon with glow effect
+                        Card(
+                            colors = CardDefaults.cardColors(
+                                containerColor = Color.White.copy(alpha = 0.2f)
+                            ),
+                            modifier = Modifier.size(60.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Image(
+                                    painter = painterResource(ru.plumsoftware.game.R.drawable.quiz_button_icon),
+                                    contentDescription = "Quiz",
+                                    modifier = Modifier.size(48.dp)
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.width(16.dp))
+
+                        Column(
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                text = "🎮 Играть в викторину",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Text(
+                                text = "Доступно ${availableQuizzes.size} викторин",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.White.copy(alpha = 0.8f)
+                            )
+                        }
+
+                        // Play button with glow
+                        Card(
+                            colors = CardDefaults.cardColors(
+                                containerColor = Color.White.copy(alpha = 0.3f)
+                            ),
+                            modifier = Modifier.size(48.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.PlayArrow,
+                                    contentDescription = "Play",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(28.dp)
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(16.dp))
 
             // Other menu buttons
@@ -280,7 +457,9 @@ fun HomeScreen(
                 columns = GridCells.Fixed(2),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxWidth().zIndex(1.0f)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .zIndex(1.0f)
             ) {
                 item {
                     MenuButton(
@@ -301,28 +480,6 @@ fun HomeScreen(
                         color = Color(0xFFE2F1EA),
                         iconColor = Color(0xFF3E99C9),
                         onClick = onNavigateToShop
-                    )
-                }
-
-                item {
-                    MenuButton(
-                        icon = Icons.Default.Person,
-                        title = "Профиль",
-                        subtitle = "Смотри свой прогресс",
-                        color = Color(0xFFEFE2D9),
-                        iconColor = MaterialTheme.colorScheme.error,
-                        onClick = onNavigateToProfile
-                    )
-                }
-
-                item {
-                    MenuButton(
-                        icon = Icons.Default.Star,
-                        title = "Достижения",
-                        subtitle = "Смотри свои награды",
-                        color = Color(0xFFF6F7D7),
-                        iconColor = Color(0xFFFFD700),
-                        onClick = onNavigateToAchievements
                     )
                 }
             }
