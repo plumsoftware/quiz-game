@@ -18,13 +18,17 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import ru.plumsoftware.game.data.GameState
 import ru.plumsoftware.game.data.Quiz
+import ru.plumsoftware.game.R
 
 @Composable
 fun HomeScreen(
@@ -51,262 +55,280 @@ fun HomeScreen(
         ), label = "pulse"
     )
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Header with coins and level
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = Color.White
-            )
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text(
-                        text = "Уровень ${gameState.level}",
-                        style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "${gameState.experience} ОП",
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                    
-                    // Level progress indicator
-                    val nextLevelExp = (gameState.level * 100) - gameState.experience
-                    if (nextLevelExp > 0) {
-                        Text(
-                            text = "До следующего уровня: ${nextLevelExp} ОП",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = LocalContentColor.current.copy(alpha = 0.7f)
-                        )
-                    }
-                }
-
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.MonetizationOn,
-                            contentDescription = "Coins",
-                            tint = Color(0xFFFFD700)
-                        )
-                        Text(
-                            text = "${gameState.coins}",
-                            style = MaterialTheme.typography.headlineSmall,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-
-                    IconButton(onClick = onNavigateToSettings) {
-                        Icon(
-                            Icons.Default.Settings,
-                            contentDescription = "Settings",
-                            tint = LocalContentColor.current
-                        )
-                    }
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Streak card
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = Color(0xFFFF6B6B)
-            )
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.Default.LocalFireDepartment,
-                    contentDescription = "Streak",
-                    tint = Color.White,
-                    modifier = Modifier.size(32.dp)
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Column {
-                    Text(
-                        text = "${gameState.streakDays} дней подряд!",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        text = "Учись каждый день!",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = Color.White.copy(alpha = 0.8f)
-                    )
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Quiz Section
-        Card(
+        Image(
+            painter = painterResource(R.drawable.quiz_back),
+            contentScale = ContentScale.FillHeight,
+            contentDescription = null,
+            colorFilter = ColorFilter.tint(Color.Gray.copy(alpha = 0.2f))
+        )
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(120.dp)
-                .graphicsLayer {
-                    scaleX = pulse
-                    scaleY = pulse
-                },
-            onClick = onNavigateToQuiz
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(
-                        brush = androidx.compose.ui.graphics.Brush.verticalGradient(
-                            colors = listOf(
-                                Color(0xFF4CAF50),
-                                MaterialTheme.colorScheme.primary,
-                            )
-                        )
-                    )
+                .fillMaxSize()
+                .zIndex(1.0f)
+                .align(Alignment.TopCenter)
+                .background(Color.Transparent)
+                .padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        )
+        {
+            // Header with coins and level
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = Color.White
+                )
             ) {
                 Row(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(20.dp),
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Animated icon with glow effect
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = Color.White.copy(alpha = 0.2f)
-                        ),
-                        modifier = Modifier.size(60.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Image(
-                                painter = painterResource(ru.plumsoftware.game.R.drawable.quiz_button_icon),
-                                contentDescription = "Quiz",
-                                modifier = Modifier.size(48.dp)
+                    Column {
+                        Text(
+                            text = "Уровень ${gameState.level}",
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = "${gameState.experience} ОП",
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+
+                        // Level progress indicator
+                        val nextLevelExp = (gameState.level * 100) - gameState.experience
+                        if (nextLevelExp > 0) {
+                            Text(
+                                text = "До следующего уровня: ${nextLevelExp} ОП",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = LocalContentColor.current.copy(alpha = 0.7f)
                             )
                         }
                     }
-                    
-                    Spacer(modifier = Modifier.width(16.dp))
-                    
-                    Column(
-                        modifier = Modifier.weight(1f)
+
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.MonetizationOn,
+                                contentDescription = "Coins",
+                                tint = Color(0xFFFFD700)
+                            )
+                            Text(
+                                text = "${gameState.coins}",
+                                style = MaterialTheme.typography.headlineSmall,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
+
+                        IconButton(onClick = onNavigateToSettings) {
+                            Icon(
+                                Icons.Default.Settings,
+                                contentDescription = "Settings",
+                                tint = LocalContentColor.current
+                            )
+                        }
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Streak card
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFFFF6B6B)
+                )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.LocalFireDepartment,
+                        contentDescription = "Streak",
+                        tint = Color.White,
+                        modifier = Modifier.size(32.dp)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column {
                         Text(
-                            text = "🎮 Играть в викторину",
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
+                            text = "${gameState.streakDays} дней подряд!",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = Color.White,
+                            fontWeight = FontWeight.Bold
                         )
                         Text(
-                            text = "Доступно ${availableQuizzes.size} викторин",
+                            text = "Учись каждый день!",
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.White.copy(alpha = 0.8f)
                         )
                     }
-                    
-                    // Play button with glow
-                    Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = Color.White.copy(alpha = 0.3f)
-                        ),
-                        modifier = Modifier.size(48.dp)
-                    ) {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.PlayArrow,
-                                contentDescription = "Play",
-                                tint = Color.White,
-                                modifier = Modifier.size(28.dp)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Quiz Section
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp)
+                    .graphicsLayer {
+                        scaleX = pulse
+                        scaleY = pulse
+                    },
+                onClick = onNavigateToQuiz
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(
+                            brush = androidx.compose.ui.graphics.Brush.verticalGradient(
+                                colors = listOf(
+                                    Color(0xFF4CAF50),
+                                    MaterialTheme.colorScheme.primary,
+                                )
                             )
+                        )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(20.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Animated icon with glow effect
+                        Card(
+                            colors = CardDefaults.cardColors(
+                                containerColor = Color.White.copy(alpha = 0.2f)
+                            ),
+                            modifier = Modifier.size(60.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Image(
+                                    painter = painterResource(ru.plumsoftware.game.R.drawable.quiz_button_icon),
+                                    contentDescription = "Quiz",
+                                    modifier = Modifier.size(48.dp)
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.width(16.dp))
+
+                        Column(
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text(
+                                text = "🎮 Играть в викторину",
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
+                            )
+                            Text(
+                                text = "Доступно ${availableQuizzes.size} викторин",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = Color.White.copy(alpha = 0.8f)
+                            )
+                        }
+
+                        // Play button with glow
+                        Card(
+                            colors = CardDefaults.cardColors(
+                                containerColor = Color.White.copy(alpha = 0.3f)
+                            ),
+                            modifier = Modifier.size(48.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.PlayArrow,
+                                    contentDescription = "Play",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(28.dp)
+                                )
+                            }
                         }
                     }
                 }
             }
-        }
 
-        Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-        // Other menu buttons
-        LazyVerticalGrid(
-            columns = GridCells.Fixed(2),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            item {
-                MenuButton(
-                    icon = Icons.Default.Assignment,
-                    title = "Ежедневные задания",
-                    subtitle = "Выполняй задачи",
-                    color = Color(0xFF43C243),
-                    onClick = onNavigateToDailyTasks
-                )
-            }
+            // Other menu buttons
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(2),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxWidth().zIndex(1.0f)
+            ) {
+                item {
+                    MenuButton(
+                        icon = Icons.Default.Assignment,
+                        title = "Ежедневные задания",
+                        subtitle = "Выполняй задачи",
+                        color = Color(0xFFE3F5DF),
+                        iconColor = Color(0xFF43C243),
+                        onClick = onNavigateToDailyTasks
+                    )
+                }
 
-            item {
-                MenuButton(
-                    icon = Icons.Default.Store,
-                    title = "Магазин",
-                    subtitle = "Трать свои монеты",
-                    color = Color(0xFF3E99C9),
-                    onClick = onNavigateToShop
-                )
-            }
+                item {
+                    MenuButton(
+                        icon = Icons.Default.Store,
+                        title = "Магазин",
+                        subtitle = "Трать свои монеты",
+                        color = Color(0xFFE2F1EA),
+                        iconColor = Color(0xFF3E99C9),
+                        onClick = onNavigateToShop
+                    )
+                }
 
-            item {
-                MenuButton(
-                    icon = Icons.Default.Person,
-                    title = "Профиль",
-                    subtitle = "Смотри свой прогресс",
-                    color = MaterialTheme.colorScheme.error,
-                    onClick = onNavigateToProfile
-                )
-            }
+                item {
+                    MenuButton(
+                        icon = Icons.Default.Person,
+                        title = "Профиль",
+                        subtitle = "Смотри свой прогресс",
+                        color = Color(0xFFEFE2D9),
+                        iconColor = MaterialTheme.colorScheme.error,
+                        onClick = onNavigateToProfile
+                    )
+                }
 
-            item {
-                MenuButton(
-                    icon = Icons.Default.Star,
-                    title = "Достижения",
-                    subtitle = "Смотри свои награды",
-                    color = Color(0xFFFFD700),
-                    onClick = onNavigateToAchievements
-                )
+                item {
+                    MenuButton(
+                        icon = Icons.Default.Star,
+                        title = "Достижения",
+                        subtitle = "Смотри свои награды",
+                        color = Color(0xFFF6F7D7),
+                        iconColor = Color(0xFFFFD700),
+                        onClick = onNavigateToAchievements
+                    )
+                }
             }
         }
     }
 }
-
 
 
 @Composable
@@ -315,6 +337,7 @@ fun MenuButton(
     title: String,
     subtitle: String,
     color: Color,
+    iconColor: Color,
     onClick: () -> Unit
 ) {
     Card(
@@ -322,7 +345,7 @@ fun MenuButton(
             .fillMaxWidth()
             .height(150.dp),
         colors = CardDefaults.cardColors(
-            containerColor = color.copy(alpha = 0.1f)
+            containerColor = color
         ),
         onClick = onClick
     ) {
@@ -336,7 +359,7 @@ fun MenuButton(
             Icon(
                 imageVector = icon,
                 contentDescription = title,
-                tint = color,
+                tint = iconColor,
                 modifier = Modifier.size(32.dp)
             )
             Spacer(modifier = Modifier.height(8.dp))
