@@ -93,7 +93,7 @@ fun PlayerInfoCard(gameState: GameState) {
             // Avatar placeholder
             Card(
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.4f)
+                    containerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.1f)
                 ),
                 modifier = Modifier.size(80.dp)
             ) {

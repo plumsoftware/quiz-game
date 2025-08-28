@@ -95,4 +95,7 @@ dependencies {
 
     // Serialization
     implementation(libs.kotlinx.serialization.json)
+
+    // Animation
+    implementation("androidx.compose.animation:animation-core")
 }

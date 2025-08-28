@@ -33,8 +33,10 @@ import ru.plumsoftware.game.ui.theme.ExtendedTheme
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.LaunchedEffect
+import com.google.firebase.remoteconfig.get
 import kotlinx.serialization.json.Json
 import ru.plumsoftware.game.data.firebase.RemoteConfigQuizModel
+import ru.plumsoftware.game.ui.components.MainBack
 
 class MainActivity : ComponentActivity() {
     private val viewModel: GameViewModel by viewModels()
@@ -58,10 +60,12 @@ class MainActivity : ComponentActivity() {
                         .fillMaxSize()
                         .padding(vertical = 16.dp)
                 ) { innerPadding ->
-                    GameApp(
-                        modifier = Modifier.padding(innerPadding),
-                        viewModel = viewModel
-                    )
+                    MainBack {
+                        GameApp(
+                            modifier = Modifier.padding(innerPadding),
+                            viewModel = viewModel
+                        )
+                    }
                 }
             }
         }
@@ -85,17 +89,17 @@ fun GameApp(
     val quizResult by viewModel.quizResult.collectAsState()
     val availableQuizzes by viewModel.availableQuizzes.collectAsState()
     val currentQuizLevel by viewModel.currentQuizLevel.collectAsState()
+    val remoteConfigQuiz by viewModel.remoteQuiz.collectAsState()
 
     val displayAds by remember { mutableStateOf(Firebase.remoteConfig.getBoolean("display_ads")) }
     val remoteQuiz by remember {
-        mutableStateOf(Firebase.remoteConfig.getString("time_quiz"))
+        mutableStateOf(
+            Json {
+                ignoreUnknownKeys = true
+                prettyPrint = true
+            }.decodeFromString<RemoteConfigQuizModel>(Firebase.remoteConfig["time_quiz"].asString())
+        )
     }
-    println("remoteQuiz: $remoteQuiz")
-
-//    Json {
-//        ignoreUnknownKeys = true
-//        prettyPrint = true
-//    }.decodeFromString<RemoteConfigQuizModel>()
 
     var hasNotificationPermission by remember {
         mutableStateOf(
@@ -148,6 +152,7 @@ fun GameApp(
 
         currentScreen == GameScreen.HOME -> {
             HomeScreen(
+                remoteQuiz = remoteQuiz,
                 gameState = gameState,
                 availableQuizzes = availableQuizzes,
                 onNavigateToQuiz = { viewModel.navigateTo(GameScreen.QUIZ_MENU) },
@@ -155,7 +160,11 @@ fun GameApp(
                 onNavigateToShop = { viewModel.navigateTo(GameScreen.SHOP) },
                 onNavigateToProfile = { viewModel.navigateTo(GameScreen.PROFILE) },
                 onNavigateToSettings = { viewModel.navigateTo(GameScreen.SETTINGS) },
-                onNavigateToAchievements = { viewModel.navigateTo(GameScreen.ACHIEVEMENTS) }
+                onNavigateToAchievements = { viewModel.navigateTo(GameScreen.ACHIEVEMENTS) },
+                onNavigateToRemoteConfigQuiz = { remoteQuiz ->
+                    viewModel.setRemoteConfigQuizLevel(remoteQuiz)
+                    viewModel.navigateTo(GameScreen.QUIZ)
+                }
             )
         }
 
@@ -177,7 +186,10 @@ fun GameApp(
             QuizScreen(
                 currentLevel = currentQuizLevel,
                 questions = viewModel.getQuestionsForCurrentQuiz(),
-                onBack = { viewModel.navigateTo(GameScreen.QUIZ_MENU) },
+                onBack = {
+                    viewModel.setEmptyRemoteQuiz()
+                    viewModel.navigateTo(GameScreen.QUIZ_MENU)
+                },
                 onQuizComplete = viewModel::onQuizComplete
             )
         }
@@ -186,7 +198,9 @@ fun GameApp(
             DailyTasksScreen(
                 tasksProgress = tasksProgress,
                 onBack = { viewModel.navigateTo(GameScreen.HOME) },
-                onTaskCompleted = { _, _ -> /* Handle task completion */ }
+                onTaskCompleted = { _, reward ->
+                    viewModel.addCoins(reward)
+                }
             )
         }
 

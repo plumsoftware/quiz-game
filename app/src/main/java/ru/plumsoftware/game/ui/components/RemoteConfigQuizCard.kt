@@ -26,9 +26,12 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -38,15 +41,52 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import ru.plumsoftware.game.R
 import ru.plumsoftware.game.data.Quiz
+import ru.plumsoftware.game.data.firebase.RemoteConfigQuizModel
 import ru.plumsoftware.game.ui.extendOutsideParent
+import ru.plumsoftware.game.ui.formatDuration
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.Duration
 
 @Composable
 fun RemoteConfigQuizCard(
-    onNavigateToQuiz: () -> Unit,
-    availableQuizzes: List<Quiz>
+    onNavigateToQuiz: (RemoteConfigQuizModel) -> Unit,
+    availableQuizzes: List<Quiz>,
+    remoteQuiz: RemoteConfigQuizModel
 ) {
+    val formatter = remember {
+        DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm")
+    }
+
+    val endDate by remember(remoteQuiz.dateEnd) {
+        mutableStateOf(LocalDateTime.parse(remoteQuiz.dateEnd, formatter))
+    }
+
+    val scope = rememberCoroutineScope { Dispatchers.IO }
+
+    var timeLeft by remember { mutableStateOf("") }
+
+    LaunchedEffect(Unit) {
+        scope.launch {
+            while (true) {
+                val now = LocalDateTime.now()
+                timeLeft = if (now >= endDate) {
+                    "Время истекло"
+                    break
+                } else {
+                    formatDuration(Duration.between(now, endDate))
+                }
+                delay(1000)
+            }
+        }
+    }
+
+    // Анимация градиента (остаётся без изменений)
     val transition = rememberInfiniteTransition(label = "borderGradientTransition")
     val angle by transition.animateFloat(
         initialValue = 0f,
@@ -60,7 +100,7 @@ fun RemoteConfigQuizCard(
 
     val brush by remember(angle) {
         mutableStateOf(
-            sweepGradient(
+            Brush.sweepGradient(
                 colors = listOf(
                     Color.Transparent,
                     Color.White.copy(alpha = 0.3f),
@@ -90,9 +130,8 @@ fun RemoteConfigQuizCard(
                     brush = brush,
                     shape = RoundedCornerShape(12.dp)
                 ),
-            onClick = onNavigateToQuiz
-        )
-        {
+            onClick = { onNavigateToQuiz(remoteQuiz) }
+        ) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -112,9 +151,7 @@ fun RemoteConfigQuizCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = Color.White.copy(alpha = 0.2f)
-                        ),
+                        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.2f)),
                         modifier = Modifier.size(60.dp)
                     ) {
                         Box(
@@ -131,11 +168,9 @@ fun RemoteConfigQuizCard(
 
                     Spacer(modifier = Modifier.width(16.dp))
 
-                    Column(
-                        modifier = Modifier.weight(1f)
-                    ) {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "🎮 Играть в викторину",
+                            text = remoteQuiz.cardTitle,
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Bold,
                             color = Color.White
@@ -145,12 +180,15 @@ fun RemoteConfigQuizCard(
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color.White.copy(alpha = 0.8f)
                         )
+                        Text(
+                            text = "Осталось $timeLeft",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color.White.copy(alpha = 0.8f)
+                        )
                     }
 
                     Card(
-                        colors = CardDefaults.cardColors(
-                            containerColor = Color.White.copy(alpha = 0.3f)
-                        ),
+                        colors = CardDefaults.cardColors(containerColor = Color.White.copy(alpha = 0.3f)),
                         modifier = Modifier.size(48.dp)
                     ) {
                         Box(
@@ -170,19 +208,13 @@ fun RemoteConfigQuizCard(
         Image(
             modifier = Modifier
                 .size(60.dp, 95.dp)
-                .extendOutsideParent(
-                    end = 20.dp,
-                    bottom = 20.dp
-                )
+                .extendOutsideParent(end = 20.dp, bottom = 20.dp)
                 .align(Alignment.BottomEnd),
             painter = painterResource(R.drawable.fire),
             contentDescription = null
         )
         Box(
-            modifier = Modifier.extendOutsideParent(
-                top = 20.dp,
-                start = 20.dp
-            )
+            modifier = Modifier.extendOutsideParent(top = 20.dp, start = 20.dp)
         ) {
             RobloxIcon()
         }

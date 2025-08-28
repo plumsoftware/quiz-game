@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import ru.plumsoftware.game.data.GameManager
 import ru.plumsoftware.game.data.GameState
 import ru.plumsoftware.game.data.GameData
+import ru.plumsoftware.game.data.Question
 import ru.plumsoftware.game.data.Quiz
 import ru.plumsoftware.game.data.firebase.RemoteConfigQuizModel
 import ru.plumsoftware.game.notifications.NotificationScheduler
@@ -40,8 +41,8 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     val currentQuizLevel: StateFlow<Int> = _currentQuizLevel.asStateFlow()
 
     private val _availableQuizzes =
-        MutableStateFlow<List<ru.plumsoftware.game.data.Quiz>>(emptyList())
-    val availableQuizzes: StateFlow<List<ru.plumsoftware.game.data.Quiz>> =
+        MutableStateFlow<List<Quiz>>(emptyList())
+    val availableQuizzes: StateFlow<List<Quiz>> =
         _availableQuizzes.asStateFlow()
 
     private val _completedQuizzes = MutableStateFlow<Set<Int>>(emptySet())
@@ -49,8 +50,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _remoteQuiz = MutableStateFlow(
         RemoteConfigQuizModel(
-            "",
-            Quiz(
+            cardTitle = "",
+            dateStart = "",
+            dateEnd = "",
+            quiz = Quiz(
                 0, "", "", "", 0, 0, emptyList()
             )
         )
@@ -102,6 +105,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     fun setCurrentQuizLevel(level: Int) {
         _currentQuizLevel.value = level
+    }
+
+    fun setRemoteConfigQuizLevel(remoteQuiz: RemoteConfigQuizModel) {
+        _remoteQuiz.value = remoteQuiz
     }
 
     fun onQuizComplete(correctAnswers: Int, totalQuestions: Int) {
@@ -157,6 +164,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun addCoins(coinsEarned: Int) {
+        viewModelScope.launch {
+            gameManager.addCoins(coinsEarned)
+        }
+    }
+
     fun onPurchaseItem(itemId: Int, price: Int) {
         viewModelScope.launch {
             gameManager.addCoins(-price)
@@ -198,7 +211,20 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun getQuestionsForCurrentQuiz(): List<ru.plumsoftware.game.data.Question> {
-        return GameData.getQuestionsForQuiz(_currentQuizLevel.value)
+        return _remoteQuiz.value.quiz.questions.ifEmpty {
+            GameData.getQuestionsForQuiz(_currentQuizLevel.value)
+        }
+    }
+
+    fun setEmptyRemoteQuiz() {
+        _remoteQuiz.value = RemoteConfigQuizModel(
+            "",
+            "",
+            "",
+            Quiz(
+                0, "", "", "", 0, 0, emptyList()
+            )
+        )
     }
 
     fun canPlayQuiz(quizId: Int): Boolean {
