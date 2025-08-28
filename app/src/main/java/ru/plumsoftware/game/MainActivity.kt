@@ -33,6 +33,8 @@ import ru.plumsoftware.game.ui.theme.ExtendedTheme
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.LaunchedEffect
+import kotlinx.serialization.json.Json
+import ru.plumsoftware.game.data.firebase.RemoteConfigQuizModel
 
 class MainActivity : ComponentActivity() {
     private val viewModel: GameViewModel by viewModels()
@@ -85,6 +87,15 @@ fun GameApp(
     val currentQuizLevel by viewModel.currentQuizLevel.collectAsState()
 
     val displayAds by remember { mutableStateOf(Firebase.remoteConfig.getBoolean("display_ads")) }
+    val remoteQuiz by remember {
+        mutableStateOf(Firebase.remoteConfig.getString("time_quiz"))
+    }
+    println("remoteQuiz: $remoteQuiz")
+
+//    Json {
+//        ignoreUnknownKeys = true
+//        prettyPrint = true
+//    }.decodeFromString<RemoteConfigQuizModel>()
 
     var hasNotificationPermission by remember {
         mutableStateOf(

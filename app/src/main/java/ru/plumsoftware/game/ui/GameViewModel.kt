@@ -12,6 +12,8 @@ import kotlinx.coroutines.launch
 import ru.plumsoftware.game.data.GameManager
 import ru.plumsoftware.game.data.GameState
 import ru.plumsoftware.game.data.GameData
+import ru.plumsoftware.game.data.Quiz
+import ru.plumsoftware.game.data.firebase.RemoteConfigQuizModel
 import ru.plumsoftware.game.notifications.NotificationScheduler
 
 class GameViewModel(application: Application) : AndroidViewModel(application) {
@@ -37,11 +39,24 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val _currentQuizLevel = MutableStateFlow(1)
     val currentQuizLevel: StateFlow<Int> = _currentQuizLevel.asStateFlow()
 
-    private val _availableQuizzes = MutableStateFlow<List<ru.plumsoftware.game.data.Quiz>>(emptyList())
-    val availableQuizzes: StateFlow<List<ru.plumsoftware.game.data.Quiz>> = _availableQuizzes.asStateFlow()
+    private val _availableQuizzes =
+        MutableStateFlow<List<ru.plumsoftware.game.data.Quiz>>(emptyList())
+    val availableQuizzes: StateFlow<List<ru.plumsoftware.game.data.Quiz>> =
+        _availableQuizzes.asStateFlow()
 
     private val _completedQuizzes = MutableStateFlow<Set<Int>>(emptySet())
     val completedQuizzes: StateFlow<Set<Int>> = _completedQuizzes.asStateFlow()
+
+    private val _remoteQuiz = MutableStateFlow(
+        RemoteConfigQuizModel(
+            "",
+            Quiz(
+                0, "", "", "", 0, 0, emptyList()
+            )
+        )
+    )
+    val remoteQuiz: StateFlow<RemoteConfigQuizModel> =
+        _remoteQuiz.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -172,7 +187,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             GameScreen.PROFILE -> _currentScreen.value = GameScreen.HOME
             GameScreen.SETTINGS -> _currentScreen.value = GameScreen.HOME
             GameScreen.ACHIEVEMENTS -> _currentScreen.value = GameScreen.HOME
-            else -> { activity.finish() }
+            else -> {
+                activity.finish()
+            }
         }
     }
 
