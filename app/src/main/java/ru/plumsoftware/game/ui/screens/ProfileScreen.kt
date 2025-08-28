@@ -1,5 +1,6 @@
 package ru.plumsoftware.game.ui.screens
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -12,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import ru.plumsoftware.game.data.GameState
@@ -91,7 +93,7 @@ fun PlayerInfoCard(gameState: GameState) {
             // Avatar placeholder
             Card(
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.error
+                    containerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.4f)
                 ),
                 modifier = Modifier.size(80.dp)
             ) {
@@ -99,10 +101,9 @@ fun PlayerInfoCard(gameState: GameState) {
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        Icons.Default.Person,
+                    Image(
+                        painter = painterResource(ru.plumsoftware.game.R.drawable.profile),
                         contentDescription = "Avatar",
-                        tint = Color.White,
                         modifier = Modifier.size(48.dp)
                     )
                 }

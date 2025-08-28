@@ -31,15 +31,15 @@ import ru.plumsoftware.game.ui.GameViewModel
 import ru.plumsoftware.game.ui.screens.*
 import ru.plumsoftware.game.ui.theme.ExtendedTheme
 import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.LaunchedEffect
-import ru.plumsoftware.game.notifications.NotificationScheduler
 
 class MainActivity : ComponentActivity() {
     private val viewModel: GameViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        enableEdgeToEdge()
         MobileAds.initialize(this) {}
         FirebaseApp.initializeApp(this)
         val remoteConfig: FirebaseRemoteConfig = Firebase.remoteConfig

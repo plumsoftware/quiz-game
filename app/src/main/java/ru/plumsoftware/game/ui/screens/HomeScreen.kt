@@ -31,6 +31,7 @@ import androidx.compose.ui.zIndex
 import ru.plumsoftware.game.data.GameState
 import ru.plumsoftware.game.data.Quiz
 import ru.plumsoftware.game.R
+import ru.plumsoftware.game.ui.components.RemoteConfigQuizCard
 
 @Composable
 fun HomeScreen(
@@ -110,10 +111,9 @@ fun HomeScreen(
                             .padding(vertical = 4.dp, horizontal = 6.dp)
                             .wrapContentSize()
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = null,
-                            tint = Color(0xFFFFD700),
+                        Image(
+                            painter = painterResource(R.drawable.achievements),
+                            contentDescription = "Достижения",
                             modifier = Modifier.size(38.dp)
                         )
                         Text(
@@ -270,94 +270,11 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Quiz Section
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp)
-                    .graphicsLayer {
-                        scaleX = pulse
-                        scaleY = pulse
-                    },
-                onClick = onNavigateToQuiz
-            ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .background(
-                            brush = androidx.compose.ui.graphics.Brush.verticalGradient(
-                                colors = listOf(
-                                    Color(0xFF4CAF50),
-                                    MaterialTheme.colorScheme.primary,
-                                )
-                            )
-                        )
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(20.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        // Animated icon with glow effect
-                        Card(
-                            colors = CardDefaults.cardColors(
-                                containerColor = Color.White.copy(alpha = 0.2f)
-                            ),
-                            modifier = Modifier.size(60.dp)
-                        ) {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Image(
-                                    painter = painterResource(ru.plumsoftware.game.R.drawable.quiz_button_icon),
-                                    contentDescription = "Quiz",
-                                    modifier = Modifier.size(48.dp)
-                                )
-                            }
-                        }
-
-                        Spacer(modifier = Modifier.width(16.dp))
-
-                        Column(
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text(
-                                text = "🎮 Играть в викторину",
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White
-                            )
-                            Text(
-                                text = "Доступно ${availableQuizzes.size} викторин",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = Color.White.copy(alpha = 0.8f)
-                            )
-                        }
-
-                        // Play button with glow
-                        Card(
-                            colors = CardDefaults.cardColors(
-                                containerColor = Color.White.copy(alpha = 0.3f)
-                            ),
-                            modifier = Modifier.size(48.dp)
-                        ) {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.PlayArrow,
-                                    contentDescription = "Play",
-                                    tint = Color.White,
-                                    modifier = Modifier.size(28.dp)
-                                )
-                            }
-                        }
-                    }
-                }
-            }
+            // Quiz Section (Remote config)
+            RemoteConfigQuizCard(
+                onNavigateToQuiz = onNavigateToQuiz,
+                availableQuizzes = availableQuizzes
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 

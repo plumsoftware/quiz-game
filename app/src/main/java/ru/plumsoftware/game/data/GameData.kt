@@ -1,15 +1,18 @@
 package ru.plumsoftware.game.data
 
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
 import java.time.LocalDate
 
+@Serializable
 data class Question(
-    val id: Int,
-    val question: String,
-    val options: List<String>,
-    val correctAnswer: Int,
-    val category: String,
-    val difficulty: Int = 1,
-    val level: Int = 1
+    @SerialName("id") val id: Int,
+    @SerialName("question") val question: String,
+    @SerialName("options") val options: List<String>,
+    @SerialName("correct_answer") val correctAnswer: Int,
+    @SerialName("category") val category: String,
+    @SerialName("difficulty") val difficulty: Int = 1,
+    @SerialName("level") val level: Int = 1
 )
 
 data class DailyTask(
@@ -37,14 +40,15 @@ data class GameState(
     val categoriesPlayed: Set<String> = emptySet()
 )
 
+@Serializable
 data class Quiz(
-    val id: Int,
-    val title: String,
-    val description: String,
-    val category: String,
-    val difficulty: Int,
-    val requiredLevel: Int,
-    val questions: List<Question>
+    @SerialName("id") val id: Int,
+    @SerialName("title") val title: String,
+    @SerialName("description") val description: String,
+    @SerialName("category") val category: String,
+    @SerialName("difficulty") val difficulty: Int,
+    @SerialName("required_level") val requiredLevel: Int,
+    @SerialName("questions") val questions: List<Question>
 )
 
 object GameData {
