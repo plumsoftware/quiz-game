@@ -35,6 +35,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.LaunchedEffect
 import com.google.firebase.remoteconfig.get
 import kotlinx.serialization.json.Json
+import ru.plumsoftware.game.data.Quiz
 import ru.plumsoftware.game.data.firebase.RemoteConfigQuizModel
 import ru.plumsoftware.game.ui.components.MainBack
 
@@ -93,10 +94,27 @@ fun GameApp(
     val displayAds by remember { mutableStateOf(Firebase.remoteConfig.getBoolean("display_ads")) }
     val remoteQuiz by remember {
         mutableStateOf(
-            Json {
-                ignoreUnknownKeys = true
-                prettyPrint = true
-            }.decodeFromString<RemoteConfigQuizModel>(Firebase.remoteConfig["time_quiz"].asString())
+            try {
+                Json {
+                    ignoreUnknownKeys = true
+                    prettyPrint = true
+                }.decodeFromString<RemoteConfigQuizModel>(Firebase.remoteConfig["time_quiz"].asString())
+            } catch (e: Exception) {
+                RemoteConfigQuizModel(
+                    cardTitle = "",
+                    dateEnd = "01.01.2000 12:00",
+                    dateStart = "01.01.2000 12:00",
+                    quiz = Quiz(
+                        id = 0,
+                        title = "",
+                        description = "",
+                        category = "",
+                        difficulty = 0,
+                        requiredLevel = 0,
+                        questions = emptyList()
+                    )
+                )
+            }
         )
     }
 

@@ -346,14 +346,10 @@ fun HomeScreen(
                     Box(
                         modifier = Modifier
                             .align(Alignment.TopEnd)
-                            .then(
-                                Modifier
-                                    .clip(CircleShape)
-                                    .background(Color.Red)
-                                    .size(10.dp)
-                                    .extendOutsideParent(end = 30.dp, top = 30.dp)
-                            )
-                            .clipToBounds()
+                            .clip(CircleShape)
+                            .background(Color.Red)
+                            .size(10.dp)
+                            .padding(top = 24.dp, end = 24.dp)
                     )
                 }
             }
