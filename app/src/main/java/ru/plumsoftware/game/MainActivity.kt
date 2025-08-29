@@ -51,7 +51,6 @@ class MainActivity : ComponentActivity() {
             minimumFetchIntervalInSeconds = 0
         }
         remoteConfig.setConfigSettingsAsync(configSettings)
-        remoteConfig.fetchAndActivate().addOnCompleteListener { task -> }
 
         setContent {
             ExtendedTheme {

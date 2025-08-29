@@ -5,6 +5,8 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.graphics.Color
+import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import ru.plumsoftware.game.MainActivity
 import ru.plumsoftware.game.R
@@ -20,7 +22,7 @@ class NotificationManager(private val context: Context) {
         createNotificationChannel()
     }
 
-    private fun createNotificationChannel() {
+    fun createNotificationChannel() {
         val name = context.getString(R.string.notification_channel_name)
         val descriptionText = context.getString(R.string.notification_channel_desc)
         val importance = NotificationManager.IMPORTANCE_DEFAULT
@@ -30,6 +32,11 @@ class NotificationManager(private val context: Context) {
 
         val notificationManager: NotificationManager =
             context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
+        channel.enableLights(true)
+        channel.lightColor = Color.GREEN
+        channel.enableVibration(true)
+
         notificationManager.createNotificationChannel(channel)
     }
 
@@ -44,21 +51,21 @@ class NotificationManager(private val context: Context) {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
         }
 
-        val pendingIntent: PendingIntent = PendingIntent.getActivity(
-            context, 0, intent,
-            PendingIntent.FLAG_IMMUTABLE
+        val pendingIntent = PendingIntent.getActivity(
+            context, 0, intent, PendingIntent.FLAG_IMMUTABLE
         )
+
+        val remoteViews = RemoteViews(context.packageName, R.layout.notification_layout)
 
         val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(R.drawable.profile)
-            .setContentTitle(context.getString(R.string.notification_title))
-            .setContentText(context.getString(R.string.notification_text))
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
+            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+            .setCustomContentView(remoteViews)
+//            .setCustomHeadsUpContentView(remoteViews)
 
-        val notificationManager =
-            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(NOTIFICATION_ID, builder.build())
     }
 
