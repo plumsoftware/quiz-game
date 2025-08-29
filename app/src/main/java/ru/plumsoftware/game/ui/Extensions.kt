@@ -84,16 +84,23 @@ fun formatDuration(duration: Duration): String {
         }
         if (hours > 0) {
             if (hours < 10) {
-                append("0$hours ")
+                append("0$hours")
             } else {
-                append("$hours ")
+                append("$hours")
             }
         }
         if (minutes > 0) {
             if (minutes < 10) {
-                append(":0$minutes ")
+                append(":0$minutes")
             } else {
-                append(":$minutes ")
+                append(":$minutes")
+            }
+        }
+        if (seconds > 0) {
+            if (seconds < 10) {
+                append(":0$seconds ")
+            } else {
+                append(":$seconds ")
             }
         }
     }.trim()

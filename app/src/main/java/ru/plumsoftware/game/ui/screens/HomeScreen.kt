@@ -9,10 +9,12 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -22,6 +24,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.graphicsLayer
@@ -31,11 +34,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import ru.plumsoftware.game.data.GameState
 import ru.plumsoftware.game.data.Quiz
 import ru.plumsoftware.game.R
 import ru.plumsoftware.game.data.firebase.RemoteConfigQuizModel
 import ru.plumsoftware.game.ui.components.RemoteConfigQuizCard
+import ru.plumsoftware.game.ui.components.ShopCard
+import ru.plumsoftware.game.ui.extendOutsideParent
 import ru.plumsoftware.game.ui.isBetween
 
 @Composable
@@ -65,6 +73,39 @@ fun HomeScreen(
         ), label = "pulse"
     )
 
+    var level by remember { mutableIntStateOf( 0) }
+    var coins by remember { mutableIntStateOf(0) }
+    var exp by remember { mutableIntStateOf(0) }
+    var streak by remember { mutableIntStateOf(0) }
+    val scope = rememberCoroutineScope { Dispatchers.IO }
+    val delay = 20L
+
+    LaunchedEffect(key1 = gameState) {
+        scope.launch {
+            while (level < gameState.level) {
+                delay(delay)
+                level++
+            }
+        }
+        scope.launch {
+            while (coins < gameState.coins) {
+                delay(delay)
+                coins++
+            }
+        }
+        scope.launch {
+            while (exp < gameState.experience) {
+                delay(delay)
+                exp++
+            }
+        }
+        scope.launch {
+            while (streak < gameState.streakDays) {
+                delay(delay)
+                streak++
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -173,20 +214,20 @@ fun HomeScreen(
             ) {
                 Column {
                     Text(
-                        text = "Уровень ${gameState.level}",
+                        text = "Уровень $level",
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold
                     )
                     Text(
-                        text = "${gameState.experience} ОП",
+                        text = "$exp ОП",
                         style = MaterialTheme.typography.bodyMedium,
                     )
 
                     // Level progress indicator
-                    val nextLevelExp = (gameState.level * 100) - gameState.experience
+                    val nextLevelExp = (level * 100) - exp
                     if (nextLevelExp > 0) {
                         Text(
-                            text = "До следующего уровня: ${nextLevelExp} ОП",
+                            text = "До следующего уровня: $nextLevelExp ОП",
                             style = MaterialTheme.typography.bodySmall,
                             color = LocalContentColor.current.copy(alpha = 0.7f)
                         )
@@ -207,7 +248,7 @@ fun HomeScreen(
                             tint = Color(0xFFFFD700)
                         )
                         Text(
-                            text = "${gameState.coins}",
+                            text = "$coins",
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold
                         )
@@ -249,7 +290,7 @@ fun HomeScreen(
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
                     Text(
-                        text = "${gameState.streakDays} дней подряд!",
+                        text = "$streak дней подряд!",
                         style = MaterialTheme.typography.titleMedium,
                         color = Color.White,
                         fontWeight = FontWeight.Bold
@@ -262,6 +303,62 @@ fun HomeScreen(
                 }
             }
         }
+
+        // Shop card
+        Spacer(modifier = Modifier.height(24.dp))
+
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(IntrinsicSize.Min),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ShopCard(
+                onNavigateToShop = onNavigateToShop,
+                modifier = Modifier.weight(1f)
+            )
+
+
+            Card(
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .aspectRatio(1f),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color(0xFF43C243),
+                    contentColor = Color.White
+                ),
+                onClick = onNavigateToDailyTasks
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                ) {
+                    Icon(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .size(32.dp),
+                        imageVector = Icons.Default.Assignment,
+                        contentDescription = null,
+                        tint = Color.White
+                    )
+                    Box(
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .then(
+                                Modifier
+                                    .clip(CircleShape)
+                                    .background(Color.Red)
+                                    .size(10.dp)
+                                    .extendOutsideParent(end = 30.dp, top = 30.dp)
+                            )
+                            .clipToBounds()
+                    )
+                }
+            }
+        }
+
 
         Spacer(modifier = Modifier.height(24.dp))
 
@@ -389,16 +486,16 @@ fun HomeScreen(
                 )
             }
 
-            item {
-                MenuButton(
-                    icon = Icons.Default.Store,
-                    title = "Магазин",
-                    subtitle = "Трать свои монеты",
-                    color = Color(0xFFE2F1EA),
-                    iconColor = Color(0xFF3E99C9),
-                    onClick = onNavigateToShop
-                )
-            }
+//            item {
+//                MenuButton(
+//                    icon = Icons.Default.Store,
+//                    title = "Магазин",
+//                    subtitle = "Трать свои монеты",
+//                    color = Color(0xFFE2F1EA),
+//                    iconColor = Color(0xFF3E99C9),
+//                    onClick = onNavigateToShop
+//                )
+//            }
         }
     }
 }
@@ -413,41 +510,4 @@ fun MenuButton(
     iconColor: Color,
     onClick: () -> Unit
 ) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(150.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = color
-        ),
-        onClick = onClick
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Icon(
-                imageVector = icon,
-                contentDescription = title,
-                tint = iconColor,
-                modifier = Modifier.size(32.dp)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
-            )
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodySmall,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-            )
-        }
-    }
-} 
+}

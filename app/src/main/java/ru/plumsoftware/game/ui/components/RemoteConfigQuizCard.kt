@@ -1,6 +1,6 @@
 package ru.plumsoftware.game.ui.components
 
-import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -27,6 +27,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,9 +35,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Brush.Companion.sweepGradient
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -86,33 +85,35 @@ fun RemoteConfigQuizCard(
         }
     }
 
-    // Анимация градиента (остаётся без изменений)
-    val transition = rememberInfiniteTransition(label = "borderGradientTransition")
-    val angle by transition.animateFloat(
+    val transition = rememberInfiniteTransition()
+    val phase by transition.animateFloat(
         initialValue = 0f,
-        targetValue = 360f,
+        targetValue = 1000f,
         animationSpec = infiniteRepeatable(
-            animation = tween(3000, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart
+            animation = tween(2000, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
         ),
-        label = "borderAngleAnimation"
+        label = "Gradient border"
     )
 
-    val brush by remember(angle) {
-        mutableStateOf(
-            Brush.sweepGradient(
-                colors = listOf(
-                    Color.Transparent,
-                    Color.White.copy(alpha = 0.3f),
-                    Color(0xFFFFF200).copy(alpha = 0.5f),
-                    Color(0xFFFF656F).copy(alpha = 0.5f),
-                    Color(0xFFFF0000).copy(alpha = 0.5f),
-                    Color(0xFFFF7B00).copy(alpha = 0.5f),
-                    Color.Transparent
-                ),
-                center = Offset(0.5f, 0.5f),
+    val colors = listOf(
+        Color.Transparent,
+        Color.White.copy(alpha = 0.3f),
+        Color(0xFFFFF200).copy(alpha = 0.5f),
+        Color(0xFFFF656F).copy(alpha = 0.5f),
+        Color(0xFFFF0000).copy(alpha = 0.5f),
+        Color(0xFFFF7B00).copy(alpha = 0.5f),
+        Color.Transparent
+    )
+
+    val brush by remember(phase) {
+        derivedStateOf {
+            Brush.horizontalGradient(
+                colors = colors,
+                startX = phase,
+                endX = phase + 300f
             )
-        )
+        }
     }
 
     Box(
@@ -125,11 +126,7 @@ fun RemoteConfigQuizCard(
                 .fillMaxWidth()
                 .align(Alignment.Center)
                 .height(160.dp)
-                .border(
-                    width = 4.dp,
-                    brush = brush,
-                    shape = RoundedCornerShape(12.dp)
-                ),
+                .border(4.dp, brush, RoundedCornerShape(12.dp)),
             onClick = { onNavigateToQuiz(remoteQuiz) }
         ) {
             Box(
@@ -205,6 +202,7 @@ fun RemoteConfigQuizCard(
                 }
             }
         }
+
         Image(
             modifier = Modifier
                 .size(60.dp, 95.dp)
@@ -213,6 +211,7 @@ fun RemoteConfigQuizCard(
             painter = painterResource(R.drawable.fire),
             contentDescription = null
         )
+
         Box(
             modifier = Modifier.extendOutsideParent(top = 20.dp, start = 20.dp)
         ) {
