@@ -78,7 +78,7 @@ fun HomeScreen(
     var exp by remember { mutableIntStateOf(0) }
     var streak by remember { mutableIntStateOf(0) }
     val scope = rememberCoroutineScope { Dispatchers.IO }
-    val delay = 20L
+    val delay = 10L
 
     LaunchedEffect(key1 = gameState) {
         scope.launch {

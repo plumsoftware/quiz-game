@@ -14,6 +14,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import ru.plumsoftware.game.data.DailyTask
 import ru.plumsoftware.game.data.GameData
 
@@ -125,6 +128,9 @@ fun TaskCard(
     progress: Map<String, Int>,
     onTaskCompleted: (taskId: Int, reward: Int) -> Unit
 ) {
+    var progressInt by remember { mutableFloatStateOf(0f) }
+    val scope = rememberCoroutineScope { Dispatchers.IO }
+
     val isCompleted = when (task.id) {
         1 -> (progress["quizzes_completed"] ?: 0) >= 3
         2 -> (progress["correct_answers"] ?: 0) >= 5
@@ -145,6 +151,15 @@ fun TaskCard(
         6 -> (progress["quiz_levels_completed"] ?: 0).toFloat() / 1f
         7 -> (progress["coins_earned"] ?: 0).toFloat() / 100f
         else -> 0f
+    }
+
+    LaunchedEffect(key1 = task) {
+        scope.launch {
+            while (progressInt < progressValue) {
+                delay(10L)
+                progressInt = progressInt + (progressValue / 100f)
+            }
+        }
     }
 
     Card(
@@ -210,7 +225,7 @@ fun TaskCard(
                 Spacer(modifier = Modifier.height(8.dp))
                 
                 LinearProgressIndicator(
-                    progress = progressValue.coerceIn(0f, 1f),
+                    progress = progressInt.coerceIn(0f, 1f),
                     modifier = Modifier.fillMaxWidth()
                 )
                 

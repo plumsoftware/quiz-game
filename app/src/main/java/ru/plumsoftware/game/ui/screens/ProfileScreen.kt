@@ -16,6 +16,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import ru.plumsoftware.game.data.GameState
 
 @Composable
@@ -81,6 +84,34 @@ fun ProfileScreen(
 
 @Composable
 fun PlayerInfoCard(gameState: GameState) {
+    val progressToNextLevel = (gameState.experience % 100).toFloat() / 100f
+    var progressFloat by remember { mutableFloatStateOf(0f) }
+    val scope = rememberCoroutineScope { Dispatchers.IO }
+
+    var level by remember { mutableIntStateOf( 0) }
+    var exp by remember { mutableIntStateOf(0) }
+
+    LaunchedEffect(key1 = gameState) {
+        scope.launch {
+            while (progressFloat < progressToNextLevel) {
+                delay(10L)
+                progressFloat = progressFloat + (progressToNextLevel / 100f)
+            }
+        }
+        scope.launch {
+            while (exp < gameState.experience) {
+                delay(10L)
+                exp++
+            }
+        }
+        scope.launch {
+            while (level < gameState.level) {
+                delay(10L)
+                level++
+            }
+        }
+    }
+
     Card(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.1f)
@@ -112,13 +143,13 @@ fun PlayerInfoCard(gameState: GameState) {
             Spacer(modifier = Modifier.height(16.dp))
             
             Text(
-                text = "Уровень ${gameState.level}",
+                text = "Уровень $level",
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
             
             Text(
-                text = "${gameState.experience} ОП",
+                text = "$exp ОП",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
             )
@@ -126,23 +157,22 @@ fun PlayerInfoCard(gameState: GameState) {
             Spacer(modifier = Modifier.height(16.dp))
             
             // Progress to next level
-            val progressToNextLevel = (gameState.experience % 100).toFloat() / 100f
             Column {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(
-                        text = "Прогресс до уровня ${gameState.level + 1}",
+                        text = "Прогресс до уровня ${level + 1}",
                         style = MaterialTheme.typography.bodySmall
                     )
                     Text(
-                        text = "${gameState.experience % 100}/100",
+                        text = "${exp % 100}/100",
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
                 LinearProgressIndicator(
-                    progress = progressToNextLevel,
+                    progress = progressFloat,
                     modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(2.dp)),
                     trackColor = MaterialTheme.colorScheme.onError,
                     color = MaterialTheme.colorScheme.error.copy(alpha = 0.4f)
