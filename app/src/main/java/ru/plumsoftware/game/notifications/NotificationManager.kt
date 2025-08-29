@@ -63,7 +63,6 @@ class NotificationManager(private val context: Context) {
             .setAutoCancel(true)
             .setStyle(NotificationCompat.DecoratedCustomViewStyle())
             .setCustomContentView(remoteViews)
-//            .setCustomHeadsUpContentView(remoteViews)
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         notificationManager.notify(NOTIFICATION_ID, builder.build())
