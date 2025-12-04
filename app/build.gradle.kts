@@ -14,8 +14,8 @@ android {
         applicationId = "ru.plumsoftware.game"
         minSdk = 26
         targetSdk = 36
-        versionCode = 6
-        versionName = "1.2.4"
+        versionCode = 7
+        versionName = "1.2.5"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -56,29 +56,29 @@ dependencies {
     implementation(libs.androidx.material3)
     
     // Navigation
-    implementation("androidx.navigation:navigation-compose:2.7.7")
+    implementation(libs.androidx.navigation.compose)
     
     // DataStore for preferences
-    implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation(libs.androidx.datastore.preferences)
     
     // Icons
-    implementation("androidx.compose.material:material-icons-extended:1.6.3")
+    implementation(libs.androidx.compose.material.icons.extended)
     
     // Coroutines
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
+    implementation(libs.kotlinx.coroutines.android)
+    implementation(libs.kotlinx.coroutines.core)
     
     // Notifications
-    implementation("androidx.core:core-ktx:1.12.0")
+    implementation(libs.androidx.core.ktx.v1120)
     
     // WorkManager for scheduled notifications
-    implementation("androidx.work:work-runtime-ktx:2.9.0")
+    implementation(libs.androidx.work.runtime.ktx)
 
     // Ads
-    implementation("com.yandex.android:mobileads:7.15.0")
+    implementation(libs.mobileads)
 
     // Fonts
-    implementation("androidx.compose.ui:ui-text-google-fonts:1.8.3")
+    implementation(libs.androidx.compose.ui.text.google.fonts)
 
     // Firebase
     implementation(libs.firebase.messaging)
