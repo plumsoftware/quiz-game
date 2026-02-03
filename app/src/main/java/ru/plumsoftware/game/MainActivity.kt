@@ -3,6 +3,7 @@ package ru.plumsoftware.game
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -91,7 +92,8 @@ fun GameApp(
     val currentQuizLevel by viewModel.currentQuizLevel.collectAsState()
     val remoteConfigQuiz by viewModel.remoteQuiz.collectAsState()
 
-    val displayAds by remember { mutableStateOf(Firebase.remoteConfig.getBoolean("display_ads")) }
+//    val displayAds by remember { mutableStateOf(Firebase.remoteConfig.getBoolean("display_ads")) }
+    val displayAds by remember { mutableStateOf(true) }
     val remoteQuiz by remember {
         mutableStateOf(
             try {
