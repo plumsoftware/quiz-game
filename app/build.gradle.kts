@@ -14,8 +14,8 @@ android {
         applicationId = "ru.plumsoftware.game"
         minSdk = 26
         targetSdk = 36
-        versionCode = 8
-        versionName = "1.2.6"
+        versionCode = 9
+        versionName = "1.2.7"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -98,4 +98,10 @@ dependencies {
 
     // Animation
     implementation("androidx.compose.animation:animation-core")
+
+    // UI enhancements
+    implementation(libs.lottie.compose)
+    implementation(libs.konfetti.compose)
+    implementation(libs.coil.compose)
+    implementation(libs.androidx.core.splashscreen)
 }

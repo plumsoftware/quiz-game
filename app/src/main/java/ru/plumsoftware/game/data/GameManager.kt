@@ -27,10 +27,14 @@ class GameManager(private val context: Context) {
         val CATEGORIES_PLAYED = stringSetPreferencesKey("categories_played")
         val UNLOCKED_QUIZ_LEVELS = intPreferencesKey("unlocked_quiz_levels")
         val COMPLETED_QUIZZES = stringSetPreferencesKey("completed_quizzes")
+        val PLAYER_NAME = stringPreferencesKey("player_name")
+
+        fun powerUpKey(type: PowerUpType) = intPreferencesKey("power_up_${type.id}")
     }
 
     val gameState: Flow<GameState> = context.dataStore.data.map { preferences ->
         GameState(
+            playerName = preferences[PreferencesKeys.PLAYER_NAME] ?: "Игрок",
             coins = preferences[PreferencesKeys.COINS] ?: 0,
             level = preferences[PreferencesKeys.LEVEL] ?: 1,
             experience = preferences[PreferencesKeys.EXPERIENCE] ?: 0,
@@ -43,8 +47,53 @@ class GameManager(private val context: Context) {
             totalAnswers = preferences[PreferencesKeys.TOTAL_ANSWERS] ?: 0,
             streak = preferences[PreferencesKeys.STREAK_DAYS] ?: 0,
             playTimeMinutes = preferences[PreferencesKeys.PLAY_TIME_MINUTES] ?: 0,
-            categoriesPlayed = preferences[PreferencesKeys.CATEGORIES_PLAYED] ?: emptySet()
+            categoriesPlayed = preferences[PreferencesKeys.CATEGORIES_PLAYED] ?: emptySet(),
+            powerUpInventory = PowerUpType.entries.associate { type ->
+                type.id to (preferences[PreferencesKeys.powerUpKey(type)] ?: 0)
+            }
         )
+    }
+
+    suspend fun purchasePowerUp(type: PowerUpType): Boolean {
+        var success = false
+        context.dataStore.edit { preferences ->
+            val coins = preferences[PreferencesKeys.COINS] ?: 0
+            if (coins >= type.price) {
+                preferences[PreferencesKeys.COINS] = coins - type.price
+                val key = PreferencesKeys.powerUpKey(type)
+                preferences[key] = (preferences[key] ?: 0) + 1
+                success = true
+            }
+        }
+        return success
+    }
+
+    suspend fun consumePowerUp(type: PowerUpType): Boolean {
+        var consumed = false
+        context.dataStore.edit { preferences ->
+            val key = PreferencesKeys.powerUpKey(type)
+            val count = preferences[key] ?: 0
+            if (count > 0) {
+                preferences[key] = count - 1
+                consumed = true
+            }
+        }
+        return consumed
+    }
+
+    suspend fun addPowerUp(type: PowerUpType, amount: Int = 1) {
+        context.dataStore.edit { preferences ->
+            val key = PreferencesKeys.powerUpKey(type)
+            preferences[key] = (preferences[key] ?: 0) + amount
+        }
+    }
+
+    suspend fun updatePlayerName(name: String) {
+        val trimmed = name.trim().take(24)
+        if (trimmed.isEmpty()) return
+        context.dataStore.edit { preferences ->
+            preferences[PreferencesKeys.PLAYER_NAME] = trimmed
+        }
     }
 
     suspend fun addCoins(amount: Int) {
@@ -78,30 +127,9 @@ class GameManager(private val context: Context) {
 
     private suspend fun checkAndUnlockQuizLevels(playerLevel: Int, preferences: MutablePreferences) {
         val currentUnlockedLevels = preferences[PreferencesKeys.UNLOCKED_QUIZ_LEVELS] ?: 1
-        
-        // Unlock level 2 at player level 3
-        if (playerLevel >= 3 && currentUnlockedLevels < 2) {
-            preferences[PreferencesKeys.UNLOCKED_QUIZ_LEVELS] = 2
-        }
-        
-        // Unlock level 3 at player level 5
-        if (playerLevel >= 5 && currentUnlockedLevels < 3) {
-            preferences[PreferencesKeys.UNLOCKED_QUIZ_LEVELS] = 3
-        }
-        
-        // Unlock level 4 at player level 7
-        if (playerLevel >= 7 && currentUnlockedLevels < 4) {
-            preferences[PreferencesKeys.UNLOCKED_QUIZ_LEVELS] = 4
-        }
-        
-        // Unlock level 5 at player level 10
-        if (playerLevel >= 10 && currentUnlockedLevels < 5) {
-            preferences[PreferencesKeys.UNLOCKED_QUIZ_LEVELS] = 5
-        }
-        
-        // Unlock level 6 at player level 15
-        if (playerLevel >= 15 && currentUnlockedLevels < 6) {
-            preferences[PreferencesKeys.UNLOCKED_QUIZ_LEVELS] = 6
+        val newUnlockedLevels = GameData.unlockedQuizTiersForPlayerLevel(playerLevel)
+        if (newUnlockedLevels > currentUnlockedLevels) {
+            preferences[PreferencesKeys.UNLOCKED_QUIZ_LEVELS] = newUnlockedLevels
         }
     }
 

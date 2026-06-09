@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import ru.plumsoftware.game.data.GameManager
 import ru.plumsoftware.game.data.GameState
 import ru.plumsoftware.game.data.GameData
+import ru.plumsoftware.game.data.PowerUpType
 import ru.plumsoftware.game.data.Question
 import ru.plumsoftware.game.data.Quiz
 import ru.plumsoftware.game.data.firebase.RemoteConfigQuizModel
@@ -60,6 +61,9 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     )
     val remoteQuiz: StateFlow<RemoteConfigQuizModel> =
         _remoteQuiz.asStateFlow()
+
+    private val _shopOpenedFromQuiz = MutableStateFlow(false)
+    val shopOpenedFromQuiz: StateFlow<Boolean> = _shopOpenedFromQuiz.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -170,10 +174,43 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun updatePlayerName(name: String) {
+        viewModelScope.launch {
+            gameManager.updatePlayerName(name)
+        }
+    }
+
     fun onPurchaseItem(itemId: Int, price: Int) {
         viewModelScope.launch {
             gameManager.addCoins(-price)
-            // Here you would implement the actual item effects
+        }
+    }
+
+    fun purchasePowerUp(type: PowerUpType, onResult: (Boolean) -> Unit = {}) {
+        viewModelScope.launch {
+            val success = gameManager.purchasePowerUp(type)
+            onResult(success)
+        }
+    }
+
+    fun consumePowerUp(type: PowerUpType, onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val success = gameManager.consumePowerUp(type)
+            onResult(success)
+        }
+    }
+
+    fun openShopFromQuiz() {
+        _shopOpenedFromQuiz.value = true
+        _currentScreen.value = GameScreen.SHOP
+    }
+
+    fun closeShop() {
+        if (_shopOpenedFromQuiz.value) {
+            _shopOpenedFromQuiz.value = false
+            _currentScreen.value = GameScreen.QUIZ
+        } else {
+            _currentScreen.value = GameScreen.HOME
         }
     }
 
@@ -196,7 +233,7 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             GameScreen.QUIZ -> _currentScreen.value = GameScreen.QUIZ_MENU
             GameScreen.QUIZ_MENU -> _currentScreen.value = GameScreen.HOME
             GameScreen.DAILY_TASKS -> _currentScreen.value = GameScreen.HOME
-            GameScreen.SHOP -> _currentScreen.value = GameScreen.HOME
+            GameScreen.SHOP -> closeShop()
             GameScreen.PROFILE -> _currentScreen.value = GameScreen.HOME
             GameScreen.SETTINGS -> _currentScreen.value = GameScreen.HOME
             GameScreen.ACHIEVEMENTS -> _currentScreen.value = GameScreen.HOME

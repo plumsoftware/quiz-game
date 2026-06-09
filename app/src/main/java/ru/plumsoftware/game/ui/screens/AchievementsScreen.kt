@@ -17,6 +17,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.plumsoftware.game.data.GameState
+import ru.plumsoftware.game.ui.components.game.GameScreenTopBar
+import ru.plumsoftware.game.ui.theme.*
 
 data class Achievement(
     val id: String,
@@ -32,36 +34,26 @@ data class Achievement(
 @Composable
 fun AchievementsScreen(
     gameState: GameState,
+    onBack: () -> Unit,
     onNavigateToSettings: () -> Unit
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(16.dp)
+            .background(GameBackground)
+            .padding(horizontal = 16.dp)
     ) {
-        // Header
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(
-                text = "Достижения",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
-            
-            IconButton(onClick = onNavigateToSettings) {
-                Icon(
-                    Icons.Default.Settings,
-                    contentDescription = "Настройки",
-                    tint = MaterialTheme.colorScheme.onSurface
-                )
+        GameScreenTopBar(
+            title = "Достижения",
+            onBack = onBack,
+            actions = {
+                IconButton(onClick = onNavigateToSettings) {
+                    Icon(Icons.Default.Settings, "Настройки", tint = GameTextPrimary)
+                }
             }
-        }
+        )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Achievements list
         LazyColumn(
@@ -85,10 +77,11 @@ fun AchievementCard(achievement: Achievement) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = if (isCompleted) 
-                achievement.color.copy(alpha = 0.1f) 
-            else 
-                MaterialTheme.colorScheme.surface
+            containerColor = if (isCompleted)
+                achievement.color.copy(alpha = 0.1f)
+            else
+                GameSurface,
+            contentColor = GameTextPrimary
         )
     ) {
         Row(
@@ -137,13 +130,13 @@ fun AchievementCard(achievement: Achievement) {
                     text = achievement.title,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = if (isCompleted) achievement.color else MaterialTheme.colorScheme.onSurface
+                    color = if (isCompleted) achievement.color else GameTextPrimary
                 )
-                
+
                 Text(
                     text = achievement.description,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    color = GameTextSecondary
                 )
                 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -161,7 +154,7 @@ fun AchievementCard(achievement: Achievement) {
                 Text(
                     text = "${achievement.current}/${achievement.target}",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    color = GameTextMuted
                 )
                 
                 if (achievement.reward > 0 && isCompleted) {

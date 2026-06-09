@@ -11,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -25,60 +26,53 @@ fun SplashScreen(
     var startAnimation by remember { mutableStateOf(false) }
     val alphaAnim = animateFloatAsState(
         targetValue = if (startAnimation) 1f else 0f,
-        animationSpec = tween(durationMillis = 2000),
-        label = "Splash alpha animation"
+        animationSpec = tween(durationMillis = 800),
+        label = "splashAlpha"
+    )
+    val scaleAnim = animateFloatAsState(
+        targetValue = if (startAnimation) 1f else 0.6f,
+        animationSpec = tween(durationMillis = 800),
+        label = "splashScale"
     )
 
-    LaunchedEffect(key1 = true) {
+    LaunchedEffect(Unit) {
         startAnimation = true
-        delay(2500L)
+        delay(2000L)
         onSplashComplete()
     }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.primary),
+            .background(ru.plumsoftware.game.ui.theme.GameBackground),
         contentAlignment = Alignment.Center
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            modifier = Modifier
+                .alpha(alphaAnim.value)
+                .scale(scaleAnim.value)
         ) {
-            // App icon placeholder (you can replace with actual icon)
-            Box(
-                modifier = Modifier
-                    .size(120.dp)
-                    .background(
-                        color = MaterialTheme.colorScheme.onPrimary,
-                        shape = MaterialTheme.shapes.large
-                    ),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = "🎮",
-                    fontSize = 60.sp
-                )
-            }
-            
-            Spacer(modifier = Modifier.height(24.dp))
-            
-            Text(
-                text = "Развивающая Викторина",
-                color = MaterialTheme.colorScheme.onPrimary,
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.alpha(alphaAnim.value)
+            Image(
+                painter = painterResource(R.drawable.profile),
+                contentDescription = "Логотип",
+                modifier = Modifier.size(120.dp)
             )
-            
-            Spacer(modifier = Modifier.height(8.dp))
-            
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            Text(
+                text = "Викторины",
+                color = ru.plumsoftware.game.ui.theme.GameTextPrimary,
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold
+            )
+
             Text(
                 text = "Учись и играй!",
-                color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f),
-                fontSize = 16.sp,
-                modifier = Modifier.alpha(alphaAnim.value)
+                color = ru.plumsoftware.game.ui.theme.GameTextMuted,
+                fontSize = 16.sp
             )
         }
     }
-} 
+}

@@ -19,6 +19,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ru.plumsoftware.game.data.DailyTask
 import ru.plumsoftware.game.data.GameData
+import ru.plumsoftware.game.ui.components.game.GameScreenTopBar
+import ru.plumsoftware.game.ui.theme.*
 
 @Composable
 fun DailyTasksScreen(
@@ -31,35 +33,18 @@ fun DailyTasksScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(16.dp)
+            .background(GameBackground)
+            .padding(horizontal = 16.dp)
     ) {
-        // Header
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = onBack) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-            }
-            
-            Text(
-                text = "Ежедневные задания",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
-            )
-            
-            Spacer(modifier = Modifier.width(48.dp))
-        }
+        GameScreenTopBar(title = "Ежедневные задания", onBack = onBack)
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(8.dp))
 
         // Progress summary
         Card(
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
-                contentColor = MaterialTheme.colorScheme.onBackground
+                containerColor = GameSurface,
+                contentColor = GameTextPrimary
             )
         ) {
             Column(
@@ -68,7 +53,8 @@ fun DailyTasksScreen(
                 Text(
                     text = "Сегодняшний прогресс",
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = GameTextPrimary
                 )
                 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -105,6 +91,7 @@ fun DailyTasksScreen(
 
         // Tasks list
         LazyColumn(
+            contentPadding = PaddingValues(bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(dailyTasks) { task ->
@@ -164,10 +151,11 @@ fun TaskCard(
 
     Card(
         colors = CardDefaults.cardColors(
-            containerColor = if (isCompleted) 
-                Color(0xFF4CAF50).copy(alpha = 0.1f) 
-            else 
-                MaterialTheme.colorScheme.surface
+            containerColor = if (isCompleted)
+                Color(0xFF4CAF50).copy(alpha = 0.1f)
+            else
+                GameSurface,
+            contentColor = GameTextPrimary
         )
     ) {
         Column(
@@ -184,13 +172,14 @@ fun TaskCard(
                     Text(
                         text = task.title,
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        color = GameTextPrimary
                     )
-                    
+
                     Text(
                         text = task.description,
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                        color = GameTextSecondary
                     )
                 }
                 
@@ -241,7 +230,7 @@ fun TaskCard(
                         else -> ""
                     },
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                    color = GameTextMuted
                 )
             }
         }

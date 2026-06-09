@@ -3,6 +3,7 @@ package ru.plumsoftware.game.ui.screens
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -11,15 +12,20 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import ru.plumsoftware.game.data.GameData
 import ru.plumsoftware.game.data.GameState
 import ru.plumsoftware.game.data.Quiz
-import ru.plumsoftware.game.data.GameData
+import ru.plumsoftware.game.ui.components.game.GameScreenTopBar
+import ru.plumsoftware.game.ui.theme.*
+import ru.plumsoftware.game.ui.util.CategoryStyles
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QuizMenuScreen(
     gameState: GameState,
@@ -28,179 +34,200 @@ fun QuizMenuScreen(
     onNavigateToQuiz: (quizId: Int) -> Unit,
     onBack: () -> Unit
 ) {
+    var searchQuery by remember { mutableStateOf("") }
+    var selectedCategory by remember { mutableStateOf<String?>(null) }
+    var lockedQuizSheet by remember { mutableStateOf<Quiz?>(null) }
+    val sheetState = rememberModalBottomSheetState()
+
+    val categories = remember(availableQuizzes) {
+        availableQuizzes.map { it.category }.distinct().sorted()
+    }
+
+    val filteredQuizzes = remember(availableQuizzes, searchQuery, selectedCategory) {
+        availableQuizzes.filter { quiz ->
+            val matchesSearch = searchQuery.isBlank() ||
+                quiz.title.contains(searchQuery, ignoreCase = true) ||
+                quiz.category.contains(searchQuery, ignoreCase = true)
+            val matchesCategory = selectedCategory == null || quiz.category == selectedCategory
+            matchesSearch && matchesCategory
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(16.dp)
+            .background(GameBackground)
+            .padding(horizontal = 16.dp)
     ) {
-        // Header
-        Row(
+        GameScreenTopBar(
+            title = "Викторины",
+            onBack = onBack,
+            actions = {
+                AssistChip(
+                    onClick = {},
+                    label = {
+                        Text(
+                            "${completedQuizzes.size}/${availableQuizzes.size}",
+                            color = GameTextPrimary
+                        )
+                    },
+                    leadingIcon = {
+                        Icon(Icons.Default.CheckCircle, null, modifier = Modifier.size(16.dp), tint = GamePurpleLight)
+                    },
+                    colors = AssistChipDefaults.assistChipColors(
+                        containerColor = GameSurface,
+                        labelColor = GameTextPrimary
+                    )
+                )
+            }
+        )
+
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+            placeholder = { Text("Поиск викторины...", color = GameTextMuted) },
+            leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = GameTextMuted) },
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = GameTextPrimary,
+                unfocusedTextColor = GameTextPrimary,
+                cursorColor = GamePurple,
+                focusedBorderColor = GamePurple,
+                unfocusedBorderColor = GameBorder,
+                focusedContainerColor = GameSurface,
+                unfocusedContainerColor = GameSurface
+            ),
+            trailingIcon = {
+                if (searchQuery.isNotEmpty()) {
+                    IconButton(onClick = { searchQuery = "" }) {
+                        Icon(Icons.Default.Clear, contentDescription = "Очистить")
+                    }
+                }
+            },
+            singleLine = true,
+            shape = RoundedCornerShape(16.dp)
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            item {
+                FilterChip(
+                    selected = selectedCategory == null,
+                    onClick = { selectedCategory = null },
+                    label = { Text("Все") }
+                )
+            }
+            items(categories) { category ->
+                val style = CategoryStyles.forCategory(category)
+                FilterChip(
+                    selected = selectedCategory == category,
+                    onClick = {
+                        selectedCategory = if (selectedCategory == category) null else category
+                    },
+                    label = { Text("${style.emoji} $category") },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = style.color.copy(alpha = 0.2f)
+                    )
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        LinearProgressIndicator(
+            progress = {
+                if (availableQuizzes.isNotEmpty())
+                    completedQuizzes.size.toFloat() / availableQuizzes.size
+                else 0f
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(6.dp)
+                .clip(RoundedCornerShape(3.dp))
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        LazyColumn(
+            contentPadding = PaddingValues(bottom = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            IconButton(onClick = onBack) {
-                Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Back",
-                    tint = MaterialTheme.colorScheme.onSurface
+            items(filteredQuizzes) { quiz ->
+                val canPlay = canPlayQuiz(quiz.id, completedQuizzes, gameState.unlockedQuizLevels)
+                val isUnlocked = quiz.requiredLevel <= gameState.unlockedQuizLevels
+                val isCompleted = completedQuizzes.contains(quiz.id)
+
+                QuizMenuItem(
+                    quiz = quiz,
+                    isCompleted = isCompleted,
+                    isUnlocked = isUnlocked,
+                    canPlay = canPlay,
+                    onClick = {
+                        if (canPlay) onNavigateToQuiz(quiz.id)
+                        else lockedQuizSheet = quiz
+                    }
                 )
             }
 
-            Text(
-                text = "Викторины",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
-
-            // Progress indicator
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                    contentColor = MaterialTheme.colorScheme.onSurface
-                ),
-                modifier = Modifier.size(40.dp)
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
+            if (filteredQuizzes.isEmpty()) {
+                item {
                     Text(
-                        text = "${completedQuizzes.size}/${availableQuizzes.size}",
-                        style = MaterialTheme.typography.bodySmall,
-                        fontWeight = FontWeight.Bold
+                        text = "Ничего не найдено",
+                        modifier = Modifier.padding(32.dp),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = GameTextMuted
                     )
                 }
             }
         }
+    }
 
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Quiz list
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+    if (lockedQuizSheet != null) {
+        ModalBottomSheet(
+            onDismissRequest = { lockedQuizSheet = null },
+            sheetState = sheetState
         ) {
-            item {
-                // Progress card
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surface,
-                        contentColor = MaterialTheme.colorScheme.onSurface
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
-                        Text(
-                            text = "Прогресс",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        LinearProgressIndicator(
-                            progress = if (availableQuizzes.isNotEmpty()) {
-                                completedQuizzes.size.toFloat() / availableQuizzes.size
-                            } else 0f,
-                            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(2.dp)),
-                            color = LocalContentColor.current,
-                            trackColor = LocalContentColor.current.copy(alpha = 0.3f)
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "Пройдено ${completedQuizzes.size} из ${availableQuizzes.size} викторин",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = LocalContentColor.current
-                        )
-
-                        // Level requirement indicator
-                        val lockedQuizzes = GameData.getAllQuizzes().filter { quiz ->
-                            quiz.requiredLevel > gameState.unlockedQuizLevels
-                        }
-
-                        if (lockedQuizzes.isNotEmpty()) {
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Card(
-                                colors = CardDefaults.cardColors(
-                                    containerColor = Color(0xFFFF9800).copy(alpha = 0.1f)
-                                )
-                            ) {
-                                Row(
-                                    modifier = Modifier.padding(12.dp),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Lock,
-                                        contentDescription = "Locked",
-                                        tint = Color(0xFFFF9800),
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Column {
-                                        Text(
-                                            text = "🔒 Заблокированные викторины",
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            fontWeight = FontWeight.Bold,
-                                            color = Color(0xFFFF9800)
-                                        )
-                                        Text(
-                                            text = "Требуется уровень ${gameState.unlockedQuizLevels + 1} для разблокировки",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = Color(0xFFFF9800).copy(alpha = 0.8f)
-                                        )
-                                        Text(
-                                            text = "Доступно еще ${lockedQuizzes.size} викторин",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = Color(0xFFFF9800).copy(alpha = 0.8f)
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-            }
-
-            items(availableQuizzes) { quiz ->
-                QuizMenuItem(
-                    quiz = quiz,
-                    isCompleted = completedQuizzes.contains(quiz.id),
-                    isUnlocked = quiz.requiredLevel <= gameState.unlockedQuizLevels,
-                    canPlay = canPlayQuiz(quiz.id, completedQuizzes, gameState.unlockedQuizLevels),
-                    onClick = { onNavigateToQuiz(quiz.id) }
+            val quiz = lockedQuizSheet!!
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Icon(
+                    Icons.Default.Lock,
+                    contentDescription = null,
+                    modifier = Modifier.size(48.dp),
+                    tint = Color(0xFFFF9800)
                 )
-            }
-            
-            // Show locked quizzes preview
-            val lockedQuizzes = GameData.getAllQuizzes().filter { quiz ->
-                quiz.requiredLevel > gameState.unlockedQuizLevels
-            }.take(3) // Show only first 3 locked quizzes
-            
-            if (lockedQuizzes.isNotEmpty()) {
-                item {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = "🔒 Заблокированные викторины",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Gray
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(12.dp))
+                Text(
+                    text = "Пройди уровень ${quiz.requiredLevel}, чтобы открыть!",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = GameTextPrimary
+                )
+                Text(
+                    text = quiz.title,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = GameTextSecondary
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    onClick = {
+                        lockedQuizSheet = null
+                        val playable = availableQuizzes.firstOrNull {
+                            canPlayQuiz(it.id, completedQuizzes, gameState.unlockedQuizLevels) &&
+                                !completedQuizzes.contains(it.id)
+                        }
+                        playable?.let { onNavigateToQuiz(it.id) }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Играть сейчас")
                 }
-                
-                items(lockedQuizzes) { quiz ->
-                    LockedQuizItem(
-                        quiz = quiz,
-                        currentLevel = gameState.unlockedQuizLevels
-                    )
-                }
-
-                item {
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
+                Spacer(modifier = Modifier.height(24.dp))
             }
         }
     }
@@ -214,238 +241,98 @@ fun QuizMenuItem(
     canPlay: Boolean,
     onClick: () -> Unit
 ) {
+    val style = CategoryStyles.forCategory(quiz.category)
+    val isLocked = !canPlay && !isCompleted
+
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .alpha(if (isLocked) 0.5f else 1f),
         colors = CardDefaults.cardColors(
-            containerColor = when {
-                isCompleted -> Color(0xFF205B07).copy(alpha = 0.05f)
-                canPlay -> Color(0xFF44FF00).copy(alpha = 0.1f)
-                else -> Color.Gray.copy(alpha = 0.1f)
-            }
+            containerColor = if (isCompleted) style.color.copy(alpha = 0.08f) else GameSurface,
+            contentColor = GameTextPrimary
         ),
-        onClick = if (canPlay) onClick else { {} }
+        onClick = onClick
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Quiz icon
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = when {
-                        isCompleted -> Color(0xFF4CAF50)
-                        canPlay -> when (quiz.difficulty) {
-                            1 -> Color(0xFF4CAF50)
-                            2 -> Color(0xFFFF9800)
-                            3 -> Color(0xFFE91E63)
-                            4 -> Color(0xFF9C27B0)
-                            5 -> Color(0xFF2196F3)
-                            6 -> Color(0xFF795548)
-                            else -> MaterialTheme.colorScheme.primary
-                        }
-                        else -> Color.Gray
-                    }
-                ),
-                modifier = Modifier.size(48.dp)
+        Box {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(RoundedCornerShape(14.dp))
+                        .background(style.color.copy(alpha = 0.2f)),
                     contentAlignment = Alignment.Center
                 ) {
-                    when {
-                        isCompleted -> {
-                            Icon(
-                                imageVector = Icons.Default.Check,
-                                contentDescription = "Completed",
-                                tint = Color.White,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                        canPlay -> {
-                            Text(
-                                text = "${quiz.difficulty}",
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 18.sp
-                            )
-                        }
-                        else -> {
-                            Icon(
-                                imageVector = Icons.Default.Lock,
-                                contentDescription = "Locked",
-                                tint = Color.White,
-                                modifier = Modifier.size(24.dp)
-                            )
-                        }
-                    }
+                    Text(text = style.emoji, fontSize = 28.sp)
                 }
-            }
 
-            Spacer(modifier = Modifier.width(16.dp))
+                Spacer(modifier = Modifier.width(14.dp))
 
-            // Level info
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = quiz.title,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = when {
-                            isCompleted -> Color(0xFF4CAF50)
-                            canPlay -> when (quiz.difficulty) {
-                                1 -> Color(0xFF4CAF50)
-                                2 -> Color(0xFFFF9800)
-                                3 -> Color(0xFFE91E63)
-                                4 -> Color(0xFF9C27B0)
-                                5 -> Color(0xFF2196F3)
-                                6 -> Color(0xFF795548)
-                                else -> MaterialTheme.colorScheme.onSurface
-                            }
-                            else -> Color.Gray
-                        }
+                        color = GameTextPrimary
                     )
-                    
-                    if (isCompleted) {
-                        Icon(
-                            imageVector = Icons.Default.Star,
-                            contentDescription = "Completed",
-                            tint = Color(0xFFFFD700),
-                            modifier = Modifier.size(16.dp)
-                        )
-                    }
+                    Text(
+                        text = "${quiz.questions.size} вопросов • ${quiz.category}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = GameTextMuted
+                    )
+                    DifficultyStars(difficulty = quiz.difficulty)
                 }
-                
-                Text(
-                    text = quiz.description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = when {
-                        isCompleted -> Color(0xFF4CAF50).copy(alpha = 0.7f)
-                        canPlay -> MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                        else -> Color.Gray
-                    }
-                )
-                
-                Text(
-                    text = "Категория: ${quiz.category} • ${quiz.questions.size} вопросов",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                )
-                
-                if (!isUnlocked) {
-                    Text(
-                        text = "Требуется уровень ${quiz.requiredLevel}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray
+
+                when {
+                    isCompleted -> Icon(
+                        Icons.Default.CheckCircle,
+                        contentDescription = null,
+                        tint = Color(0xFF4CAF50)
                     )
-                } else if (!canPlay && !isCompleted) {
-                    Text(
-                        text = "Сначала пройдите предыдущую викторину",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray
+                    canPlay -> Icon(
+                        Icons.Default.PlayArrow,
+                        contentDescription = null,
+                        tint = style.color
+                    )
+                    else -> Icon(
+                        Icons.Default.Lock,
+                        contentDescription = null,
+                        tint = Color.Gray
                     )
                 }
             }
 
-            // Action button
-            if (canPlay) {
-                IconButton(onClick = onClick) {
+            if (isLocked) {
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .background(Color.Transparent),
+                    contentAlignment = Alignment.Center
+                ) {
                     Icon(
-                        imageVector = Icons.Default.PlayArrow,
-                        contentDescription = "Play",
-                        tint = Color(0xFF4CAF50),
-                        modifier = Modifier.size(24.dp)
+                        Icons.Default.Lock,
+                        contentDescription = null,
+                        modifier = Modifier.size(32.dp),
+                        tint = Color.White.copy(alpha = 0.8f)
                     )
                 }
-            } else if (isCompleted) {
-                Icon(
-                    imageVector = Icons.Default.CheckCircle,
-                    contentDescription = "Completed",
-                    tint = Color(0xFF4CAF50),
-                    modifier = Modifier.size(24.dp)
-                )
             }
         }
     }
 }
 
 @Composable
-fun LockedQuizItem(
-    quiz: Quiz,
-    currentLevel: Int
-) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.Gray.copy(alpha = 0.1f)
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            // Locked icon
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.Gray
-                ),
-                modifier = Modifier.size(48.dp)
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Lock,
-                        contentDescription = "Locked",
-                        tint = Color.White,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // Quiz info
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = quiz.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Gray
-                )
-                
-                Text(
-                    text = quiz.description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray
-                )
-                
-                Text(
-                    text = "Категория: ${quiz.category} • ${quiz.questions.size} вопросов",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray.copy(alpha = 0.5f)
-                )
-                
-                Text(
-                    text = "🔒 Требуется уровень ${quiz.requiredLevel} (у вас ${currentLevel})",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = Color(0xFFFF9800),
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-    }
+private fun DifficultyStars(difficulty: Int) {
+    Text(
+        text = "★".repeat(difficulty.coerceIn(1, 6)),
+        style = MaterialTheme.typography.bodySmall,
+        color = Color(0xFFFFD700)
+    )
 }
 
 private fun canPlayQuiz(
@@ -453,16 +340,9 @@ private fun canPlayQuiz(
     completedQuizzes: Set<Int>,
     unlockedLevels: Int
 ): Boolean {
-    val quiz = GameData.getQuiz(quizId)
-    if (quiz == null) return false
-    
-    // Quiz must be unlocked
+    val quiz = GameData.getQuiz(quizId) ?: return false
     if (quiz.requiredLevel > unlockedLevels) return false
-    
-    // For difficulty 1, can always be played if unlocked
     if (quiz.difficulty == 1) return true
-    
-    // For other difficulties, need to complete at least one quiz of previous difficulty
     val previousDifficultyQuizzes = GameData.getQuizzesForDifficulty(quiz.difficulty - 1)
     return previousDifficultyQuizzes.any { it.id in completedQuizzes }
-} 
+}

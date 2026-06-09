@@ -20,4 +20,5 @@
     <color name="achievement_purple">#FF9C27B0</color>
 
     <color name="default_notification_color">#FF9800</color>
+    <color name="splash_background">#FF0F0E17</color>
 </resources>

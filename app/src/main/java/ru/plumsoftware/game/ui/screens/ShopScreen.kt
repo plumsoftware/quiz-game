@@ -5,388 +5,126 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.google.firebase.Firebase
 import com.google.firebase.remoteconfig.remoteConfig
 import ru.plumsoftware.game.App
 import ru.plumsoftware.game.MainActivity
-import ru.plumsoftware.game.ads.AdsBase
 import ru.plumsoftware.game.ads.AdsManager
-
-data class ShopItem(
-    val id: Int,
-    val name: String,
-    val description: String,
-    val price: Int,
-    val icon: androidx.compose.ui.graphics.vector.ImageVector,
-    val color: Color
-)
+import ru.plumsoftware.game.data.PowerUpType
+import ru.plumsoftware.game.ui.components.game.CoinBadge
+import ru.plumsoftware.game.ui.components.game.GameScreenTopBar
+import ru.plumsoftware.game.ui.components.game.PowerUpShopCard
+import ru.plumsoftware.game.ui.theme.*
 
 @Composable
 fun ShopScreen(
     coins: Int,
+    inventory: Map<String, Int>,
     addCoins: (Int) -> Unit,
     onBack: () -> Unit,
-    onPurchase: (itemId: Int, price: Int) -> Unit
+    onPurchasePowerUp: (PowerUpType) -> Unit
 ) {
     val activity = LocalActivity.current ?: MainActivity()
     val adsManager = AdsManager(App.adsBase, activity)
-    val displayAds by remember { mutableStateOf(Firebase.remoteConfig.getBoolean("display_ads")) }
-
-    val shopItems = remember {
-        listOf(
-            ShopItem(
-                id = 1,
-                name = "Дополнительные жизни",
-                description = "Получи 3 дополнительные жизни для сложных вопросов",
-                price = 100,
-                icon = Icons.Default.Favorite,
-                color = Color(0xFFE91E63)
-            ),
-            ShopItem(
-                id = 2,
-                name = "Набор подсказок",
-                description = "Получи 5 подсказок для сложных вопросов",
-                price = 150,
-                icon = Icons.Default.Lightbulb,
-                color = Color(0xFFFF9800)
-            ),
-            ShopItem(
-                id = 3,
-                name = "Двойной опыт",
-                description = "Получай двойной опыт на 1 час",
-                price = 200,
-                icon = Icons.Default.TrendingUp,
-                color = Color(0xFF4CAF50)
-            ),
-            ShopItem(
-                id = 4,
-                name = "Бонус за отличный результат",
-                description = "Получай на 50% больше монет за отличные результаты",
-                price = 300,
-                icon = Icons.Default.Star,
-                color = Color(0xFFFFD700)
-            ),
-            ShopItem(
-                id = 5,
-                name = "Разблокировать все категории",
-                description = "Доступ ко всем категориям вопросов",
-                price = 500,
-                icon = Icons.Default.Category,
-                color = Color(0xFF9C27B0)
-            ),
-            ShopItem(
-                id = 6,
-                name = "Ежедневный бонус",
-                description = "Получай 50 дополнительных монет каждый день",
-                price = 1000,
-                icon = Icons.Default.CalendarToday,
-                color = Color(0xFF2196F3)
-            ),
-            ShopItem(
-                id = 7,
-                name = "Золотой пропуск",
-                description = "Разблокируй все уровни викторины сразу",
-                price = 1500,
-                icon = Icons.Default.VpnKey,
-                color = Color(0xFFFF6B35)
-            ),
-            ShopItem(
-                id = 8,
-                name = "Неограниченные подсказки",
-                description = "Получай неограниченное количество подсказок навсегда",
-                price = 2000,
-                icon = Icons.Default.AutoAwesome,
-                color = Color(0xFF9C27B0)
-            )
-        )
-    }
+    var adsWatchedToday by remember { mutableIntStateOf(0) }
+    val maxAdsPerDay = 3
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(16.dp)
+            .background(GameBackground)
     ) {
-        // Header
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(onClick = onBack) {
-                Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-            }
+        GameScreenTopBar(
+            title = "Магазин улучшений",
+            onBack = onBack,
+            actions = { CoinBadge(coins = coins) }
+        )
 
-            Text(
-                text = "Магазин",
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
-            )
+        Text(
+            text = "Покупай одноразовые подсказки и используй их в викторине",
+            style = MaterialTheme.typography.bodyMedium,
+            color = GameTextMuted,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+        )
 
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Icon(
-                    Icons.Default.MonetizationOn,
-                    contentDescription = "Coins",
-                    tint = Color(0xFFFFD700)
-                )
-                Text(
-                    text = "$coins",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        // Rewarded Ads Section
-        if (App.adsBase == AdsBase.AdsGooglePlay()) {
-            if (displayAds)
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFF4CAF50).copy(alpha = 0.1f)
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            Icons.Default.PlayArrow,
-                            contentDescription = "Watch Ad",
-                            tint = Color(0xFF4CAF50),
-                            modifier = Modifier.size(48.dp)
-                        )
-
-                        Spacer(modifier = Modifier.height(8.dp))
-
-                        Text(
-                            text = "Смотри рекламу за награды",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold,
-                            textAlign = TextAlign.Center
-                        )
-
-                        Text(
-                            text = "Заработай дополнительные монеты (+50), посмотрев короткую рекламу",
-                            style = MaterialTheme.typography.bodyMedium,
-                            textAlign = TextAlign.Center,
-                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                        )
-
-                        Spacer(modifier = Modifier.height(12.dp))
-
-                        Button(
-                            onClick = {
-                                adsManager.showRewarded { reward ->
-                                    addCoins(reward)
-                                }
-                            },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF4CAF50)
-                            ),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Icon(
-                                Icons.Default.PlayArrow,
-                                contentDescription = null,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Смотреть рекламу")
-                        }
-                    }
-                }
-        } else {
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFF4CAF50).copy(alpha = 0.1f)
-                )
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        Icons.Default.PlayArrow,
-                        contentDescription = "Watch Ad",
-                        tint = Color(0xFF4CAF50),
-                        modifier = Modifier.size(48.dp)
-                    )
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    Text(
-                        text = "Смотри рекламу за награды",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center
-                    )
-
-                    Text(
-                        text = "Заработай дополнительные монеты (+50), посмотрев короткую рекламу",
-                        style = MaterialTheme.typography.bodyMedium,
-                        textAlign = TextAlign.Center,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Button(
-                        onClick = {
-                            adsManager.showRewarded { reward ->
-                                addCoins(reward)
-                            }
-                        },
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF4CAF50)
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Icon(
-                            Icons.Default.PlayArrow,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Смотреть рекламу")
-                    }
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Shop items
         LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            items(shopItems) { item ->
-                ShopItemCard(
-                    item = item,
-                    canAfford = coins >= item.price,
-                    onPurchase = onPurchase
+            item {
+                AdRewardRow(
+                    adsWatched = adsWatchedToday,
+                    maxAds = maxAdsPerDay,
+                    onWatchAd = {
+                        if (adsWatchedToday < maxAdsPerDay) {
+                            adsManager.showRewarded { reward ->
+                                addCoins(if (reward == 1) 50 else reward)
+                                adsWatchedToday++
+                            }
+                        }
+                    },
+                    enabled = adsWatchedToday < maxAdsPerDay
                 )
             }
 
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
+            items(PowerUpType.entries) { type ->
+                PowerUpShopCard(
+                    type = type,
+                    owned = inventory[type.id] ?: 0,
+                    canAfford = coins >= type.price,
+                    onPurchase = { onPurchasePowerUp(type) }
+                )
             }
+
+            item { Spacer(modifier = Modifier.height(24.dp)) }
         }
     }
 }
 
 @Composable
-fun ShopItemCard(
-    item: ShopItem,
-    canAfford: Boolean,
-    onPurchase: (itemId: Int, price: Int) -> Unit
+private fun AdRewardRow(
+    adsWatched: Int,
+    maxAds: Int,
+    onWatchAd: () -> Unit,
+    enabled: Boolean
 ) {
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = item.color.copy(alpha = 0.1f)
-        )
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        color = GameSurface,
+        border = androidx.compose.foundation.BorderStroke(1.dp, GameBorder)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.padding(16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically
         ) {
-            // Icon
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = item.color
-                ),
-                modifier = Modifier.size(56.dp)
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = item.icon,
-                        contentDescription = item.name,
-                        tint = Color.White,
-                        modifier = Modifier.size(32.dp)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // Item details
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = item.name,
-                    style = MaterialTheme.typography.titleMedium,
+                    "🎬 Смотреть рекламу",
+                    style = MaterialTheme.typography.titleSmall,
+                    color = GameTextPrimary,
                     fontWeight = FontWeight.Bold
                 )
-
                 Text(
-                    text = item.description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    "Осталось: ${maxAds - adsWatched}/$maxAds • +50 🪙",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = GameTextMuted
                 )
             }
-
-            Spacer(modifier = Modifier.width(16.dp))
-
-            // Price and buy button
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
+            Button(
+                onClick = onWatchAd,
+                enabled = enabled,
+                colors = ButtonDefaults.buttonColors(containerColor = GamePurple)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Icon(
-                        Icons.Default.MonetizationOn,
-                        contentDescription = "Price",
-                        tint = if (canAfford) Color(0xFFFFD700) else Color.Gray,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Text(
-                        text = "${item.price}",
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = if (canAfford) Color(0xFFFFD700) else Color.Gray
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Button(
-                    onClick = { onPurchase(item.id, item.price) },
-                    enabled = canAfford,
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = if (canAfford) item.color else Color.Gray
-                    )
-                ) {
-                    Text(
-                        text = if (canAfford) "Купить" else "Недостаточно",
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
+                Text("Смотреть")
             }
         }
     }
-} 
+}

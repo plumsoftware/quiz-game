@@ -25,6 +25,7 @@ data class DailyTask(
 )
 
 data class GameState(
+    val playerName: String = "Игрок",
     val coins: Int = 0,
     val level: Int = 1,
     val experience: Int = 0,
@@ -37,7 +38,8 @@ data class GameState(
     val totalAnswers: Int = 0,
     val streak: Int = 0,
     val playTimeMinutes: Int = 0,
-    val categoriesPlayed: Set<String> = emptySet()
+    val categoriesPlayed: Set<String> = emptySet(),
+    val powerUpInventory: Map<String, Int> = emptyMap()
 )
 
 @Serializable
@@ -1511,5 +1513,31 @@ object GameData {
 
     fun getQuizzesForCategory(category: String): List<Quiz> {
         return quizzes.filter { it.category == category }
+    }
+
+    fun unlockedQuizTiersForPlayerLevel(playerLevel: Int): Int = when {
+        playerLevel >= 15 -> 6
+        playerLevel >= 10 -> 5
+        playerLevel >= 7 -> 4
+        playerLevel >= 5 -> 3
+        playerLevel >= 3 -> 2
+        else -> 1
+    }
+
+    fun quizzesUnlockingAtPlayerLevel(playerLevel: Int): Int {
+        if (playerLevel <= 1) return 0
+        val tiersAtLevel = unlockedQuizTiersForPlayerLevel(playerLevel)
+        val tiersBefore = unlockedQuizTiersForPlayerLevel(playerLevel - 1)
+        if (tiersAtLevel <= tiersBefore) return 0
+        return quizzes.count { it.requiredLevel == tiersAtLevel }
+    }
+
+    fun quizzesUnlockingLabel(count: Int): String {
+        val word = when {
+            count % 10 == 1 && count % 100 != 11 -> "викторина"
+            count % 10 in 2..4 && count % 100 !in 12..14 -> "викторины"
+            else -> "викторин"
+        }
+        return "$count $word"
     }
 } 

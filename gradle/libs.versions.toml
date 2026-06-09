@@ -22,6 +22,10 @@ mobileads = "7.18.2"
 navigationCompose = "2.9.6"
 uiTextGoogleFonts = "1.10.0"
 workRuntimeKtx = "2.11.0"
+lottieCompose = "6.3.0"
+konfettiCompose = "2.0.4"
+coilCompose = "2.6.0"
+coreSplashscreen = "1.0.1"
 
 [libraries]
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended", version.ref = "materialIconsExtended" }
@@ -51,6 +55,10 @@ kotlinx-coroutines-android = { module = "org.jetbrains.kotlinx:kotlinx-coroutine
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 mobileads = { module = "com.yandex.android:mobileads", version.ref = "mobileads" }
+lottie-compose = { module = "com.airbnb.android:lottie-compose", version.ref = "lottieCompose" }
+konfetti-compose = { module = "nl.dionsegijn:konfetti-compose", version.ref = "konfettiCompose" }
+coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
+androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

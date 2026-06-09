@@ -1,27 +1,21 @@
 package ru.plumsoftware.game.ui.screens
 
 import androidx.activity.compose.LocalActivity
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MonetizationOn
 import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.google.firebase.Firebase
@@ -31,6 +25,8 @@ import ru.plumsoftware.game.MainActivity
 import ru.plumsoftware.game.R
 import ru.plumsoftware.game.ads.AdsBase
 import ru.plumsoftware.game.ads.AdsManager
+import ru.plumsoftware.game.ui.components.game.GameScreenTopBar
+import ru.plumsoftware.game.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,280 +42,137 @@ fun SettingsScreen(
 
     val activity = LocalActivity.current ?: MainActivity()
     val adsManager = AdsManager(App.adsBase, activity)
-
     val displayAds by remember { mutableStateOf(Firebase.remoteConfig.getBoolean("display_ads")) }
 
-    val infiniteTransition = rememberInfiniteTransition(label = "pulse")
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(GameBackground)
+    ) {
+        GameScreenTopBar(
+            title = stringResource(R.string.settings),
+            onBack = onBack,
+            modifier = Modifier.padding(horizontal = 4.dp)
+        )
 
-    val pulse by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = 1.1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(
-                durationMillis = 400,
-                easing = FastOutSlowInEasing
-            ),
-            repeatMode = RepeatMode.Reverse
-        ), label = "pulse"
-    )
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.settings)) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
-                    }
-                }
-            )
-        }
-    ) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
                 .verticalScroll(rememberScrollState())
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            // Rewarded Ads Section
-            if (App.adsBase == AdsBase.AdsGooglePlay()) {
-                if (displayAds)
-                    Card(
+            if (displayAds || App.adsBase != AdsBase.AdsGooglePlay()) {
+                GameSettingsCard(title = "🎁 Награда за рекламу") {
+                    Text(
+                        stringResource(R.string.earn_extra_coins),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = GameTextMuted
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Button(
+                        onClick = { adsManager.showRewarded { reward -> addCoins(reward) } },
                         modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = Color(0xFF4CAF50).copy(alpha = 0.1f)
-                        )
+                        colors = ButtonDefaults.buttonColors(containerColor = GamePurple),
+                        shape = RoundedCornerShape(14.dp)
                     ) {
-                        Column(
-                            modifier = Modifier.padding(16.dp),
-                            verticalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            Text(
-                                text = stringResource(R.string.watch_ad_for_rewards),
-                                style = MaterialTheme.typography.titleMedium
-                            )
-
-                            Text(
-                                text = stringResource(R.string.earn_extra_coins),
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-
-                            Button(
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFF4CAF50)
-                                ),
-                                onClick = {
-                                    adsManager.showRewarded { reward ->
-                                        addCoins(reward)
-                                    }
-                                },
-                                modifier = Modifier.fillMaxWidth(),
-                                contentPadding = PaddingValues(vertical = 16.dp)
-                            ) {
-                                Text(
-                                    stringResource(R.string.watch_ad),
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                                Spacer(Modifier.width(10.dp))
-                                Row(
-                                    modifier = Modifier
-                                        .wrapContentSize()
-                                        .rotate(20f)
-                                        .graphicsLayer {
-                                            scaleX = pulse
-                                            scaleY = pulse
-                                        },
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(
-                                        space = 4.dp,
-                                        alignment = Alignment.CenterHorizontally
-                                    )
-                                ) {
-                                    Text("+50", style = MaterialTheme.typography.titleLarge)
-                                    Icon(
-                                        imageVector = Icons.Default.MonetizationOn,
-                                        contentDescription = "плюс 50 монет",
-                                        tint = Color(0xFFFFD700)
-                                    )
-                                }
-                            }
-                        }
-                    }
-            } else {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = CardDefaults.cardColors(
-                        containerColor = Color(0xFF4CAF50).copy(alpha = 0.1f)
-                    )
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement = Arrangement.spacedBy(12.dp)
-                    ) {
-                        Text(
-                            text = stringResource(R.string.watch_ad_for_rewards),
-                            style = MaterialTheme.typography.titleMedium
-                        )
-
-                        Text(
-                            text = stringResource(R.string.earn_extra_coins),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-
-                        Button(
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF4CAF50)
-                            ),
-                            onClick = {
-                                adsManager.showRewarded { reward ->
-                                    addCoins(reward)
-                                }
-                            },
-                            modifier = Modifier.fillMaxWidth(),
-                            contentPadding = PaddingValues(vertical = 16.dp)
-                        ) {
-                            Text(
-                                stringResource(R.string.watch_ad),
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                            Spacer(Modifier.width(10.dp))
-                            Row(
-                                modifier = Modifier
-                                    .wrapContentSize()
-                                    .rotate(20f)
-                                    .graphicsLayer {
-                                        scaleX = pulse
-                                        scaleY = pulse
-                                    },
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(
-                                    space = 4.dp,
-                                    alignment = Alignment.CenterHorizontally
-                                )
-                            ) {
-                                Text("+50", style = MaterialTheme.typography.titleLarge)
-                                Icon(
-                                    imageVector = Icons.Default.MonetizationOn,
-                                    contentDescription = "плюс 50 монет",
-                                    tint = Color(0xFFFFD700)
-                                )
-                            }
-                        }
+                        Text(stringResource(R.string.watch_ad))
+                        Spacer(Modifier.width(8.dp))
+                        Icon(Icons.Default.MonetizationOn, null, tint = GameGold)
+                        Text(" +50", color = GameGold)
                     }
                 }
             }
 
-            // Notifications Section
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                    contentColor = MaterialTheme.colorScheme.onBackground
-                )
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Icon(Icons.Default.Notifications, contentDescription = null)
-                        Text(
-                            text = stringResource(R.string.notifications),
-                            style = MaterialTheme.typography.titleMedium
-                        )
+            GameSettingsCard(title = "🔔 Уведомления") {
+                SettingsToggleRow(
+                    label = stringResource(R.string.daily_reminders),
+                    checked = dailyRemindersEnabled,
+                    onCheckedChange = {
+                        dailyRemindersEnabled = it
+                        if (it) notificationScheduler?.scheduleDailyNotification()
+                        else notificationScheduler?.cancelAllNotifications()
                     }
-
-                    Switch(
-                        colors = SwitchDefaults.colors(
-                            checkedTrackColor = MaterialTheme.colorScheme.primary
-                        ),
-                        checked = dailyRemindersEnabled,
-                        onCheckedChange = {
-                            dailyRemindersEnabled = it
-                            if (it) {
-                                notificationScheduler?.scheduleDailyNotification()
-                            } else {
-                                notificationScheduler?.cancelAllNotifications()
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Text(
-                        text = stringResource(R.string.daily_reminders),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-
-                    Switch(
-                        colors = SwitchDefaults.colors(
-                            checkedTrackColor = MaterialTheme.colorScheme.primary
-                        ),
-                        checked = quizRemindersEnabled,
-                        onCheckedChange = {
-                            quizRemindersEnabled = it
-                            if (it) {
-                                notificationScheduler?.scheduleQuizReminder()
-                            } else {
-                                notificationScheduler?.cancelAllNotifications()
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Text(
-                        text = stringResource(R.string.quiz_reminders),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
+                )
+                HorizontalDivider(color = GameBorder, modifier = Modifier.padding(vertical = 4.dp))
+                SettingsToggleRow(
+                    label = stringResource(R.string.quiz_reminders),
+                    checked = quizRemindersEnabled,
+                    onCheckedChange = {
+                        quizRemindersEnabled = it
+                        if (it) notificationScheduler?.scheduleQuizReminder()
+                        else notificationScheduler?.cancelAllNotifications()
+                    }
+                )
             }
 
-            // Sound & Vibration Section
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                    contentColor = MaterialTheme.colorScheme.onBackground
+            GameSettingsCard(title = "🎮 Игровой опыт") {
+                SettingsToggleRow(
+                    label = stringResource(R.string.sound_enabled),
+                    checked = soundEnabled,
+                    onCheckedChange = { soundEnabled = it },
+                    icon = Icons.Default.VolumeUp
                 )
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Icon(Icons.Default.Settings, contentDescription = null)
-                        Text(
-                            text = stringResource(R.string.settings),
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    }
-
-                    Switch(
-                        checked = soundEnabled,
-                        onCheckedChange = { soundEnabled = it },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Text(
-                        text = stringResource(R.string.sound_enabled),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-
-                    Switch(
-                        checked = vibrationEnabled,
-                        onCheckedChange = { vibrationEnabled = it },
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Text(
-                        text = stringResource(R.string.vibration_enabled),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
+                HorizontalDivider(color = GameBorder, modifier = Modifier.padding(vertical = 4.dp))
+                SettingsToggleRow(
+                    label = stringResource(R.string.vibration_enabled),
+                    checked = vibrationEnabled,
+                    onCheckedChange = { vibrationEnabled = it }
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
         }
     }
-} 
+}
+
+@Composable
+private fun GameSettingsCard(title: String, content: @Composable ColumnScope.() -> Unit) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        color = GameSurface,
+        border = BorderStroke(1.dp, GameBorder)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(title, style = MaterialTheme.typography.titleMedium, color = GameTextPrimary)
+            Spacer(modifier = Modifier.height(12.dp))
+            content()
+        }
+    }
+}
+
+@Composable
+private fun SettingsToggleRow(
+    label: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    icon: androidx.compose.ui.graphics.vector.ImageVector? = null
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.weight(1f)
+        ) {
+            if (icon != null) {
+                Icon(icon, null, tint = GameTextMuted, modifier = Modifier.size(20.dp))
+            }
+            Text(label, style = MaterialTheme.typography.bodyMedium, color = GameTextSecondary)
+        }
+        Switch(
+            checked = checked,
+            onCheckedChange = onCheckedChange,
+            colors = SwitchDefaults.colors(
+                checkedThumbColor = GamePurpleLight,
+                checkedTrackColor = GamePurple.copy(alpha = 0.4f),
+                uncheckedThumbColor = GameTextDisabled,
+                uncheckedTrackColor = GameBorder
+            )
+        )
+    }
+}
