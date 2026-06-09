@@ -54,7 +54,7 @@ fun SplashScreen(
                 .scale(scaleAnim.value)
         ) {
             Image(
-                painter = painterResource(R.drawable.profile),
+                painter = painterResource(R.drawable.icon),
                 contentDescription = "Логотип",
                 modifier = Modifier.size(120.dp)
             )
