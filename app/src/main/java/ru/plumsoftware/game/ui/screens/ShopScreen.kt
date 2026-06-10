@@ -10,15 +10,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.google.firebase.Firebase
-import com.google.firebase.remoteconfig.remoteConfig
-import ru.plumsoftware.game.App
 import ru.plumsoftware.game.MainActivity
-import ru.plumsoftware.game.ads.AdsManager
 import ru.plumsoftware.game.data.PowerUpType
 import ru.plumsoftware.game.ui.components.game.CoinBadge
+import ru.plumsoftware.game.ui.components.game.GameAdOverlays
 import ru.plumsoftware.game.ui.components.game.GameScreenTopBar
 import ru.plumsoftware.game.ui.components.game.PowerUpShopCard
+import ru.plumsoftware.game.ui.components.game.rememberAdsManager
+import ru.plumsoftware.game.ui.components.game.watchRewardedForCoins
 import ru.plumsoftware.game.ui.theme.*
 
 @Composable
@@ -30,15 +29,23 @@ fun ShopScreen(
     onPurchasePowerUp: (PowerUpType) -> Unit
 ) {
     val activity = LocalActivity.current ?: MainActivity()
-    val adsManager = AdsManager(App.adsBase, activity)
+    val adsManager = rememberAdsManager(activity)
     var adsWatchedToday by remember { mutableIntStateOf(0) }
+    var rewardCoins by remember { mutableStateOf<Int?>(null) }
     val maxAdsPerDay = 3
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(GameBackground)
     ) {
+        GameAdOverlays(
+            isAdLoading = adsManager.isAdLoading,
+            rewardCoins = rewardCoins,
+            onDismissReward = { rewardCoins = null }
+        )
+
+        Column(modifier = Modifier.fillMaxSize()) {
         GameScreenTopBar(
             title = "Магазин улучшений",
             onBack = onBack,
@@ -63,13 +70,16 @@ fun ShopScreen(
                     maxAds = maxAdsPerDay,
                     onWatchAd = {
                         if (adsWatchedToday < maxAdsPerDay) {
-                            adsManager.showRewarded { reward ->
-                                addCoins(if (reward == 1) 50 else reward)
-                                adsWatchedToday++
-                            }
+                            adsManager.watchRewardedForCoins(
+                                onCoinsGranted = { coins ->
+                                    addCoins(coins)
+                                    adsWatchedToday++
+                                },
+                                onRewardDialog = { rewardCoins = it }
+                            )
                         }
                     },
-                    enabled = adsWatchedToday < maxAdsPerDay
+                    enabled = adsWatchedToday < maxAdsPerDay && !adsManager.isAdLoading
                 )
             }
 
@@ -83,6 +93,7 @@ fun ShopScreen(
             }
 
             item { Spacer(modifier = Modifier.height(24.dp)) }
+        }
         }
     }
 }

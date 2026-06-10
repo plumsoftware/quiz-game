@@ -31,7 +31,6 @@ import kotlinx.coroutines.delay
 import ru.plumsoftware.game.App
 import ru.plumsoftware.game.MainActivity
 import ru.plumsoftware.game.ads.AdsBase
-import ru.plumsoftware.game.ads.AdsManager
 import ru.plumsoftware.game.audio.GameAudioManager
 import ru.plumsoftware.game.data.PowerUpType
 import ru.plumsoftware.game.data.Question
@@ -232,7 +231,10 @@ fun QuizScreen(
                 QuestionCard(
                     text = questionText,
                     questionNumber = currentQuestionIndex + 1,
-                    total = questions.size
+                    total = questions.size,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 110.dp)
                 )
             }
 
@@ -264,7 +266,7 @@ fun QuizScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(20.dp))
 
             val answers = question.options.mapIndexed { index, text ->
                 AnswerOption(id = index, text = text, isCorrect = index == question.correctAnswer)
@@ -439,9 +441,14 @@ fun GameTimer(timeLeft: Int, totalTime: Int) {
 }
 
 @Composable
-fun QuestionCard(text: String, questionNumber: Int, total: Int) {
+fun QuestionCard(
+    text: String,
+    questionNumber: Int,
+    total: Int,
+    modifier: Modifier = Modifier.fillMaxWidth()
+) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier,
         shape = RoundedCornerShape(20.dp),
         color = GameSurface,
         border = BorderStroke(1.dp, GameBorder)
@@ -619,8 +626,16 @@ fun QuizResultScreen(
     displayAds: Boolean
 ) {
     val activity = LocalActivity.current ?: MainActivity()
-    val adsManager = AdsManager(App.adsBase, activity)
+    val adsManager = rememberAdsManager(activity)
     val xpEarned = correctAnswers * 5 * currentLevel.coerceAtLeast(1)
+
+    fun runWithInterstitial(action: () -> Unit) {
+        if (App.adsBase == AdsBase.AdsGooglePlay() && !displayAds) {
+            action()
+        } else {
+            adsManager.showInterstitial(action)
+        }
+    }
 
     val percentage = if (totalQuestions > 0) correctAnswers.toFloat() / totalQuestions else 0f
     val stars = when {
@@ -636,6 +651,12 @@ fun QuizResultScreen(
     val isNewRecord = percentage >= 0.9f
 
     Box(modifier = Modifier.fillMaxSize().background(GameBackground)) {
+        GameAdOverlays(
+            isAdLoading = adsManager.isAdLoading,
+            rewardCoins = null,
+            onDismissReward = {}
+        )
+
         if (stars == 3) GameConfetti()
 
         Column(
@@ -673,20 +694,16 @@ fun QuizResultScreen(
             }
             Spacer(modifier = Modifier.weight(1f))
             Button(
-                onClick = {
-                    if (App.adsBase == AdsBase.AdsGooglePlay() && !displayAds) onPlayAgain()
-                    else adsManager.showInterstitial { onPlayAgain() }
-                },
+                onClick = { runWithInterstitial(onPlayAgain) },
+                enabled = !adsManager.isAdLoading,
                 modifier = Modifier.fillMaxWidth().height(54.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = GamePurple)
             ) { Text("Играть ещё →", fontWeight = FontWeight.Bold) }
             Spacer(modifier = Modifier.height(10.dp))
             OutlinedButton(
-                onClick = {
-                    if (App.adsBase == AdsBase.AdsGooglePlay() && !displayAds) onBackToHome()
-                    else adsManager.showInterstitial { onBackToHome() }
-                },
+                onClick = { runWithInterstitial(onBackToHome) },
+                enabled = !adsManager.isAdLoading,
                 modifier = Modifier.fillMaxWidth().height(48.dp),
                 shape = RoundedCornerShape(16.dp),
                 border = BorderStroke(1.dp, GameBorder)

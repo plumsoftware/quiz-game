@@ -28,6 +28,7 @@ class GameManager(private val context: Context) {
         val UNLOCKED_QUIZ_LEVELS = intPreferencesKey("unlocked_quiz_levels")
         val COMPLETED_QUIZZES = stringSetPreferencesKey("completed_quizzes")
         val PLAYER_NAME = stringPreferencesKey("player_name")
+        val UNLOCKED_ACHIEVEMENTS = stringSetPreferencesKey("unlocked_achievements")
 
         fun powerUpKey(type: PowerUpType) = intPreferencesKey("power_up_${type.id}")
     }
@@ -85,6 +86,19 @@ class GameManager(private val context: Context) {
         context.dataStore.edit { preferences ->
             val key = PreferencesKeys.powerUpKey(type)
             preferences[key] = (preferences[key] ?: 0) + amount
+        }
+    }
+
+    suspend fun getUnlockedAchievements(): Set<String> {
+        return context.dataStore.data.map { preferences ->
+            preferences[PreferencesKeys.UNLOCKED_ACHIEVEMENTS] ?: emptySet()
+        }.firstOrNull() ?: emptySet()
+    }
+
+    suspend fun unlockAchievement(id: String) {
+        context.dataStore.edit { preferences ->
+            val current = preferences[PreferencesKeys.UNLOCKED_ACHIEVEMENTS] ?: emptySet()
+            preferences[PreferencesKeys.UNLOCKED_ACHIEVEMENTS] = current + id
         }
     }
 

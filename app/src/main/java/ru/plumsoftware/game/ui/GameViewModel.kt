@@ -7,9 +7,11 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import ru.plumsoftware.game.data.GameManager
+import ru.plumsoftware.game.data.findQuizIdForCategory
 import ru.plumsoftware.game.data.GameState
 import ru.plumsoftware.game.data.GameData
 import ru.plumsoftware.game.data.PowerUpType
@@ -17,6 +19,10 @@ import ru.plumsoftware.game.data.Question
 import ru.plumsoftware.game.data.Quiz
 import ru.plumsoftware.game.data.firebase.RemoteConfigQuizModel
 import ru.plumsoftware.game.notifications.NotificationScheduler
+import ru.plumsoftware.game.ui.components.game.AchievementToast
+import ru.plumsoftware.game.ui.components.game.toToast
+import ru.plumsoftware.game.ui.screens.getAchievements
+import java.util.ArrayDeque
 
 class GameViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -49,6 +55,12 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val _completedQuizzes = MutableStateFlow<Set<Int>>(emptySet())
     val completedQuizzes: StateFlow<Set<Int>> = _completedQuizzes.asStateFlow()
 
+    private val _finishedQuizzes = MutableStateFlow<List<Quiz>>(emptyList())
+    val finishedQuizzes: StateFlow<List<Quiz>> = _finishedQuizzes.asStateFlow()
+
+    private val _currentTierQuizTotal = MutableStateFlow(0)
+    val currentTierQuizTotal: StateFlow<Int> = _currentTierQuizTotal.asStateFlow()
+
     private val _remoteQuiz = MutableStateFlow(
         RemoteConfigQuizModel(
             cardTitle = "",
@@ -65,11 +77,17 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     private val _shopOpenedFromQuiz = MutableStateFlow(false)
     val shopOpenedFromQuiz: StateFlow<Boolean> = _shopOpenedFromQuiz.asStateFlow()
 
+    private val _pendingAchievementToast = MutableStateFlow<AchievementToast?>(null)
+    val pendingAchievementToast: StateFlow<AchievementToast?> = _pendingAchievementToast.asStateFlow()
+
+    private val achievementToastQueue = ArrayDeque<AchievementToast>()
+    private var isShowingAchievementToast = false
+
     init {
         viewModelScope.launch {
             gameManager.gameState.collect { state ->
                 _gameState.value = state
-                updateAvailableQuizzes(state.unlockedQuizLevels)
+                refreshQuizLists(state.unlockedQuizLevels)
             }
         }
 
@@ -78,29 +96,23 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
                 _tasksProgress.value = progress
             }
         }
-
-        viewModelScope.launch {
-            // Track completed quizzes
-            gameManager.gameState.collect { state ->
-                val completedQuizzes = mutableSetOf<Int>()
-                for (quiz in GameData.getAllQuizzes()) {
-                    if (quiz.requiredLevel <= state.unlockedQuizLevels) {
-                        val isCompleted = gameManager.isQuizCompleted(quiz.id).first()
-                        if (isCompleted) {
-                            completedQuizzes.add(quiz.id)
-                        }
-                    }
-                }
-                _completedQuizzes.value = completedQuizzes.toSet()
-            }
-        }
     }
 
-    private fun updateAvailableQuizzes(unlockedLevels: Int) {
-        val availableQuizzes = GameData.getAllQuizzes().filter { quiz ->
-            quiz.requiredLevel <= unlockedLevels
+    private suspend fun refreshQuizLists(unlockedTier: Int) {
+        val completedIds = mutableSetOf<Int>()
+        val finished = mutableListOf<Quiz>()
+        for (quiz in GameData.getAllQuizzes()) {
+            if (gameManager.isQuizCompleted(quiz.id).first()) {
+                completedIds.add(quiz.id)
+                finished.add(quiz)
+            }
         }
-        _availableQuizzes.value = availableQuizzes
+        _completedQuizzes.value = completedIds
+        _finishedQuizzes.value = finished.sortedBy { it.requiredLevel }
+
+        val tierQuizzes = GameData.getAllQuizzes().filter { it.requiredLevel == unlockedTier }
+        _currentTierQuizTotal.value = tierQuizzes.size
+        _availableQuizzes.value = tierQuizzes.filter { it.id !in completedIds }
     }
 
     fun navigateTo(screen: GameScreen) {
@@ -156,6 +168,51 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
             _quizResult.value = QuizResult(correctAnswers, totalQuestions, coinsEarned)
             _showQuizResult.value = true
+            checkNewAchievements()
+        }
+    }
+
+    private suspend fun checkNewAchievements() {
+        val state = gameManager.gameState.first()
+        val unlocked = gameManager.getUnlockedAchievements()
+        getAchievements(state)
+            .filter { it.current >= it.target && it.id !in unlocked }
+            .forEach { achievement ->
+                gameManager.unlockAchievement(achievement.id)
+                if (achievement.reward > 0) {
+                    gameManager.addCoins(achievement.reward)
+                }
+                achievementToastQueue.addLast(achievement.toToast())
+            }
+        if (!isShowingAchievementToast) {
+            showNextAchievementToast()
+        }
+    }
+
+    private fun showNextAchievementToast() {
+        if (achievementToastQueue.isEmpty()) {
+            isShowingAchievementToast = false
+            return
+        }
+        isShowingAchievementToast = true
+        _pendingAchievementToast.value = achievementToastQueue.removeFirst()
+    }
+
+    fun dismissAchievementToast() {
+        viewModelScope.launch {
+            _pendingAchievementToast.value = null
+            delay(400)
+            showNextAchievementToast()
+        }
+    }
+
+    fun startQuizForCategory(categoryId: String) {
+        val quizId = findQuizIdForCategory(categoryId)
+        if (quizId != null) {
+            setCurrentQuizLevel(quizId)
+            navigateTo(GameScreen.QUIZ)
+        } else {
+            navigateTo(GameScreen.QUIZ_MENU)
         }
     }
 
@@ -232,11 +289,13 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         when (_currentScreen.value) {
             GameScreen.QUIZ -> _currentScreen.value = GameScreen.QUIZ_MENU
             GameScreen.QUIZ_MENU -> _currentScreen.value = GameScreen.HOME
+            GameScreen.MORE -> _currentScreen.value = GameScreen.HOME
             GameScreen.DAILY_TASKS -> _currentScreen.value = GameScreen.HOME
             GameScreen.SHOP -> closeShop()
-            GameScreen.PROFILE -> _currentScreen.value = GameScreen.HOME
+            GameScreen.STATS -> _currentScreen.value = GameScreen.HOME
             GameScreen.SETTINGS -> _currentScreen.value = GameScreen.HOME
             GameScreen.ACHIEVEMENTS -> _currentScreen.value = GameScreen.HOME
+            GameScreen.CATEGORIES -> _currentScreen.value = GameScreen.HOME
             else -> {
                 activity.finish()
             }
@@ -278,9 +337,11 @@ enum class GameScreen {
     QUIZ,
     DAILY_TASKS,
     SHOP,
-    PROFILE,
+    STATS,
     SETTINGS,
-    ACHIEVEMENTS
+    ACHIEVEMENTS,
+    MORE,
+    CATEGORIES
 }
 
 data class QuizResult(

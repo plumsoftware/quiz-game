@@ -28,7 +28,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.google.firebase.Firebase
@@ -44,17 +43,10 @@ import ru.plumsoftware.game.data.firebase.RemoteConfigQuizModel
 import ru.plumsoftware.game.ui.GameScreen
 import ru.plumsoftware.game.ui.GameViewModel
 import ru.plumsoftware.game.ui.components.MainBack
-import ru.plumsoftware.game.ui.components.game.GameBottomNav
+import ru.plumsoftware.game.ui.components.game.AchievementToastOverlay
 import ru.plumsoftware.game.ui.screens.*
 import ru.plumsoftware.game.ui.theme.ExtendedTheme
 import androidx.activity.compose.rememberLauncherForActivityResult
-
-private val tabScreens = setOf(
-    GameScreen.HOME,
-    GameScreen.QUIZ_MENU,
-    GameScreen.DAILY_TASKS,
-    GameScreen.PROFILE
-)
 
 class MainActivity : ComponentActivity() {
     private val viewModel: GameViewModel by viewModels()
@@ -112,6 +104,9 @@ fun GameApp(
     val availableQuizzes by viewModel.availableQuizzes.collectAsState()
     val currentQuizLevel by viewModel.currentQuizLevel.collectAsState()
     val completedQuizzes by viewModel.completedQuizzes.collectAsState()
+    val finishedQuizzes by viewModel.finishedQuizzes.collectAsState()
+    val currentTierQuizTotal by viewModel.currentTierQuizTotal.collectAsState()
+    val pendingAchievementToast by viewModel.pendingAchievementToast.collectAsState()
 
     val displayAds by remember { mutableStateOf(true) }
     val remoteQuiz by remember {
@@ -163,8 +158,6 @@ fun GameApp(
         }
     }
 
-    val showBottomNav = !showQuizResult && currentScreen in tabScreens
-
     Box(modifier = modifier.fillMaxSize()) {
         if (showQuizResult) {
             Box(modifier = Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()) {
@@ -184,13 +177,7 @@ fun GameApp(
                 modifier = Modifier
                     .fillMaxSize()
                     .statusBarsPadding()
-                    .then(
-                        if (showBottomNav || currentScreen == GameScreen.QUIZ) {
-                            Modifier.padding(bottom = 88.dp)
-                        } else {
-                            Modifier
-                        }
-                    ),
+                    .navigationBarsPadding(),
                 transitionSpec = {
                     val slideDirection = if (targetState.ordinal > initialState.ordinal) {
                         AnimatedContentTransitionScope.SlideDirection.Left
@@ -208,26 +195,28 @@ fun GameApp(
                         remoteQuiz = remoteQuiz,
                         gameState = gameState,
                         availableQuizzes = availableQuizzes,
-                        completedQuizzes = completedQuizzes,
+                        currentTierQuizTotal = currentTierQuizTotal,
+                        tasksProgress = tasksProgress,
                         onNavigateToQuiz = { viewModel.navigateTo(GameScreen.QUIZ_MENU) },
                         onNavigateToDailyTasks = { viewModel.navigateTo(GameScreen.DAILY_TASKS) },
                         onNavigateToShop = { viewModel.navigateTo(GameScreen.SHOP) },
-                        onNavigateToProfile = { viewModel.navigateTo(GameScreen.PROFILE) },
-                        onNavigateToSettings = { viewModel.navigateTo(GameScreen.SETTINGS) },
                         onNavigateToAchievements = { viewModel.navigateTo(GameScreen.ACHIEVEMENTS) },
+                        onNavigateToStats = { viewModel.navigateTo(GameScreen.STATS) },
+                        onNavigateToSettings = { viewModel.navigateTo(GameScreen.SETTINGS) },
                         onNavigateToRemoteConfigQuiz = { rq ->
                             viewModel.setRemoteConfigQuizLevel(rq)
                             viewModel.navigateTo(GameScreen.QUIZ)
-                        },
-                        onContinueQuiz = { quizId ->
-                            viewModel.setCurrentQuizLevel(quizId)
-                            viewModel.navigateTo(GameScreen.QUIZ)
-                        },
-                        onPurchasePowerUp = viewModel::purchasePowerUp
+                        }
+                    )
+                    GameScreen.MORE -> MoreScreen(onNavigate = viewModel::navigateTo)
+                    GameScreen.CATEGORIES -> CategoriesScreen(
+                        onBack = { viewModel.navigateTo(GameScreen.HOME) },
+                        onCategorySelect = { viewModel.startQuizForCategory(it.id) }
                     )
                     GameScreen.QUIZ_MENU -> QuizMenuScreen(
                         gameState = gameState,
                         availableQuizzes = availableQuizzes,
+                        finishedQuizzes = finishedQuizzes,
                         completedQuizzes = completedQuizzes,
                         onNavigateToQuiz = { quizId ->
                             viewModel.setCurrentQuizLevel(quizId)
@@ -260,12 +249,10 @@ fun GameApp(
                         onBack = viewModel::closeShop,
                         onPurchasePowerUp = viewModel::purchasePowerUp
                     )
-                    GameScreen.PROFILE -> ProfileScreen(
+                    GameScreen.STATS -> StatsScreen(
                         gameState = gameState,
                         stats = tasksProgress,
-                        onBack = { viewModel.navigateTo(GameScreen.HOME) },
-                        onNavigateToSettings = { viewModel.navigateTo(GameScreen.SETTINGS) },
-                        onUpdatePlayerName = viewModel::updatePlayerName
+                        onBack = { viewModel.navigateTo(GameScreen.HOME) }
                     )
                     GameScreen.SETTINGS -> SettingsScreen(
                         addCoins = viewModel::onAdsRewarded,
@@ -279,14 +266,12 @@ fun GameApp(
                     )
                 }
             }
-
-            if (showBottomNav) {
-                GameBottomNav(
-                    currentScreen = currentScreen,
-                    onNavigate = viewModel::navigateTo,
-                    modifier = Modifier.align(Alignment.BottomCenter)
-                )
-            }
         }
+
+        AchievementToastOverlay(
+            toast = pendingAchievementToast,
+            onDismiss = viewModel::dismissAchievementToast,
+            modifier = Modifier.align(Alignment.TopCenter)
+        )
     }
 }

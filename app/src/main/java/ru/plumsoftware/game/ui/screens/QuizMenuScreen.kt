@@ -18,7 +18,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import ru.plumsoftware.game.data.GameData
 import ru.plumsoftware.game.data.GameState
 import ru.plumsoftware.game.data.Quiz
 import ru.plumsoftware.game.ui.components.game.GameScreenTopBar
@@ -30,21 +29,25 @@ import ru.plumsoftware.game.ui.util.CategoryStyles
 fun QuizMenuScreen(
     gameState: GameState,
     availableQuizzes: List<Quiz>,
+    finishedQuizzes: List<Quiz>,
     completedQuizzes: Set<Int>,
     onNavigateToQuiz: (quizId: Int) -> Unit,
     onBack: () -> Unit
 ) {
+    var showCompleted by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     var selectedCategory by remember { mutableStateOf<String?>(null) }
     var lockedQuizSheet by remember { mutableStateOf<Quiz?>(null) }
     val sheetState = rememberModalBottomSheetState()
 
-    val categories = remember(availableQuizzes) {
-        availableQuizzes.map { it.category }.distinct().sorted()
+    val displayQuizzes = if (showCompleted) finishedQuizzes else availableQuizzes
+
+    val categories = remember(displayQuizzes) {
+        displayQuizzes.map { it.category }.distinct().sorted()
     }
 
-    val filteredQuizzes = remember(availableQuizzes, searchQuery, selectedCategory) {
-        availableQuizzes.filter { quiz ->
+    val filteredQuizzes = remember(displayQuizzes, searchQuery, selectedCategory) {
+        displayQuizzes.filter { quiz ->
             val matchesSearch = searchQuery.isBlank() ||
                 quiz.title.contains(searchQuery, ignoreCase = true) ||
                 quiz.category.contains(searchQuery, ignoreCase = true)
@@ -60,16 +63,25 @@ fun QuizMenuScreen(
             .padding(horizontal = 16.dp)
     ) {
         GameScreenTopBar(
-            title = "Викторины",
-            onBack = onBack,
+            title = if (showCompleted) "Завершённые викторины" else "Викторины",
+            onBack = {
+                if (showCompleted) showCompleted = false else onBack()
+            },
             actions = {
+                if (!showCompleted && finishedQuizzes.isNotEmpty()) {
+                    TextButton(onClick = { showCompleted = true }) {
+                        Text("Завершённые", color = GamePurpleLight)
+                    }
+                }
                 AssistChip(
                     onClick = {},
                     label = {
-                        Text(
-                            "${completedQuizzes.size}/${availableQuizzes.size}",
-                            color = GameTextPrimary
-                        )
+                        val tierDone = finishedQuizzes.count { it.requiredLevel == gameState.unlockedQuizLevels }
+                        val label = when {
+                            showCompleted -> "${finishedQuizzes.size}"
+                            else -> "$tierDone/${(tierDone + availableQuizzes.size).coerceAtLeast(1)}"
+                        }
+                        Text(label, color = GameTextPrimary)
                     },
                     leadingIcon = {
                         Icon(Icons.Default.CheckCircle, null, modifier = Modifier.size(16.dp), tint = GamePurpleLight)
@@ -135,33 +147,32 @@ fun QuizMenuScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        LinearProgressIndicator(
-            progress = {
-                if (availableQuizzes.isNotEmpty())
-                    completedQuizzes.size.toFloat() / availableQuizzes.size
-                else 0f
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(6.dp)
-                .clip(RoundedCornerShape(3.dp))
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
+        if (!showCompleted) {
+            val tierTotal = (availableQuizzes.size + finishedQuizzes.count { it.requiredLevel == gameState.unlockedQuizLevels })
+                .coerceAtLeast(1)
+            val tierDone = finishedQuizzes.count { it.requiredLevel == gameState.unlockedQuizLevels }
+            LinearProgressIndicator(
+                progress = { tierDone.toFloat() / tierTotal },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(6.dp)
+                    .clip(RoundedCornerShape(3.dp))
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+        }
 
         LazyColumn(
             contentPadding = PaddingValues(bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(filteredQuizzes) { quiz ->
-                val canPlay = canPlayQuiz(quiz.id, completedQuizzes, gameState.unlockedQuizLevels)
-                val isUnlocked = quiz.requiredLevel <= gameState.unlockedQuizLevels
-                val isCompleted = completedQuizzes.contains(quiz.id)
+                val isCompleted = showCompleted || completedQuizzes.contains(quiz.id)
+                val canPlay = showCompleted || quiz.requiredLevel == gameState.unlockedQuizLevels
 
                 QuizMenuItem(
                     quiz = quiz,
                     isCompleted = isCompleted,
-                    isUnlocked = isUnlocked,
+                    isUnlocked = true,
                     canPlay = canPlay,
                     onClick = {
                         if (canPlay) onNavigateToQuiz(quiz.id)
@@ -217,11 +228,7 @@ fun QuizMenuScreen(
                 Button(
                     onClick = {
                         lockedQuizSheet = null
-                        val playable = availableQuizzes.firstOrNull {
-                            canPlayQuiz(it.id, completedQuizzes, gameState.unlockedQuizLevels) &&
-                                !completedQuizzes.contains(it.id)
-                        }
-                        playable?.let { onNavigateToQuiz(it.id) }
+                        availableQuizzes.firstOrNull()?.let { onNavigateToQuiz(it.id) }
                     },
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -335,14 +342,3 @@ private fun DifficultyStars(difficulty: Int) {
     )
 }
 
-private fun canPlayQuiz(
-    quizId: Int,
-    completedQuizzes: Set<Int>,
-    unlockedLevels: Int
-): Boolean {
-    val quiz = GameData.getQuiz(quizId) ?: return false
-    if (quiz.requiredLevel > unlockedLevels) return false
-    if (quiz.difficulty == 1) return true
-    val previousDifficultyQuizzes = GameData.getQuizzesForDifficulty(quiz.difficulty - 1)
-    return previousDifficultyQuizzes.any { it.id in completedQuizzes }
-}

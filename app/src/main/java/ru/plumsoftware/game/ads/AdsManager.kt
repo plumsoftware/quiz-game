@@ -149,7 +149,9 @@ class AdsManager(
     }
 
     fun showRewarded(
-        onGotRewarded: (Int) -> Unit
+        onGotRewarded: (Int) -> Unit,
+        onDismissed: (() -> Unit)? = null,
+        onFailed: (() -> Unit)? = null
     ) {
         isAdLoading = true
 
@@ -162,11 +164,14 @@ class AdsManager(
                             override fun onAdShown() {}
 
                             override fun onAdFailedToShow(adError: AdError) {
+                                isAdLoading = false
                                 rewarded.setAdEventListener(null)
+                                onFailed?.invoke()
                             }
 
                             override fun onAdDismissed() {
                                 rewarded.setAdEventListener(null)
+                                onDismissed?.invoke()
                             }
 
                             override fun onAdClicked() {}
@@ -183,6 +188,7 @@ class AdsManager(
 
                 override fun onAdFailedToLoad(error: AdRequestError) {
                     isAdLoading = false
+                    onFailed?.invoke()
                 }
             })
         }

@@ -1160,6 +1160,24 @@ object GameData {
 
     val allQuestions = level1Questions + level2Questions + level3Questions + level4Questions + level5Questions + level6Questions
 
+    private fun quizQuestions(
+        primary: List<Question>,
+        levelPool: List<Question>,
+        count: Int,
+        minCount: Int = 6
+    ): List<Question> {
+        val target = count.coerceAtLeast(minCount)
+        val selected = primary.take(target).toMutableList()
+        if (selected.size < target) {
+            val usedIds = selected.map { it.id }.toSet()
+            levelPool
+                .filter { it.id !in usedIds }
+                .take(target - selected.size)
+                .forEach { selected.add(it) }
+        }
+        return selected
+    }
+
     val quizzes = listOf(
         // Easy Quizzes (Level 1)
         Quiz(
@@ -1169,7 +1187,7 @@ object GameData {
             category = "Общие знания",
             difficulty = 1,
             requiredLevel = 1,
-            questions = level1Questions.take(8)
+            questions = quizQuestions(level1Questions, level1Questions, 10)
         ),
         Quiz(
             id = 2,
@@ -1178,7 +1196,11 @@ object GameData {
             category = "Цвета и формы",
             difficulty = 1,
             requiredLevel = 1,
-            questions = level1Questions.filter { it.category == "Цвета" || it.category == "Фигуры" }.take(10)
+            questions = quizQuestions(
+                level1Questions.filter { it.category == "Цвета" || it.category == "Фигуры" },
+                level1Questions,
+                12
+            )
         ),
         Quiz(
             id = 3,
@@ -1187,7 +1209,11 @@ object GameData {
             category = "Животные",
             difficulty = 1,
             requiredLevel = 1,
-            questions = level1Questions.filter { it.category == "Животные" }.take(7)
+            questions = quizQuestions(
+                level1Questions.filter { it.category == "Животные" },
+                level1Questions,
+                9
+            )
         ),
         Quiz(
             id = 4,
@@ -1196,7 +1222,11 @@ object GameData {
             category = "Математика",
             difficulty = 1,
             requiredLevel = 1,
-            questions = level1Questions.filter { it.category == "Числа" || it.category == "Буквы" }.take(9)
+            questions = quizQuestions(
+                level1Questions.filter { it.category == "Числа" || it.category == "Буквы" },
+                level1Questions,
+                11
+            )
         ),
         Quiz(
             id = 5,
@@ -1205,7 +1235,11 @@ object GameData {
             category = "Природа",
             difficulty = 1,
             requiredLevel = 1,
-            questions = level1Questions.filter { it.category == "Природа" || it.category == "Времена года" }.take(6)
+            questions = quizQuestions(
+                level1Questions.filter { it.category == "Природа" || it.category == "Времена года" },
+                level1Questions,
+                8
+            )
         ),
         
         // Medium Quizzes (Level 2)
@@ -1216,7 +1250,7 @@ object GameData {
             category = "Общие знания",
             difficulty = 2,
             requiredLevel = 2,
-            questions = level2Questions.take(12)
+            questions = quizQuestions(level2Questions, level2Questions, 14)
         ),
         Quiz(
             id = 7,
@@ -1225,7 +1259,11 @@ object GameData {
             category = "География",
             difficulty = 2,
             requiredLevel = 2,
-            questions = level2Questions.filter { it.category == "География" }.take(8)
+            questions = quizQuestions(
+                level2Questions.filter { it.category == "География" },
+                level2Questions,
+                10
+            )
         ),
         Quiz(
             id = 8,
@@ -1234,7 +1272,11 @@ object GameData {
             category = "Космос",
             difficulty = 2,
             requiredLevel = 2,
-            questions = level2Questions.filter { it.category == "Космос" }.take(7)
+            questions = quizQuestions(
+                level2Questions.filter { it.category == "Космос" },
+                level2Questions,
+                9
+            )
         ),
         Quiz(
             id = 9,
@@ -1243,7 +1285,11 @@ object GameData {
             category = "Биология",
             difficulty = 2,
             requiredLevel = 2,
-            questions = level2Questions.filter { it.category == "Человек" }.take(9)
+            questions = quizQuestions(
+                level2Questions.filter { it.category == "Человек" },
+                level2Questions,
+                11
+            )
         ),
         Quiz(
             id = 10,
@@ -1252,7 +1298,11 @@ object GameData {
             category = "Животные",
             difficulty = 2,
             requiredLevel = 2,
-            questions = level2Questions.filter { it.category == "Животные" }.take(10)
+            questions = quizQuestions(
+                level2Questions.filter { it.category == "Животные" },
+                level2Questions,
+                12
+            )
         ),
         
         // Hard Quizzes (Level 3)
@@ -1263,7 +1313,7 @@ object GameData {
             category = "Общие знания",
             difficulty = 3,
             requiredLevel = 3,
-            questions = level3Questions.take(15)
+            questions = quizQuestions(level3Questions, level3Questions, 17)
         ),
         Quiz(
             id = 12,
@@ -1272,7 +1322,11 @@ object GameData {
             category = "Биология",
             difficulty = 3,
             requiredLevel = 3,
-            questions = level3Questions.filter { it.category == "Человек" }.take(11)
+            questions = quizQuestions(
+                level3Questions.filter { it.category == "Человек" },
+                level3Questions,
+                13
+            )
         ),
         Quiz(
             id = 13,
@@ -1281,7 +1335,11 @@ object GameData {
             category = "География",
             difficulty = 3,
             requiredLevel = 3,
-            questions = level3Questions.filter { it.category == "География" }.take(8)
+            questions = quizQuestions(
+                level3Questions.filter { it.category == "География" },
+                level3Questions,
+                10
+            )
         ),
         Quiz(
             id = 14,
@@ -1290,7 +1348,11 @@ object GameData {
             category = "Животные",
             difficulty = 3,
             requiredLevel = 3,
-            questions = level3Questions.filter { it.category == "Животные" }.take(9)
+            questions = quizQuestions(
+                level3Questions.filter { it.category == "Животные" },
+                level3Questions,
+                11
+            )
         ),
         Quiz(
             id = 15,
@@ -1299,7 +1361,11 @@ object GameData {
             category = "Наука",
             difficulty = 3,
             requiredLevel = 3,
-            questions = level3Questions.filter { it.category == "Физика" || it.category == "Химия" }.take(7)
+            questions = quizQuestions(
+                level3Questions.filter { it.category == "Физика" || it.category == "Химия" },
+                level3Questions,
+                9
+            )
         ),
         
         // Expert Quizzes (Level 4)
@@ -1310,7 +1376,7 @@ object GameData {
             category = "Общие знания",
             difficulty = 4,
             requiredLevel = 4,
-            questions = level4Questions.take(13)
+            questions = quizQuestions(level4Questions, level4Questions, 15)
         ),
         Quiz(
             id = 17,
@@ -1319,7 +1385,11 @@ object GameData {
             category = "Биология",
             difficulty = 4,
             requiredLevel = 4,
-            questions = level4Questions.filter { it.category == "Биология" }.take(10)
+            questions = quizQuestions(
+                level4Questions.filter { it.category == "Биология" },
+                level4Questions,
+                12
+            )
         ),
         Quiz(
             id = 18,
@@ -1328,7 +1398,11 @@ object GameData {
             category = "География",
             difficulty = 4,
             requiredLevel = 4,
-            questions = level4Questions.filter { it.category == "География" }.take(8)
+            questions = quizQuestions(
+                level4Questions.filter { it.category == "География" },
+                level4Questions,
+                10
+            )
         ),
         Quiz(
             id = 19,
@@ -1337,7 +1411,11 @@ object GameData {
             category = "Животные",
             difficulty = 4,
             requiredLevel = 4,
-            questions = level4Questions.filter { it.category == "Животные" }.take(9)
+            questions = quizQuestions(
+                level4Questions.filter { it.category == "Животные" },
+                level4Questions,
+                11
+            )
         ),
         Quiz(
             id = 20,
@@ -1346,7 +1424,11 @@ object GameData {
             category = "Наука",
             difficulty = 4,
             requiredLevel = 4,
-            questions = level4Questions.filter { it.category == "Физика" || it.category == "Химия" }.take(6)
+            questions = quizQuestions(
+                level4Questions.filter { it.category == "Физика" || it.category == "Химия" },
+                level4Questions,
+                8
+            )
         ),
         
         // Master Quizzes (Level 5)
@@ -1357,7 +1439,7 @@ object GameData {
             category = "Общие знания",
             difficulty = 5,
             requiredLevel = 5,
-            questions = level5Questions.take(14)
+            questions = quizQuestions(level5Questions, level5Questions, 16)
         ),
         Quiz(
             id = 22,
@@ -1366,7 +1448,11 @@ object GameData {
             category = "Биология",
             difficulty = 5,
             requiredLevel = 5,
-            questions = level5Questions.filter { it.category == "Биология" }.take(12)
+            questions = quizQuestions(
+                level5Questions.filter { it.category == "Биология" },
+                level5Questions,
+                14
+            )
         ),
         Quiz(
             id = 23,
@@ -1375,7 +1461,11 @@ object GameData {
             category = "География",
             difficulty = 5,
             requiredLevel = 5,
-            questions = level5Questions.filter { it.category == "География" }.take(7)
+            questions = quizQuestions(
+                level5Questions.filter { it.category == "География" },
+                level5Questions,
+                9
+            )
         ),
         Quiz(
             id = 24,
@@ -1384,7 +1474,11 @@ object GameData {
             category = "Животные",
             difficulty = 5,
             requiredLevel = 5,
-            questions = level5Questions.filter { it.category == "Животные" }.take(8)
+            questions = quizQuestions(
+                level5Questions.filter { it.category == "Животные" },
+                level5Questions,
+                10
+            )
         ),
         Quiz(
             id = 25,
@@ -1393,7 +1487,11 @@ object GameData {
             category = "Физика",
             difficulty = 5,
             requiredLevel = 5,
-            questions = level5Questions.filter { it.category == "Физика" || it.category == "Химия" }.take(9)
+            questions = quizQuestions(
+                level5Questions.filter { it.category == "Физика" || it.category == "Химия" },
+                level5Questions,
+                11
+            )
         ),
         
         // Grand Master Quizzes (Level 6)
@@ -1404,7 +1502,7 @@ object GameData {
             category = "Общие знания",
             difficulty = 6,
             requiredLevel = 6,
-            questions = level6Questions.take(15)
+            questions = quizQuestions(level6Questions, level6Questions, 17)
         ),
         Quiz(
             id = 27,
@@ -1413,7 +1511,11 @@ object GameData {
             category = "Биология",
             difficulty = 6,
             requiredLevel = 6,
-            questions = level6Questions.filter { it.category == "Биология" }.take(13)
+            questions = quizQuestions(
+                level6Questions.filter { it.category == "Биология" },
+                level6Questions,
+                15
+            )
         ),
         Quiz(
             id = 28,
@@ -1422,7 +1524,11 @@ object GameData {
             category = "География",
             difficulty = 6,
             requiredLevel = 6,
-            questions = level6Questions.filter { it.category == "География" }.take(8)
+            questions = quizQuestions(
+                level6Questions.filter { it.category == "География" },
+                level6Questions,
+                10
+            )
         ),
         Quiz(
             id = 29,
@@ -1431,7 +1537,11 @@ object GameData {
             category = "Животные",
             difficulty = 6,
             requiredLevel = 6,
-            questions = level6Questions.filter { it.category == "Животные" }.take(9)
+            questions = quizQuestions(
+                level6Questions.filter { it.category == "Животные" },
+                level6Questions,
+                11
+            )
         ),
         Quiz(
             id = 30,
@@ -1440,7 +1550,11 @@ object GameData {
             category = "Физика",
             difficulty = 6,
             requiredLevel = 6,
-            questions = level6Questions.filter { it.category == "Физика" || it.category == "Химия" }.take(7)
+            questions = quizQuestions(
+                level6Questions.filter { it.category == "Физика" || it.category == "Химия" },
+                level6Questions,
+                9
+            )
         )
     )
 

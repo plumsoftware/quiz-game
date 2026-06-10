@@ -24,8 +24,10 @@ import ru.plumsoftware.game.App
 import ru.plumsoftware.game.MainActivity
 import ru.plumsoftware.game.R
 import ru.plumsoftware.game.ads.AdsBase
-import ru.plumsoftware.game.ads.AdsManager
+import ru.plumsoftware.game.ui.components.game.GameAdOverlays
 import ru.plumsoftware.game.ui.components.game.GameScreenTopBar
+import ru.plumsoftware.game.ui.components.game.rememberAdsManager
+import ru.plumsoftware.game.ui.components.game.watchRewardedForCoins
 import ru.plumsoftware.game.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,14 +43,22 @@ fun SettingsScreen(
     var vibrationEnabled by remember { mutableStateOf(true) }
 
     val activity = LocalActivity.current ?: MainActivity()
-    val adsManager = AdsManager(App.adsBase, activity)
+    val adsManager = rememberAdsManager(activity)
     val displayAds by remember { mutableStateOf(Firebase.remoteConfig.getBoolean("display_ads")) }
+    var rewardCoins by remember { mutableStateOf<Int?>(null) }
 
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(GameBackground)
     ) {
+        GameAdOverlays(
+            isAdLoading = adsManager.isAdLoading,
+            rewardCoins = rewardCoins,
+            onDismissReward = { rewardCoins = null }
+        )
+
+        Column(modifier = Modifier.fillMaxSize()) {
         GameScreenTopBar(
             title = stringResource(R.string.settings),
             onBack = onBack,
@@ -71,7 +81,13 @@ fun SettingsScreen(
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     Button(
-                        onClick = { adsManager.showRewarded { reward -> addCoins(reward) } },
+                        onClick = {
+                            adsManager.watchRewardedForCoins(
+                                onCoinsGranted = addCoins,
+                                onRewardDialog = { rewardCoins = it }
+                            )
+                        },
+                        enabled = !adsManager.isAdLoading,
                         modifier = Modifier.fillMaxWidth(),
                         colors = ButtonDefaults.buttonColors(containerColor = GamePurple),
                         shape = RoundedCornerShape(14.dp)
@@ -122,6 +138,7 @@ fun SettingsScreen(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
+        }
         }
     }
 }

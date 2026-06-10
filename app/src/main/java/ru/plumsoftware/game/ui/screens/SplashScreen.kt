@@ -5,12 +5,14 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -18,11 +20,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import ru.plumsoftware.game.R
+import ru.plumsoftware.game.ui.theme.GameBackground
+import ru.plumsoftware.game.ui.theme.GamePurple
+import ru.plumsoftware.game.ui.theme.GameTextMuted
+import ru.plumsoftware.game.ui.theme.GameTextPrimary
+
+private val splashIcons = listOf(
+    R.drawable.ic_app_icon,
+    R.drawable.ic_trophy,
+    R.drawable.ic_star,
+    R.drawable.shop_icon,
+    R.drawable.quiz_button_icon,
+    R.drawable.ic_coin
+)
 
 @Composable
 fun SplashScreen(
     onSplashComplete: () -> Unit
 ) {
+    val randomIcon = remember { splashIcons.random() }
     var startAnimation by remember { mutableStateOf(false) }
     val alphaAnim = animateFloatAsState(
         targetValue = if (startAnimation) 1f else 0f,
@@ -44,7 +60,7 @@ fun SplashScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(ru.plumsoftware.game.ui.theme.GameBackground),
+            .background(GameBackground),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -54,23 +70,33 @@ fun SplashScreen(
                 .scale(scaleAnim.value)
         ) {
             Image(
-                painter = painterResource(R.drawable.profile),
+                painter = painterResource(randomIcon),
                 contentDescription = "Логотип",
-                modifier = Modifier.size(120.dp)
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(RoundedCornerShape(28.dp))
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            CircularProgressIndicator(
+                modifier = Modifier.size(36.dp),
+                color = GamePurple,
+                strokeWidth = 3.dp
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
                 text = "Викторины",
-                color = ru.plumsoftware.game.ui.theme.GameTextPrimary,
+                color = GameTextPrimary,
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold
             )
 
             Text(
-                text = "Учись и играй!",
-                color = ru.plumsoftware.game.ui.theme.GameTextMuted,
+                text = "Загрузка…",
+                color = GameTextMuted,
                 fontSize = 16.sp
             )
         }
