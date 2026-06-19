@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -22,14 +23,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import ru.plumsoftware.game.R
-import ru.plumsoftware.game.ui.theme.GamePurple
-import ru.plumsoftware.game.ui.theme.GameTextMuted
-import ru.plumsoftware.game.ui.theme.GameTextPrimary
 
 @Composable
 fun SplashScreen(
     onSplashComplete: () -> Unit
 ) {
+    val colors = MaterialTheme.colorScheme
     var startAnimation by remember { mutableStateOf(false) }
     val alphaAnim = animateFloatAsState(
         targetValue = if (startAnimation) 1f else 0f,
@@ -51,7 +50,7 @@ fun SplashScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(GameBackground),
+            .background(colors.background),
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -73,7 +72,7 @@ fun SplashScreen(
 
             CircularProgressIndicator(
                 modifier = Modifier.size(36.dp),
-                color = GamePurple,
+                color = colors.primary,
                 strokeWidth = 3.dp
             )
 
@@ -81,14 +80,14 @@ fun SplashScreen(
 
             Text(
                 text = stringResource(R.string.app_name),
-                color = GameTextPrimary,
+                color = colors.onBackground,
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold
             )
 
             Text(
                 text = "Загрузка…",
-                color = GameTextMuted,
+                color = colors.onSurfaceVariant,
                 fontSize = 16.sp
             )
         }
