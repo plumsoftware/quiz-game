@@ -238,6 +238,100 @@ object GameData {
         )
     )
 
+    // Level 1 - Additional questions (IDs 121-130)
+    val level1NewQuestions = listOf(
+        Question(
+            id = 121,
+            question = "Сколько глаз у человека?",
+            options = listOf("1", "2", "3", "4"),
+            correctAnswer = 1,
+            category = "Человек",
+            difficulty = 1,
+            level = 1
+        ),
+        Question(
+            id = 122,
+            question = "Какой формы яйцо?",
+            options = listOf("Круглое", "Овальное", "Квадратное", "Треугольное"),
+            correctAnswer = 1,
+            category = "Фигуры",
+            difficulty = 1,
+            level = 1
+        ),
+        Question(
+            id = 123,
+            question = "Какая птица не умеет летать, но умеет плавать?",
+            options = listOf("Воробей", "Пингвин", "Орел", "Голубь"),
+            correctAnswer = 1,
+            category = "Животные",
+            difficulty = 1,
+            level = 1
+        ),
+        Question(
+            id = 124,
+            question = "Что мы надеваем на ноги?",
+            options = listOf("Шапку", "Перчатки", "Обувь", "Шарф"),
+            correctAnswer = 2,
+            category = "Школа",
+            difficulty = 1,
+            level = 1
+        ),
+        Question(
+            id = 125,
+            question = "Какого цвета апельсин?",
+            options = listOf("Зеленый", "Оранжевый", "Синий", "Фиолетовый"),
+            correctAnswer = 1,
+            category = "Цвета",
+            difficulty = 1,
+            level = 1
+        ),
+        Question(
+            id = 126,
+            question = "Сколько колес у велосипеда?",
+            options = listOf("1", "2", "3", "4"),
+            correctAnswer = 1,
+            category = "Числа",
+            difficulty = 1,
+            level = 1
+        ),
+        Question(
+            id = 127,
+            question = "Что светит на небе днем?",
+            options = listOf("Луна", "Звезды", "Солнце", "Кометы"),
+            correctAnswer = 2,
+            category = "Природа",
+            difficulty = 1,
+            level = 1
+        ),
+        Question(
+            id = 128,
+            question = "Какое время суток самое темное?",
+            options = listOf("Утро", "День", "Вечер", "Ночь"),
+            correctAnswer = 3,
+            category = "Время",
+            difficulty = 1,
+            level = 1
+        ),
+        Question(
+            id = 129,
+            question = "Какой овощ оранжевый и растет в земле?",
+            options = listOf("Морковь", "Капуста", "Огурец", "Лук"),
+            correctAnswer = 0,
+            category = "Еда",
+            difficulty = 1,
+            level = 1
+        ),
+        Question(
+            id = 130,
+            question = "Сколько букв в слове 'кот'?",
+            options = listOf("2", "3", "4", "5"),
+            correctAnswer = 1,
+            category = "Буквы",
+            difficulty = 1,
+            level = 1
+        )
+    )
+
     // Level 2 - Medium questions (IDs 21-40)
     val level2Questions = listOf(
         Question(
@@ -417,6 +511,100 @@ object GameData {
             options = listOf("6", "7", "8", "9"),
             correctAnswer = 2,
             category = "Буквы",
+            difficulty = 2,
+            level = 2
+        )
+    )
+
+    // Level 2 - Additional questions (IDs 131-140)
+    val level2NewQuestions = listOf(
+        Question(
+            id = 131,
+            question = "Какая самая большая страна в мире по площади?",
+            options = listOf("Китай", "США", "Россия", "Канада"),
+            correctAnswer = 2,
+            category = "География",
+            difficulty = 2,
+            level = 2
+        ),
+        Question(
+            id = 132,
+            question = "Сколько ног у паука?",
+            options = listOf("4", "6", "8", "10"),
+            correctAnswer = 2,
+            category = "Животные",
+            difficulty = 2,
+            level = 2
+        ),
+        Question(
+            id = 133,
+            question = "Какая планета известна своими кольцами?",
+            options = listOf("Марс", "Сатурн", "Венера", "Меркурий"),
+            correctAnswer = 1,
+            category = "Космос",
+            difficulty = 2,
+            level = 2
+        ),
+        Question(
+            id = 134,
+            question = "Сколько камер в человеческом сердце?",
+            options = listOf("2", "3", "4", "5"),
+            correctAnswer = 2,
+            category = "Человек",
+            difficulty = 2,
+            level = 2
+        ),
+        Question(
+            id = 135,
+            question = "Сколько секунд в минуте?",
+            options = listOf("30", "60", "90", "100"),
+            correctAnswer = 1,
+            category = "Время",
+            difficulty = 2,
+            level = 2
+        ),
+        Question(
+            id = 136,
+            question = "Какое животное меняет цвет кожи, чтобы прятаться?",
+            options = listOf("Хамелеон", "Кошка", "Кролик", "Лошадь"),
+            correctAnswer = 0,
+            category = "Животные",
+            difficulty = 2,
+            level = 2
+        ),
+        Question(
+            id = 137,
+            question = "Сколько сторон у пятиугольника?",
+            options = listOf("4", "5", "6", "7"),
+            correctAnswer = 1,
+            category = "Фигуры",
+            difficulty = 2,
+            level = 2
+        ),
+        Question(
+            id = 138,
+            question = "Какая самая маленькая страна в мире?",
+            options = listOf("Монако", "Ватикан", "Лихтенштейн", "Андорра"),
+            correctAnswer = 1,
+            category = "География",
+            difficulty = 2,
+            level = 2
+        ),
+        Question(
+            id = 139,
+            question = "Сколько литров воды нужно выпивать человеку в день примерно?",
+            options = listOf("0.5 литра", "1 литр", "2 литра", "5 литров"),
+            correctAnswer = 2,
+            category = "Человек",
+            difficulty = 2,
+            level = 2
+        ),
+        Question(
+            id = 140,
+            question = "Какая звезда находится в центре нашей Солнечной системы?",
+            options = listOf("Полярная звезда", "Солнце", "Сириус", "Венера"),
+            correctAnswer = 1,
+            category = "Космос",
             difficulty = 2,
             level = 2
         )
@@ -606,6 +794,100 @@ object GameData {
         )
     )
 
+    // Level 3 - Additional questions (IDs 141-150)
+    val level3NewQuestions = listOf(
+        Question(
+            id = 141,
+            question = "Какое животное может прожить без воды дольше верблюда?",
+            options = listOf("Крыса кенгуровая", "Лошадь", "Корова", "Овца"),
+            correctAnswer = 0,
+            category = "Животные",
+            difficulty = 3,
+            level = 3
+        ),
+        Question(
+            id = 142,
+            question = "Сколько слоев у сетчатки человеческого глаза?",
+            options = listOf("3", "5", "10", "12"),
+            correctAnswer = 2,
+            category = "Человек",
+            difficulty = 3,
+            level = 3
+        ),
+        Question(
+            id = 143,
+            question = "Какой газ растения выделяют при фотосинтезе?",
+            options = listOf("Углекислый газ", "Кислород", "Азот", "Водород"),
+            correctAnswer = 1,
+            category = "Наука",
+            difficulty = 3,
+            level = 3
+        ),
+        Question(
+            id = 144,
+            question = "Сколько континентов на Земле?",
+            options = listOf("5", "6", "7", "8"),
+            correctAnswer = 2,
+            category = "География",
+            difficulty = 3,
+            level = 3
+        ),
+        Question(
+            id = 145,
+            question = "Какое животное является самым крупным млекопитающим в мире?",
+            options = listOf("Слон", "Синий кит", "Жираф", "Бегемот"),
+            correctAnswer = 1,
+            category = "Животные",
+            difficulty = 3,
+            level = 3
+        ),
+        Question(
+            id = 146,
+            question = "Сколько букв в слове 'путешествие'?",
+            options = listOf("10", "11", "12", "13"),
+            correctAnswer = 1,
+            category = "Буквы",
+            difficulty = 3,
+            level = 3
+        ),
+        Question(
+            id = 147,
+            question = "Какая страна самая населенная в мире?",
+            options = listOf("Китай", "США", "Индия", "Бразилия"),
+            correctAnswer = 2,
+            category = "География",
+            difficulty = 3,
+            level = 3
+        ),
+        Question(
+            id = 148,
+            question = "Сколько сторон у шестиугольника?",
+            options = listOf("4", "5", "6", "7"),
+            correctAnswer = 2,
+            category = "Фигуры",
+            difficulty = 3,
+            level = 3
+        ),
+        Question(
+            id = 149,
+            question = "Какое время года самое короткое в большинстве регионов?",
+            options = listOf("Весна", "Лето", "Осень", "Зима"),
+            correctAnswer = 0,
+            category = "Времена года",
+            difficulty = 3,
+            level = 3
+        ),
+        Question(
+            id = 150,
+            question = "Сколько линз у простого микроскопа?",
+            options = listOf("1", "2", "3", "4"),
+            correctAnswer = 0,
+            category = "Наука",
+            difficulty = 3,
+            level = 3
+        )
+    )
+
     // Level 4 - Expert questions (IDs 61-80)
     val level4Questions = listOf(
         Question(
@@ -785,6 +1067,100 @@ object GameData {
             options = listOf("1", "2", "3", "4"),
             correctAnswer = 3,
             category = "Космос",
+            difficulty = 4,
+            level = 4
+        )
+    )
+
+    // Level 4 - Additional questions (IDs 151-160)
+    val level4NewQuestions = listOf(
+        Question(
+            id = 151,
+            question = "Какая самая длинная горная цепь в мире?",
+            options = listOf("Гималаи", "Анды", "Альпы", "Уральские горы"),
+            correctAnswer = 1,
+            category = "География",
+            difficulty = 4,
+            level = 4
+        ),
+        Question(
+            id = 152,
+            question = "Сколько литров крови в организме взрослого человека примерно?",
+            options = listOf("2-3 литра", "5-6 литров", "8-9 литров", "10-12 литров"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 4,
+            level = 4
+        ),
+        Question(
+            id = 153,
+            question = "Какая галактика содержит нашу Солнечную систему?",
+            options = listOf("Андромеда", "Млечный Путь", "Туманность Ориона", "Большое Магелланово Облако"),
+            correctAnswer = 1,
+            category = "Космос",
+            difficulty = 4,
+            level = 4
+        ),
+        Question(
+            id = 154,
+            question = "Какое животное может регенерировать утраченные конечности?",
+            options = listOf("Ящерица", "Кролик", "Лиса", "Белка"),
+            correctAnswer = 0,
+            category = "Животные",
+            difficulty = 4,
+            level = 4
+        ),
+        Question(
+            id = 155,
+            question = "Сколько слоев имеет атмосфера Земли?",
+            options = listOf("3", "4", "5", "6"),
+            correctAnswer = 2,
+            category = "География",
+            difficulty = 4,
+            level = 4
+        ),
+        Question(
+            id = 156,
+            question = "Какой элемент самый распространенный во Вселенной?",
+            options = listOf("Кислород", "Углерод", "Водород", "Гелий"),
+            correctAnswer = 2,
+            category = "Физика",
+            difficulty = 4,
+            level = 4
+        ),
+        Question(
+            id = 157,
+            question = "Сколько камер имеет желудок коровы?",
+            options = listOf("1", "2", "3", "4"),
+            correctAnswer = 3,
+            category = "Биология",
+            difficulty = 4,
+            level = 4
+        ),
+        Question(
+            id = 158,
+            question = "Какой океан самый большой на Земле?",
+            options = listOf("Атлантический", "Индийский", "Тихий", "Северный Ледовитый"),
+            correctAnswer = 2,
+            category = "География",
+            difficulty = 4,
+            level = 4
+        ),
+        Question(
+            id = 159,
+            question = "Сколько лет длится один оборот Юпитера вокруг Солнца?",
+            options = listOf("около 5 лет", "около 12 лет", "около 20 лет", "около 30 лет"),
+            correctAnswer = 1,
+            category = "Космос",
+            difficulty = 4,
+            level = 4
+        ),
+        Question(
+            id = 160,
+            question = "Какая самая ядовитая лягушка в мире?",
+            options = listOf("Древолаз", "Жаба-ага", "Квакша", "Лягушка-бык"),
+            correctAnswer = 0,
+            category = "Животные",
             difficulty = 4,
             level = 4
         )
@@ -974,6 +1350,100 @@ object GameData {
         )
     )
 
+    // Level 5 - Additional questions (IDs 161-170)
+    val level5NewQuestions = listOf(
+        Question(
+            id = 161,
+            question = "Сколько литров воздуха вмещают легкие взрослого человека примерно?",
+            options = listOf("1-2 литра", "3-4 литра", "5-6 литров", "8-9 литров"),
+            correctAnswer = 2,
+            category = "Биология",
+            difficulty = 5,
+            level = 5
+        ),
+        Question(
+            id = 162,
+            question = "Какой химический элемент обозначается символом 'Au'?",
+            options = listOf("Серебро", "Золото", "Алюминий", "Аргон"),
+            correctAnswer = 1,
+            category = "Химия",
+            difficulty = 5,
+            level = 5
+        ),
+        Question(
+            id = 163,
+            question = "Какая частица не имеет электрического заряда?",
+            options = listOf("Протон", "Электрон", "Нейтрон", "Позитрон"),
+            correctAnswer = 2,
+            category = "Физика",
+            difficulty = 5,
+            level = 5
+        ),
+        Question(
+            id = 164,
+            question = "Сколько хромосом у курицы?",
+            options = listOf("70", "78", "82", "90"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 5,
+            level = 5
+        ),
+        Question(
+            id = 165,
+            question = "Какая самая твердая природная ткань в организме человека?",
+            options = listOf("Кость", "Зубная эмаль", "Хрящ", "Ноготь"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 5,
+            level = 5
+        ),
+        Question(
+            id = 166,
+            question = "Сколько пар хромосом у человека?",
+            options = listOf("21", "22", "23", "24"),
+            correctAnswer = 2,
+            category = "Биология",
+            difficulty = 5,
+            level = 5
+        ),
+        Question(
+            id = 167,
+            question = "Какой газ составляет большую часть земной атмосферы?",
+            options = listOf("Кислород", "Углекислый газ", "Азот", "Водород"),
+            correctAnswer = 2,
+            category = "Химия",
+            difficulty = 5,
+            level = 5
+        ),
+        Question(
+            id = 168,
+            question = "Какая самая тяжелая внутренняя железа в человеческом теле?",
+            options = listOf("Печень", "Селезенка", "Почка", "Поджелудочная железа"),
+            correctAnswer = 0,
+            category = "Биология",
+            difficulty = 5,
+            level = 5
+        ),
+        Question(
+            id = 169,
+            question = "Сколько групп крови существует у человека по основной системе AB0?",
+            options = listOf("2", "3", "4", "5"),
+            correctAnswer = 2,
+            category = "Биология",
+            difficulty = 5,
+            level = 5
+        ),
+        Question(
+            id = 170,
+            question = "Какой самый легкий газ в природе?",
+            options = listOf("Гелий", "Водород", "Азот", "Кислород"),
+            correctAnswer = 1,
+            category = "Физика",
+            difficulty = 5,
+            level = 5
+        )
+    )
+
     // Level 6 - Grand Master questions (IDs 101-120)
     val level6Questions = listOf(
         Question(
@@ -1158,7 +1628,106 @@ object GameData {
         )
     )
 
-    val allQuestions = level1Questions + level2Questions + level3Questions + level4Questions + level5Questions + level6Questions
+    // Level 6 - Additional questions (IDs 171-180)
+    val level6NewQuestions = listOf(
+        Question(
+            id = 171,
+            question = "Сколько пар ребер у взрослого человека?",
+            options = listOf("10", "12", "14", "16"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 6,
+            level = 6
+        ),
+        Question(
+            id = 172,
+            question = "Какая частица переносит электромагнитное взаимодействие?",
+            options = listOf("Электрон", "Фотон", "Нейтрино", "Глюон"),
+            correctAnswer = 1,
+            category = "Физика",
+            difficulty = 6,
+            level = 6
+        ),
+        Question(
+            id = 173,
+            question = "Сколько аминокислот участвует в строении человеческих белков?",
+            options = listOf("10", "15", "20", "25"),
+            correctAnswer = 2,
+            category = "Биология",
+            difficulty = 6,
+            level = 6
+        ),
+        Question(
+            id = 174,
+            question = "Какая кость является единственной подвижно соединенной с черепом?",
+            options = listOf("Височная", "Нижняя челюсть", "Скуловая", "Затылочная"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 6,
+            level = 6
+        ),
+        Question(
+            id = 175,
+            question = "Сколько хромосом у дрозофилы (плодовой мушки)?",
+            options = listOf("4", "6", "8", "10"),
+            correctAnswer = 2,
+            category = "Биология",
+            difficulty = 6,
+            level = 6
+        ),
+        Question(
+            id = 176,
+            question = "Какой слой земной коры самый тонкий — океанический или континентальный?",
+            options = listOf("Океанический", "Континентальный", "Они одинаковы", "Зависит от региона"),
+            correctAnswer = 0,
+            category = "География",
+            difficulty = 6,
+            level = 6
+        ),
+        Question(
+            id = 177,
+            question = "Сколько типов мышечной ткани выделяют в организме человека?",
+            options = listOf("2", "3", "4", "5"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 6,
+            level = 6
+        ),
+        Question(
+            id = 178,
+            question = "Какая структура клетки отвечает за производство энергии?",
+            options = listOf("Ядро", "Митохондрия", "Рибосома", "Лизосома"),
+            correctAnswer = 1,
+            category = "Биология",
+            difficulty = 6,
+            level = 6
+        ),
+        Question(
+            id = 179,
+            question = "Сколько камер сердца у птиц?",
+            options = listOf("2", "3", "4", "5"),
+            correctAnswer = 2,
+            category = "Биология",
+            difficulty = 6,
+            level = 6
+        ),
+        Question(
+            id = 180,
+            question = "Какая элементарная частица отвечает за массу других частиц согласно физике?",
+            options = listOf("Фотон", "Бозон Хиггса", "Глюон", "Нейтрино"),
+            correctAnswer = 1,
+            category = "Физика",
+            difficulty = 6,
+            level = 6
+        )
+    )
+
+    val allQuestions = level1Questions + level1NewQuestions +
+            level2Questions + level2NewQuestions +
+            level3Questions + level3NewQuestions +
+            level4Questions + level4NewQuestions +
+            level5Questions + level5NewQuestions +
+            level6Questions + level6NewQuestions
 
     private fun quizQuestions(
         primary: List<Question>,
@@ -1187,7 +1756,7 @@ object GameData {
             category = "Общие знания",
             difficulty = 1,
             requiredLevel = 1,
-            questions = quizQuestions(level1Questions, level1Questions, 10)
+            questions = quizQuestions(level1Questions + level1NewQuestions, level1Questions + level1NewQuestions, 10)
         ),
         Quiz(
             id = 2,
@@ -1197,8 +1766,8 @@ object GameData {
             difficulty = 1,
             requiredLevel = 1,
             questions = quizQuestions(
-                level1Questions.filter { it.category == "Цвета" || it.category == "Фигуры" },
-                level1Questions,
+                (level1Questions + level1NewQuestions).filter { it.category == "Цвета" || it.category == "Фигуры" },
+                level1Questions + level1NewQuestions,
                 12
             )
         ),
@@ -1210,8 +1779,8 @@ object GameData {
             difficulty = 1,
             requiredLevel = 1,
             questions = quizQuestions(
-                level1Questions.filter { it.category == "Животные" },
-                level1Questions,
+                (level1Questions + level1NewQuestions).filter { it.category == "Животные" },
+                level1Questions + level1NewQuestions,
                 9
             )
         ),
@@ -1223,8 +1792,8 @@ object GameData {
             difficulty = 1,
             requiredLevel = 1,
             questions = quizQuestions(
-                level1Questions.filter { it.category == "Числа" || it.category == "Буквы" },
-                level1Questions,
+                (level1Questions + level1NewQuestions).filter { it.category == "Числа" || it.category == "Буквы" },
+                level1Questions + level1NewQuestions,
                 11
             )
         ),
@@ -1236,12 +1805,12 @@ object GameData {
             difficulty = 1,
             requiredLevel = 1,
             questions = quizQuestions(
-                level1Questions.filter { it.category == "Природа" || it.category == "Времена года" },
-                level1Questions,
+                (level1Questions + level1NewQuestions).filter { it.category == "Природа" || it.category == "Времена года" },
+                level1Questions + level1NewQuestions,
                 8
             )
         ),
-        
+
         // Medium Quizzes (Level 2)
         Quiz(
             id = 6,
@@ -1250,7 +1819,7 @@ object GameData {
             category = "Общие знания",
             difficulty = 2,
             requiredLevel = 2,
-            questions = quizQuestions(level2Questions, level2Questions, 14)
+            questions = quizQuestions(level2Questions + level2NewQuestions, level2Questions + level2NewQuestions, 14)
         ),
         Quiz(
             id = 7,
@@ -1260,8 +1829,8 @@ object GameData {
             difficulty = 2,
             requiredLevel = 2,
             questions = quizQuestions(
-                level2Questions.filter { it.category == "География" },
-                level2Questions,
+                (level2Questions + level2NewQuestions).filter { it.category == "География" },
+                level2Questions + level2NewQuestions,
                 10
             )
         ),
@@ -1273,8 +1842,8 @@ object GameData {
             difficulty = 2,
             requiredLevel = 2,
             questions = quizQuestions(
-                level2Questions.filter { it.category == "Космос" },
-                level2Questions,
+                (level2Questions + level2NewQuestions).filter { it.category == "Космос" },
+                level2Questions + level2NewQuestions,
                 9
             )
         ),
@@ -1286,8 +1855,8 @@ object GameData {
             difficulty = 2,
             requiredLevel = 2,
             questions = quizQuestions(
-                level2Questions.filter { it.category == "Человек" },
-                level2Questions,
+                (level2Questions + level2NewQuestions).filter { it.category == "Человек" },
+                level2Questions + level2NewQuestions,
                 11
             )
         ),
@@ -1299,12 +1868,12 @@ object GameData {
             difficulty = 2,
             requiredLevel = 2,
             questions = quizQuestions(
-                level2Questions.filter { it.category == "Животные" },
-                level2Questions,
+                (level2Questions + level2NewQuestions).filter { it.category == "Животные" },
+                level2Questions + level2NewQuestions,
                 12
             )
         ),
-        
+
         // Hard Quizzes (Level 3)
         Quiz(
             id = 11,
@@ -1313,7 +1882,7 @@ object GameData {
             category = "Общие знания",
             difficulty = 3,
             requiredLevel = 3,
-            questions = quizQuestions(level3Questions, level3Questions, 17)
+            questions = quizQuestions(level3Questions + level3NewQuestions, level3Questions + level3NewQuestions, 17)
         ),
         Quiz(
             id = 12,
@@ -1323,8 +1892,8 @@ object GameData {
             difficulty = 3,
             requiredLevel = 3,
             questions = quizQuestions(
-                level3Questions.filter { it.category == "Человек" },
-                level3Questions,
+                (level3Questions + level3NewQuestions).filter { it.category == "Человек" },
+                level3Questions + level3NewQuestions,
                 13
             )
         ),
@@ -1336,8 +1905,8 @@ object GameData {
             difficulty = 3,
             requiredLevel = 3,
             questions = quizQuestions(
-                level3Questions.filter { it.category == "География" },
-                level3Questions,
+                (level3Questions + level3NewQuestions).filter { it.category == "География" },
+                level3Questions + level3NewQuestions,
                 10
             )
         ),
@@ -1349,8 +1918,8 @@ object GameData {
             difficulty = 3,
             requiredLevel = 3,
             questions = quizQuestions(
-                level3Questions.filter { it.category == "Животные" },
-                level3Questions,
+                (level3Questions + level3NewQuestions).filter { it.category == "Животные" },
+                level3Questions + level3NewQuestions,
                 11
             )
         ),
@@ -1362,12 +1931,12 @@ object GameData {
             difficulty = 3,
             requiredLevel = 3,
             questions = quizQuestions(
-                level3Questions.filter { it.category == "Физика" || it.category == "Химия" },
-                level3Questions,
+                (level3Questions + level3NewQuestions).filter { it.category == "Физика" || it.category == "Химия" || it.category == "Наука" },
+                level3Questions + level3NewQuestions,
                 9
             )
         ),
-        
+
         // Expert Quizzes (Level 4)
         Quiz(
             id = 16,
@@ -1376,7 +1945,7 @@ object GameData {
             category = "Общие знания",
             difficulty = 4,
             requiredLevel = 4,
-            questions = quizQuestions(level4Questions, level4Questions, 15)
+            questions = quizQuestions(level4Questions + level4NewQuestions, level4Questions + level4NewQuestions, 15)
         ),
         Quiz(
             id = 17,
@@ -1386,8 +1955,8 @@ object GameData {
             difficulty = 4,
             requiredLevel = 4,
             questions = quizQuestions(
-                level4Questions.filter { it.category == "Биология" },
-                level4Questions,
+                (level4Questions + level4NewQuestions).filter { it.category == "Биология" },
+                level4Questions + level4NewQuestions,
                 12
             )
         ),
@@ -1399,8 +1968,8 @@ object GameData {
             difficulty = 4,
             requiredLevel = 4,
             questions = quizQuestions(
-                level4Questions.filter { it.category == "География" },
-                level4Questions,
+                (level4Questions + level4NewQuestions).filter { it.category == "География" },
+                level4Questions + level4NewQuestions,
                 10
             )
         ),
@@ -1412,8 +1981,8 @@ object GameData {
             difficulty = 4,
             requiredLevel = 4,
             questions = quizQuestions(
-                level4Questions.filter { it.category == "Животные" },
-                level4Questions,
+                (level4Questions + level4NewQuestions).filter { it.category == "Животные" },
+                level4Questions + level4NewQuestions,
                 11
             )
         ),
@@ -1425,12 +1994,12 @@ object GameData {
             difficulty = 4,
             requiredLevel = 4,
             questions = quizQuestions(
-                level4Questions.filter { it.category == "Физика" || it.category == "Химия" },
-                level4Questions,
+                (level4Questions + level4NewQuestions).filter { it.category == "Физика" || it.category == "Химия" },
+                level4Questions + level4NewQuestions,
                 8
             )
         ),
-        
+
         // Master Quizzes (Level 5)
         Quiz(
             id = 21,
@@ -1439,7 +2008,7 @@ object GameData {
             category = "Общие знания",
             difficulty = 5,
             requiredLevel = 5,
-            questions = quizQuestions(level5Questions, level5Questions, 16)
+            questions = quizQuestions(level5Questions + level5NewQuestions, level5Questions + level5NewQuestions, 16)
         ),
         Quiz(
             id = 22,
@@ -1449,8 +2018,8 @@ object GameData {
             difficulty = 5,
             requiredLevel = 5,
             questions = quizQuestions(
-                level5Questions.filter { it.category == "Биология" },
-                level5Questions,
+                (level5Questions + level5NewQuestions).filter { it.category == "Биология" },
+                level5Questions + level5NewQuestions,
                 14
             )
         ),
@@ -1462,8 +2031,8 @@ object GameData {
             difficulty = 5,
             requiredLevel = 5,
             questions = quizQuestions(
-                level5Questions.filter { it.category == "География" },
-                level5Questions,
+                (level5Questions + level5NewQuestions).filter { it.category == "География" },
+                level5Questions + level5NewQuestions,
                 9
             )
         ),
@@ -1475,8 +2044,8 @@ object GameData {
             difficulty = 5,
             requiredLevel = 5,
             questions = quizQuestions(
-                level5Questions.filter { it.category == "Животные" },
-                level5Questions,
+                (level5Questions + level5NewQuestions).filter { it.category == "Животные" },
+                level5Questions + level5NewQuestions,
                 10
             )
         ),
@@ -1488,12 +2057,12 @@ object GameData {
             difficulty = 5,
             requiredLevel = 5,
             questions = quizQuestions(
-                level5Questions.filter { it.category == "Физика" || it.category == "Химия" },
-                level5Questions,
+                (level5Questions + level5NewQuestions).filter { it.category == "Физика" || it.category == "Химия" },
+                level5Questions + level5NewQuestions,
                 11
             )
         ),
-        
+
         // Grand Master Quizzes (Level 6)
         Quiz(
             id = 26,
@@ -1502,7 +2071,7 @@ object GameData {
             category = "Общие знания",
             difficulty = 6,
             requiredLevel = 6,
-            questions = quizQuestions(level6Questions, level6Questions, 17)
+            questions = quizQuestions(level6Questions + level6NewQuestions, level6Questions + level6NewQuestions, 17)
         ),
         Quiz(
             id = 27,
@@ -1512,8 +2081,8 @@ object GameData {
             difficulty = 6,
             requiredLevel = 6,
             questions = quizQuestions(
-                level6Questions.filter { it.category == "Биология" },
-                level6Questions,
+                (level6Questions + level6NewQuestions).filter { it.category == "Биология" },
+                level6Questions + level6NewQuestions,
                 15
             )
         ),
@@ -1525,8 +2094,8 @@ object GameData {
             difficulty = 6,
             requiredLevel = 6,
             questions = quizQuestions(
-                level6Questions.filter { it.category == "География" },
-                level6Questions,
+                (level6Questions + level6NewQuestions).filter { it.category == "География" },
+                level6Questions + level6NewQuestions,
                 10
             )
         ),
@@ -1538,8 +2107,8 @@ object GameData {
             difficulty = 6,
             requiredLevel = 6,
             questions = quizQuestions(
-                level6Questions.filter { it.category == "Животные" },
-                level6Questions,
+                (level6Questions + level6NewQuestions).filter { it.category == "Животные" },
+                level6Questions + level6NewQuestions,
                 11
             )
         ),
@@ -1551,8 +2120,8 @@ object GameData {
             difficulty = 6,
             requiredLevel = 6,
             questions = quizQuestions(
-                level6Questions.filter { it.category == "Физика" || it.category == "Химия" },
-                level6Questions,
+                (level6Questions + level6NewQuestions).filter { it.category == "Физика" || it.category == "Химия" },
+                level6Questions + level6NewQuestions,
                 9
             )
         )
@@ -1654,4 +2223,4 @@ object GameData {
         }
         return "$count $word"
     }
-} 
+}

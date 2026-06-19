@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.BugReport
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -37,6 +38,7 @@ import ru.plumsoftware.game.data.Question
 import ru.plumsoftware.game.ui.components.game.*
 import ru.plumsoftware.game.ui.theme.*
 import ru.plumsoftware.game.ui.util.CategoryStyles
+import ru.plumsoftware.game.ui.util.openBugReportEmail
 import kotlin.math.max
 
 private const val QUESTION_TIME_SECONDS = 15
@@ -208,6 +210,7 @@ fun QuizScreen(
             progress = (currentQuestionIndex + if (hasAnswered) 1f else 0f) / questions.size.coerceAtLeast(1)
         )
 
+        Column(modifier = Modifier.weight(1f)) {
         Spacer(modifier = Modifier.height(16.dp))
 
         currentQuestion?.let { question ->
@@ -348,6 +351,15 @@ fun QuizScreen(
         }
         }
 
+        QuizBugReportButton(
+            onClick = {
+                if (!openBugReportEmail(context)) {
+                    snackbarMessage = "Не найдено приложение для отправки письма"
+                }
+            }
+        )
+        }
+
         SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier.align(Alignment.BottomCenter)
@@ -361,6 +373,30 @@ fun QuizScreen(
                 onPurchase = onPurchasePowerUp
             )
         }
+    }
+}
+
+@Composable
+private fun QuizBugReportButton(onClick: () -> Unit) {
+    TextButton(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 4.dp),
+        contentPadding = PaddingValues(vertical = 8.dp)
+    ) {
+        Icon(
+            imageVector = Icons.Rounded.BugReport,
+            contentDescription = null,
+            modifier = Modifier.size(18.dp),
+            tint = GameTextMuted
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = "Сообщить о ошибке",
+            style = MaterialTheme.typography.labelMedium,
+            color = GameTextMuted
+        )
     }
 }
 
