@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Викторины</string>
+    <string name="app_name">Викторина</string>
 
     <!-- Home Screen -->
     <string name="start_quiz">Начать Викторину</string>

@@ -16,12 +16,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
 import ru.plumsoftware.game.R
-import ru.plumsoftware.game.ui.theme.GameBackground
 import ru.plumsoftware.game.ui.theme.GamePurple
 import ru.plumsoftware.game.ui.theme.GameTextMuted
 import ru.plumsoftware.game.ui.theme.GameTextPrimary
@@ -80,7 +80,7 @@ fun SplashScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "Викторины",
+                text = stringResource(R.string.app_name),
                 color = GameTextPrimary,
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold
