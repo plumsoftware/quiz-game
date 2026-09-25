@@ -17,42 +17,43 @@ data class ExtendedColorScheme(
     val info: ColorFamily,
 )
 
+// Светлая схема, приведённая к палитре ТЗ §3.1 (фиолетовый акцент, кремовый фон).
 private val lightScheme = lightColorScheme(
-    primary = primaryLight,
-    onPrimary = onPrimaryLight,
-    primaryContainer = primaryContainerLight,
-    onPrimaryContainer = onPrimaryContainerLight,
-    secondary = secondaryLight,
-    onSecondary = onSecondaryLight,
-    secondaryContainer = secondaryContainerLight,
-    onSecondaryContainer = onSecondaryContainerLight,
-    tertiary = tertiaryLight,
-    onTertiary = onTertiaryLight,
-    tertiaryContainer = tertiaryContainerLight,
-    onTertiaryContainer = onTertiaryContainerLight,
-    error = errorLight,
-    onError = onErrorLight,
-    errorContainer = errorContainerLight,
-    onErrorContainer = onErrorContainerLight,
-    background = backgroundLight,
-    onBackground = onBackgroundLight,
-    surface = surfaceLight,
-    onSurface = onSurfaceLight,
-    surfaceVariant = surfaceVariantLight,
-    onSurfaceVariant = onSurfaceVariantLight,
-    outline = outlineLight,
-    outlineVariant = outlineVariantLight,
+    primary = Kids.Primary,
+    onPrimary = Color.White,
+    primaryContainer = Kids.PrimarySoft,
+    onPrimaryContainer = Kids.Primary,
+    secondary = Kids.Coin,
+    onSecondary = Kids.CoinText,
+    secondaryContainer = Kids.CoinSoft,
+    onSecondaryContainer = Kids.CoinText,
+    tertiary = Kids.Gem,
+    onTertiary = Color.White,
+    tertiaryContainer = Color(0xFFE1F2FF),
+    onTertiaryContainer = Kids.GemShadow,
+    error = Kids.Error,
+    onError = Color.White,
+    errorContainer = Color(0xFFFFE3E6),
+    onErrorContainer = Kids.ErrorShadow,
+    background = Kids.Background,
+    onBackground = Kids.TextPrimary,
+    surface = Kids.Card,
+    onSurface = Kids.TextPrimary,
+    surfaceVariant = Kids.PrimarySoft,
+    onSurfaceVariant = Kids.TextSecondary,
+    outline = Kids.InputBorder,
+    outlineVariant = Kids.CardShadow,
     scrim = scrimLight,
     inverseSurface = inverseSurfaceLight,
     inverseOnSurface = inverseOnSurfaceLight,
-    inversePrimary = inversePrimaryLight,
+    inversePrimary = Kids.PrimarySoft,
     surfaceDim = surfaceDimLight,
     surfaceBright = surfaceBrightLight,
-    surfaceContainerLowest = surfaceContainerLowestLight,
-    surfaceContainerLow = surfaceContainerLowLight,
-    surfaceContainer = surfaceContainerLight,
-    surfaceContainerHigh = surfaceContainerHighLight,
-    surfaceContainerHighest = surfaceContainerHighestLight,
+    surfaceContainerLowest = Color.White,
+    surfaceContainerLow = Kids.Background,
+    surfaceContainer = Kids.Card,
+    surfaceContainerHigh = Color(0xFFF6EFE3),
+    surfaceContainerHighest = Kids.SegmentTrack,
 )
 
 private val gameDarkScheme = darkColorScheme(
@@ -364,7 +365,7 @@ object ExtendedTheme {
 
 @Composable
 fun ExtendedTheme(
-    darkTheme: Boolean = true,
+    darkTheme: Boolean = false, // ТЗ: пока только светлая тема
     content: @Composable () -> Unit
 ) {
     val extendedColors = when {
@@ -379,7 +380,7 @@ fun ExtendedTheme(
 
 @Composable
 fun QuizGameTheme(
-    darkTheme: Boolean = true,
+    darkTheme: Boolean = false, // ТЗ: пока только светлая тема
     content: @Composable () -> Unit
 ) {
     val colorScheme = if (darkTheme) gameDarkScheme else lightScheme

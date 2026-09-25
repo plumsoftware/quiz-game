@@ -1,656 +1,450 @@
 package ru.plumsoftware.game.ui.screens
 
-import androidx.activity.compose.LocalActivity
-import androidx.compose.animation.*
-import androidx.compose.animation.core.*
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.BugReport
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.delay
-import ru.plumsoftware.game.App
-import ru.plumsoftware.game.MainActivity
-import ru.plumsoftware.game.ads.AdsBase
-import ru.plumsoftware.game.audio.GameAudioManager
+import ru.plumsoftware.game.data.GameDifficulty
 import ru.plumsoftware.game.data.PowerUpType
 import ru.plumsoftware.game.data.Question
-import ru.plumsoftware.game.ui.components.game.*
-import ru.plumsoftware.game.ui.theme.*
-import ru.plumsoftware.game.ui.util.CategoryStyles
-import ru.plumsoftware.game.ui.util.openBugReportEmail
-import kotlin.math.max
+import ru.plumsoftware.game.data.topicById
+import ru.plumsoftware.game.ui.components.kids.KidsButton
+import ru.plumsoftware.game.ui.theme.Kids
+import ru.plumsoftware.game.ui.theme.RubikFamily
+import ru.plumsoftware.game.ui.theme.UnboundedFamily
+import ru.plumsoftware.game.ui.theme.topicColors
 
-private const val QUESTION_TIME_SECONDS = 15
-private const val MAX_HEARTS = 3
+private enum class AnswerOutcome { NONE, CORRECT, WRONG, TIMEOUT }
 
+/** Экран прохождения викторины (ТЗ §5.5). */
 @Composable
 fun QuizScreen(
-    currentLevel: Int,
+    topicId: String,
+    difficulty: GameDifficulty,
+    isBoss: Boolean,
     questions: List<Question>,
-    coins: Int = 0,
-    powerUpInventory: Map<String, Int> = emptyMap(),
-    onBack: () -> Unit,
-    onQuizComplete: (correctAnswers: Int, totalQuestions: Int) -> Unit,
-    onPurchasePowerUp: (PowerUpType) -> Unit,
-    onConsumePowerUp: (PowerUpType, (Boolean) -> Unit) -> Unit
+    coins: Int,
+    powerUpInventory: Map<String, Int>,
+    onExit: () -> Unit,
+    onComplete: (correct: Int, total: Int) -> Unit,
+    onConsumePowerUp: (PowerUpType, (Boolean) -> Unit) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-    val audioManager = remember { GameAudioManager(context) }
-    DisposableEffect(Unit) { onDispose { audioManager.release() } }
+    val topic = topicById(topicId)
+    val tc = topicColors(topicId)
+    val neededCount = if (isBoss) 10 else 5
+    val qs = remember(questions) { questions.take(neededCount).ifEmpty { questions } }
 
-    var currentQuestionIndex by remember { mutableIntStateOf(0) }
-    var correctAnswers by remember { mutableIntStateOf(0) }
-    var hearts by remember { mutableIntStateOf(MAX_HEARTS) }
-    var timeLeft by remember { mutableIntStateOf(QUESTION_TIME_SECONDS) }
-    var answerStates by remember { mutableStateOf<Map<Int, AnswerState>>(emptyMap()) }
-    var showExplanation by remember { mutableStateOf(false) }
-    var lastAnswerCorrect by remember { mutableStateOf(false) }
-    var isGameOver by remember { mutableStateOf(false) }
-    var showShop by remember { mutableStateOf(false) }
-    var hiddenAnswers by remember { mutableStateOf<Set<Int>>(emptySet()) }
-    var highlightedAnswer by remember { mutableStateOf<Int?>(null) }
-    var shieldActive by remember { mutableStateOf(false) }
-    var secondChanceActive by remember { mutableStateOf(false) }
-    var slowTimer by remember { mutableStateOf(false) }
-    var freezeTicks by remember { mutableIntStateOf(0) }
-    var showHintBanner by remember { mutableStateOf(false) }
-    var snackbarMessage by remember { mutableStateOf<String?>(null) }
-
-    val haptic = LocalHapticFeedback.current
-    val snackbarHostState = remember { SnackbarHostState() }
-    val currentQuestion = questions.getOrNull(currentQuestionIndex)
-    val hasAnswered = answerStates.isNotEmpty()
-    val isPaused = showShop || freezeTicks > 0
-
-    LaunchedEffect(snackbarMessage) {
-        snackbarMessage?.let {
-            snackbarHostState.showSnackbar(it)
-            snackbarMessage = null
-        }
-    }
-
-    fun resetQuestionPowerUps() {
-        hiddenAnswers = emptySet()
-        highlightedAnswer = null
-        slowTimer = false
-        freezeTicks = 0
-        showHintBanner = false
-        secondChanceActive = false
-    }
-
-    fun goToNextQuestion() {
-        resetQuestionPowerUps()
-        if (currentQuestionIndex < questions.size - 1) {
-            currentQuestionIndex++
-            answerStates = emptyMap()
-            showExplanation = false
-        } else {
-            audioManager.playComplete()
-            onQuizComplete(correctAnswers, questions.size)
-        }
-    }
-
-    fun applyPowerUp(type: PowerUpType) {
-        val question = currentQuestion ?: return
-        if (hasAnswered && type != PowerUpType.SECOND_CHANCE) return
-
-        onConsumePowerUp(type) { consumed ->
-            if (!consumed) {
-                snackbarMessage = "Нет улучшения «${type.title}»"
-                return@onConsumePowerUp
-            }
-            when (type) {
-                PowerUpType.HINT -> showHintBanner = true
-                PowerUpType.FIFTY_FIFTY -> {
-                    val wrongIds = question.options.indices
-                        .filter { it != question.correctAnswer }
-                        .shuffled()
-                        .take(2)
-                        .toSet()
-                    hiddenAnswers = wrongIds
-                }
-                PowerUpType.EXTRA_LIFE -> hearts = minOf(hearts + 1, MAX_HEARTS + 2)
-                PowerUpType.EXTRA_TIME -> timeLeft = minOf(timeLeft + 10, QUESTION_TIME_SECONDS + 15)
-                PowerUpType.SKIP_QUESTION -> goToNextQuestion()
-                PowerUpType.REVEAL_ANSWER, PowerUpType.LUCKY_HINT -> highlightedAnswer = question.correctAnswer
-                PowerUpType.SHIELD -> shieldActive = true
-                PowerUpType.FREEZE_TIME -> freezeTicks = 8
-                PowerUpType.SECOND_CHANCE -> secondChanceActive = true
-                PowerUpType.SLOW_TIMER -> slowTimer = true
-                PowerUpType.DOUBLE_COINS -> snackbarMessage = "×2 монеты за следующий правильный ответ!"
-            }
-            snackbarMessage = "Использовано: ${type.emoji} ${type.title}"
-        }
-    }
-
-    LaunchedEffect(currentQuestionIndex, hasAnswered, showShop, freezeTicks, slowTimer) {
-        if (!hasAnswered && !isGameOver && !showShop) {
-            timeLeft = QUESTION_TIME_SECONDS
-            while (timeLeft > 0 && !hasAnswered && !isGameOver && !showShop) {
-                if (freezeTicks > 0) {
-                    delay(1000L)
-                    freezeTicks--
-                    continue
-                }
-                delay(if (slowTimer) 2000L else 1000L)
-                timeLeft--
-            }
-            if (!hasAnswered && !isGameOver && timeLeft <= 0) {
-                val correctId = currentQuestion?.correctAnswer ?: 0
-                answerStates = currentQuestion?.options?.indices?.associate { id ->
-                    id to when (id) {
-                        correctId -> AnswerState.MISSED
-                        else -> AnswerState.NONE
-                    }
-                } ?: emptyMap()
-                if (shieldActive) {
-                    shieldActive = false
-                    snackbarMessage = "🛡️ Щит защитил от таймаута!"
-                } else {
-                    hearts = max(0, hearts - 1)
-                    haptic.performHapticFeedback(HapticFeedbackType.Reject)
-                    audioManager.playWrong()
-                    if (hearts == 0) delay(1200L).also { isGameOver = true }
-                }
-                lastAnswerCorrect = false
-                showExplanation = true
-            }
-        }
-    }
-
-    if (isGameOver) {
-        GameOverScreen(
-            correctAnswers = correctAnswers,
-            totalQuestions = questions.size,
-            onFinish = { onQuizComplete(correctAnswers, questions.size) },
-            onBack = onBack
-        )
+    if (qs.isEmpty()) {
+        // Нет вопросов — выходим (side-effect вне композиции).
+        androidx.compose.runtime.LaunchedEffect(Unit) { onComplete(0, 0) }
         return
     }
 
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize().background(GameBackground)) {
-        GameQuizTopBar(
-            lives = hearts,
-            timeLeft = timeLeft,
-            totalTime = QUESTION_TIME_SECONDS,
-            coins = coins,
-            onExit = onBack
-        )
+    var qIndex by remember { mutableIntStateOf(0) }
+    var correctCount by remember { mutableIntStateOf(0) }
+    var lives by remember { mutableIntStateOf(difficulty.lives) }
 
-        QuizPowerUpBar(
-            inventory = powerUpInventory,
-            enabled = !hasAnswered && !isGameOver,
-            onUse = { applyPowerUp(it) },
-            onOpenShop = { showShop = true }
-        )
+    // Состояние текущего вопроса.
+    var selected by remember(qIndex) { mutableStateOf<Int?>(null) }
+    var outcome by remember(qIndex) { mutableStateOf(AnswerOutcome.NONE) }
+    var timeLeft by remember(qIndex) { mutableIntStateOf(difficulty.secondsPerQuestion) }
+    var frozen by remember(qIndex) { mutableStateOf(false) }
+    var hidden by remember(qIndex) { mutableStateOf(setOf<Int>()) }
+    var usedFifty by remember(qIndex) { mutableStateOf(false) }
 
-        AnimatedGameProgressBar(
-            progress = (currentQuestionIndex + if (hasAnswered) 1f else 0f) / questions.size.coerceAtLeast(1)
-        )
+    var showExitConfirm by remember { mutableStateOf(false) }
+    var showLivesDialog by remember { mutableStateOf(false) }
+    var buyHintFor by remember { mutableStateOf<PowerUpType?>(null) }
 
-        Column(modifier = Modifier.weight(1f)) {
-        Spacer(modifier = Modifier.height(16.dp))
+    val question = qs[qIndex]
+    val answered = outcome != AnswerOutcome.NONE
 
-        currentQuestion?.let { question ->
-            val style = CategoryStyles.forCategory(question.category)
+    fun finish() = onComplete(correctCount, qs.size)
 
-            Box(modifier = Modifier.padding(horizontal = 20.dp)) {
-                CategoryTag(name = question.category, emoji = style.emoji)
-            }
+    fun advance() {
+        if (qIndex + 1 >= qs.size) finish() else qIndex++
+    }
 
-            Spacer(modifier = Modifier.height(12.dp))
+    fun submit(optionIndex: Int?) {
+        if (answered) return
+        val correct = optionIndex != null && optionIndex == question.correctAnswer
+        selected = optionIndex
+        outcome = when {
+            optionIndex == null -> AnswerOutcome.TIMEOUT
+            correct -> AnswerOutcome.CORRECT
+            else -> AnswerOutcome.WRONG
+        }
+        if (correct) correctCount++ else lives--
+    }
 
-            AnimatedContent(
-                targetState = question.question,
-                transitionSpec = {
-                    (slideInHorizontally { it } + fadeIn(tween(200))) togetherWith
-                        (slideOutHorizontally { -it } + fadeOut(tween(200)))
-                },
-                modifier = Modifier.padding(horizontal = 16.dp),
-                label = "question"
-            ) { questionText ->
-                QuestionCard(
-                    text = questionText,
-                    questionNumber = currentQuestionIndex + 1,
-                    total = questions.size,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = 110.dp)
-                )
-            }
+    // Таймер вопроса (ТЗ §5.5): идёт, пока не отвечено и не заморожен.
+    androidx.compose.runtime.LaunchedEffect(qIndex, answered, frozen) {
+        while (!answered && !frozen && timeLeft > 0) {
+            delay(1000)
+            timeLeft--
+        }
+        if (timeLeft == 0 && !answered) submit(null)
+    }
 
-            if (showHintBanner) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    color = GameGold.copy(alpha = 0.12f),
-                    border = BorderStroke(1.dp, GameGold.copy(alpha = 0.3f))
+    Box(modifier = modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier.fillMaxSize().padding(horizontal = 18.dp, vertical = 4.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
+        ) {
+            // Верхняя панель: выход, прогресс, жизни.
+            Row(verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Box(
+                    modifier = Modifier.size(38.dp).clip(RoundedCornerShape(12.dp))
+                        .background(Kids.SegmentTrack).clickable { showExitConfirm = true },
+                    contentAlignment = Alignment.Center
+                ) { Text("✕", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = Kids.TextSecondary) }
+                Box(
+                    modifier = Modifier.weight(1f).height(14.dp).clip(RoundedCornerShape(8.dp))
+                        .background(Kids.TrackBackground)
                 ) {
-                    Text(
-                        text = "💡 Подсказка: категория «${question.category}», сложность ${"★".repeat(question.difficulty)}",
-                        modifier = Modifier.padding(12.dp),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = GameGold
+                    Box(
+                        Modifier.fillMaxWidth((qIndex + if (answered) 1 else 0).toFloat() / qs.size)
+                            .height(14.dp).clip(RoundedCornerShape(8.dp)).background(Kids.Success)
                     )
                 }
-            }
-
-            if (shieldActive) {
-                Text(
-                    "🛡️ Щит активен",
-                    modifier = Modifier.padding(start = 16.dp, top = 4.dp),
-                    style = MaterialTheme.typography.labelSmall,
-                    color = GamePurpleLight
-                )
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            val answers = question.options.mapIndexed { index, text ->
-                AnswerOption(id = index, text = text, isCorrect = index == question.correctAnswer)
-            }
-
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(2),
-                modifier = Modifier.padding(horizontal = 14.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
-                userScrollEnabled = false
-            ) {
-                items(answers.filter { it.id !in hiddenAnswers }) { answer ->
-                    val highlight = highlightedAnswer == answer.id
-                    GameAnswerCard(
-                        answer = answer,
-                        answerState = when {
-                            highlight && answerStates.isEmpty() -> AnswerState.MISSED
-                            else -> answerStates[answer.id] ?: AnswerState.NONE
-                        },
-                        onClick = {
-                            if (answerStates.isEmpty() || (secondChanceActive && !lastAnswerCorrect)) {
-                                val isCorrect = answer.isCorrect
-                                lastAnswerCorrect = isCorrect
-                                answerStates = answers.associate { a ->
-                                    a.id to when {
-                                        a.isCorrect -> AnswerState.CORRECT
-                                        a.id == answer.id && !isCorrect -> AnswerState.WRONG
-                                        else -> AnswerState.NONE
-                                    }
-                                }
-                                if (isCorrect) {
-                                    correctAnswers++
-                                    haptic.performHapticFeedback(HapticFeedbackType.Confirm)
-                                    audioManager.playCorrect()
-                                    showExplanation = true
-                                    secondChanceActive = false
-                                } else if (secondChanceActive) {
-                                    secondChanceActive = false
-                                    answerStates = emptyMap()
-                                    snackbarMessage = "Второй шанс — попробуй ещё раз!"
-                                } else if (shieldActive) {
-                                    shieldActive = false
-                                    showExplanation = true
-                                    snackbarMessage = "🛡️ Щит спас от ошибки!"
-                                } else {
-                                    hearts = max(0, hearts - 1)
-                                    haptic.performHapticFeedback(HapticFeedbackType.Reject)
-                                    audioManager.playWrong()
-                                    showExplanation = true
-                                }
-                            }
-                        }
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            AnimatedVisibility(
-                visible = showExplanation,
-                enter = slideInVertically { it } + fadeIn()
-            ) {
-                AnswerExplanationCard(
-                    isCorrect = lastAnswerCorrect,
-                    explanation = if (lastAnswerCorrect) "Отличный ответ!"
-                    else "Правильно: ${question.options[question.correctAnswer]}",
-                    onNext = {
-                        if (hearts == 0) {
-                            isGameOver = true
-                            return@AnswerExplanationCard
-                        }
-                        goToNextQuestion()
+                Row(horizontalArrangement = Arrangement.spacedBy(2.dp)) {
+                    repeat(difficulty.lives) { i ->
+                        Text("❤️", fontSize = 18.sp, modifier = Modifier.alpha(if (i < lives) 1f else 0.25f))
                     }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-        }
-        }
-
-        QuizBugReportButton(
-            onClick = {
-                if (!openBugReportEmail(context)) {
-                    snackbarMessage = "Не найдено приложение для отправки письма"
                 }
             }
-        )
+
+            // Строка: номер вопроса и таймер.
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically) {
+                Text("Вопрос ${qIndex + 1} из ${qs.size} · ${topic.name}",
+                    fontFamily = RubikFamily, fontWeight = FontWeight.Bold, fontSize = 13.sp,
+                    color = Kids.TextSecondary)
+                TimerChip(timeLeft, frozen)
+            }
+
+            // Карточка вопроса.
+            Column(
+                modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(26.dp))
+                    .background(Kids.Card).padding(18.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                Box(
+                    modifier = Modifier.fillMaxWidth().height(120.dp).clip(RoundedCornerShape(18.dp))
+                        .background(tc.cardBg),
+                    contentAlignment = Alignment.Center
+                ) { Text(topic.emoji, fontSize = 66.sp) }
+                Text(question.question, fontFamily = UnboundedFamily, fontWeight = FontWeight.Bold,
+                    fontSize = 19.sp, lineHeight = 25.sp, textAlign = TextAlign.Center,
+                    color = Kids.TextPrimary)
+            }
+
+            // Варианты ответа.
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                question.options.forEachIndexed { index, option ->
+                    if (index !in hidden) {
+                        OptionButton(
+                            letter = "АБВГ".getOrElse(index) { '•' }.toString(),
+                            text = option,
+                            state = optionState(index, question.correctAnswer, selected, answered),
+                            enabled = !answered,
+                            onClick = { submit(index) }
+                        )
+                    } else {
+                        Spacer(Modifier.height(0.dp))
+                    }
+                }
+            }
+
+            Spacer(Modifier.weight(1f))
+
+            // Подсказки (недоступны после ответа; 50/50 недоступна на боссе — §6.1).
+            Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                HintButton("✂️", "50/50", powerUpInventory[PowerUpType.FIFTY_FIFTY.id] ?: 0,
+                    enabled = !answered && !usedFifty && !isBoss, modifier = Modifier.weight(1f)) {
+                    val count = powerUpInventory[PowerUpType.FIFTY_FIFTY.id] ?: 0
+                    if (count <= 0) buyHintFor = PowerUpType.FIFTY_FIFTY
+                    else onConsumePowerUp(PowerUpType.FIFTY_FIFTY) { ok ->
+                        if (ok) {
+                            val wrong = question.options.indices
+                                .filter { it != question.correctAnswer }.shuffled().take(2)
+                            hidden = wrong.toSet()
+                            usedFifty = true
+                        }
+                    }
+                }
+                HintButton("⏸️", "Стоп", powerUpInventory[PowerUpType.FREEZE_TIME.id] ?: 0,
+                    enabled = !answered && !frozen, modifier = Modifier.weight(1f)) {
+                    val count = powerUpInventory[PowerUpType.FREEZE_TIME.id] ?: 0
+                    if (count <= 0) buyHintFor = PowerUpType.FREEZE_TIME
+                    else onConsumePowerUp(PowerUpType.FREEZE_TIME) { ok -> if (ok) frozen = true }
+                }
+                HintButton("⏭️", "Пропуск", powerUpInventory[PowerUpType.SKIP_QUESTION.id] ?: 0,
+                    enabled = !answered, modifier = Modifier.weight(1f)) {
+                    val count = powerUpInventory[PowerUpType.SKIP_QUESTION.id] ?: 0
+                    if (count <= 0) buyHintFor = PowerUpType.SKIP_QUESTION
+                    else onConsumePowerUp(PowerUpType.SKIP_QUESTION) { ok -> if (ok) advance() }
+                }
+            }
         }
 
-        SnackbarHost(
-            hostState = snackbarHostState,
-            modifier = Modifier.align(Alignment.BottomCenter)
-        )
-
-        if (showShop) {
-            PowerUpShopOverlay(
-                coins = coins,
-                inventory = powerUpInventory,
-                onClose = { showShop = false },
-                onPurchase = onPurchasePowerUp
+        // Нижняя панель ответа (выезжает снизу).
+        AnimatedVisibility(
+            visible = answered,
+            modifier = Modifier.align(Alignment.BottomCenter),
+            enter = slideInVertically { it },
+            exit = slideOutVertically { it }
+        ) {
+            AnswerPanel(
+                outcome = outcome,
+                correctText = question.options.getOrNull(question.correctAnswer) ?: "",
+                onContinue = { if (lives <= 0 && outcome != AnswerOutcome.CORRECT) showLivesDialog = true else advance() }
             )
         }
     }
-}
 
-@Composable
-private fun QuizBugReportButton(onClick: () -> Unit) {
-    TextButton(
-        onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 4.dp),
-        contentPadding = PaddingValues(vertical = 8.dp)
-    ) {
-        Icon(
-            imageVector = Icons.Rounded.BugReport,
-            contentDescription = null,
-            modifier = Modifier.size(18.dp),
-            tint = GameTextMuted
+    if (showExitConfirm) {
+        KidsDialog(
+            title = "Выйти?",
+            message = "Прогресс уровня не сохранится.",
+            confirmText = "Выйти",
+            dismissText = "Остаться",
+            onConfirm = onExit,
+            onDismiss = { showExitConfirm = false }
         )
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(
-            text = "Сообщить о ошибке",
-            style = MaterialTheme.typography.labelMedium,
-            color = GameTextMuted
+    }
+
+    if (showLivesDialog) {
+        val hasExtraLife = (powerUpInventory[PowerUpType.EXTRA_LIFE.id] ?: 0) > 0
+        KidsDialog(
+            title = "Жизни закончились",
+            message = if (hasExtraLife) "Продолжить за доп. жизнь?" else "Уровень будет засчитан по ответам.",
+            confirmText = if (hasExtraLife) "❤️ Доп. жизнь" else "Завершить",
+            dismissText = if (hasExtraLife) "Завершить" else null,
+            onConfirm = {
+                if (hasExtraLife) {
+                    onConsumePowerUp(PowerUpType.EXTRA_LIFE) { ok ->
+                        if (ok) { lives = 1; showLivesDialog = false; advance() }
+                    }
+                } else finish()
+            },
+            onDismiss = { showLivesDialog = false; finish() }
+        )
+    }
+
+    buyHintFor?.let { type ->
+        KidsDialog(
+            title = "Подсказки закончились",
+            message = "Купить «${type.title}» можно в магазине за ${type.price} 🪙.",
+            confirmText = "Понятно",
+            dismissText = null,
+            onConfirm = { buyHintFor = null },
+            onDismiss = { buyHintFor = null }
         )
     }
 }
 
 @Composable
-fun GameQuizTopBar(
-    lives: Int,
-    timeLeft: Int,
-    totalTime: Int,
-    coins: Int,
-    onExit: () -> Unit
-) {
+private fun TimerChip(timeLeft: Int, frozen: Boolean) {
+    val danger = timeLeft <= 5 && !frozen
+    val bg = when { frozen -> Color(0xFFE1F2FF); danger -> Color(0xFFFFE3E6); else -> Kids.PrimarySoft }
+    val fg = when { frozen -> Kids.Gem; danger -> Kids.Error; else -> Kids.Primary }
+    // лёгкая пульсация в опасной зоне
+    val pulse by rememberInfiniteTransition(label = "timer").animateFloat(
+        initialValue = 1f, targetValue = if (danger) 0.55f else 1f,
+        animationSpec = infiniteRepeatable(tween(500)), label = "timerPulse"
+    )
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(GameSurfaceVariant)
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalAlignment = Alignment.CenterVertically
+        modifier = Modifier.clip(RoundedCornerShape(14.dp)).background(bg)
+            .padding(horizontal = 12.dp, vertical = 6.dp).alpha(if (danger) pulse else 1f),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
     ) {
-        IconButton(onClick = onExit, modifier = Modifier.size(32.dp)) {
-            Icon(Icons.Rounded.Close, "Выйти", tint = GameTextMuted, modifier = Modifier.size(20.dp))
-        }
-        Spacer(modifier = Modifier.width(8.dp))
-        LivesRow(lives = lives, modifier = Modifier.weight(1f))
-        GameTimer(timeLeft = timeLeft, totalTime = totalTime)
-        Spacer(modifier = Modifier.width(8.dp))
-        CoinBadge(coins = coins)
+        Text(if (frozen) "❄" else "⏱", fontSize = 14.sp)
+        Text("$timeLeft", fontFamily = UnboundedFamily, fontWeight = FontWeight.Bold,
+            fontSize = 14.sp, color = fg)
     }
 }
 
-@Composable
-fun LivesRow(lives: Int, modifier: Modifier = Modifier) {
-    Row(modifier = modifier, horizontalArrangement = Arrangement.Center) {
-        repeat(3) { index ->
-            val isAlive = index < lives
-            val scale by animateFloatAsState(
-                targetValue = if (isAlive) 1f else 0.75f,
-                animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
-                label = "heart"
-            )
-            Text(
-                text = if (isAlive) "❤️" else "🖤",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.graphicsLayer(scaleX = scale, scaleY = scale).padding(horizontal = 2.dp)
-            )
-        }
-    }
+private enum class OptState { IDLE, CORRECT, WRONG, DIMMED }
+
+private fun optionState(index: Int, correct: Int, selected: Int?, answered: Boolean): OptState = when {
+    !answered -> OptState.IDLE
+    index == correct -> OptState.CORRECT
+    index == selected -> OptState.WRONG
+    else -> OptState.DIMMED
 }
 
 @Composable
-fun GameTimer(timeLeft: Int, totalTime: Int) {
-    val progress = timeLeft.toFloat() / totalTime
-    val timerColor by animateColorAsState(
-        targetValue = when {
-            progress > 0.5f -> GamePurple
-            progress > 0.25f -> GameMissed
-            else -> GameWrong
-        },
-        animationSpec = tween(300),
-        label = "timerColor"
-    )
-
-    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(36.dp)) {
-        CircularProgressIndicator(
-            progress = { progress },
-            modifier = Modifier.fillMaxSize(),
-            color = timerColor,
-            strokeWidth = 3.dp,
-            trackColor = GameBorder,
-            strokeCap = StrokeCap.Round
-        )
-        Text(
-            text = timeLeft.toString(),
-            style = MaterialTheme.typography.labelSmall,
-            color = timerColor,
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
-
-@Composable
-fun QuestionCard(
+private fun OptionButton(
+    letter: String,
     text: String,
-    questionNumber: Int,
-    total: Int,
-    modifier: Modifier = Modifier.fillMaxWidth()
+    state: OptState,
+    enabled: Boolean,
+    onClick: () -> Unit
 ) {
-    Surface(
-        modifier = modifier,
-        shape = RoundedCornerShape(20.dp),
-        color = GameSurface,
-        border = BorderStroke(1.dp, GameBorder)
+    val (bg, border, badgeBg, badgeFg, contentColor) = when (state) {
+        OptState.CORRECT -> OptionColors(Kids.SuccessSoft, Kids.Success, Kids.Success, Color.White, Kids.SuccessShadow)
+        OptState.WRONG -> OptionColors(Color(0xFFFFE3E6), Kids.Error, Kids.Error, Color.White, Kids.ErrorShadow)
+        OptState.DIMMED -> OptionColors(Kids.Card, Kids.CardShadow, Kids.SegmentTrack, Kids.TextMuted, Kids.TextMuted)
+        OptState.IDLE -> OptionColors(Kids.Card, Kids.CardShadow, Kids.PrimarySoft, Kids.Primary, Kids.TextPrimary)
+    }
+    Row(
+        modifier = Modifier.fillMaxWidth()
+            .clip(RoundedCornerShape(18.dp))
+            .background(bg)
+            .border(3.dp, border, RoundedCornerShape(18.dp))
+            .then(if (enabled) Modifier.clickable(onClick = onClick) else Modifier)
+            .alpha(if (state == OptState.DIMMED) 0.6f else 1f)
+            .padding(14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        Column(modifier = Modifier.padding(20.dp)) {
-            Text(
-                text = "$questionNumber / $total",
-                style = MaterialTheme.typography.labelSmall,
-                color = GameTextDisabled
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = text,
-                style = MaterialTheme.typography.titleMedium,
-                color = GameTextPrimary,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.fillMaxWidth(),
-                lineHeight = 26.sp
-            )
-        }
+        Box(
+            modifier = Modifier.size(30.dp).clip(RoundedCornerShape(10.dp)).background(badgeBg),
+            contentAlignment = Alignment.Center
+        ) { Text(letter, fontFamily = UnboundedFamily, fontSize = 13.sp, color = badgeFg) }
+        Text(text, fontFamily = RubikFamily, fontWeight = FontWeight.SemiBold, fontSize = 16.sp,
+            color = contentColor)
     }
 }
 
-@Composable
-fun GameAnswerCard(answer: AnswerOption, answerState: AnswerState, onClick: () -> Unit) {
-    val bgColor by animateColorAsState(
-        targetValue = when (answerState) {
-            AnswerState.CORRECT -> GameCorrectBg
-            AnswerState.WRONG -> GameWrongBg
-            AnswerState.NONE -> GameSurface
-            AnswerState.MISSED -> Color(0xFF2E1A00)
-        },
-        animationSpec = tween(250),
-        label = "answerBg"
-    )
-    val borderColor by animateColorAsState(
-        targetValue = when (answerState) {
-            AnswerState.CORRECT -> GameCorrect
-            AnswerState.WRONG -> GameWrong
-            AnswerState.NONE -> GameBorder
-            AnswerState.MISSED -> GameMissed
-        },
-        animationSpec = tween(250),
-        label = "answerBorder"
-    )
-    val textColor by animateColorAsState(
-        targetValue = when (answerState) {
-            AnswerState.CORRECT -> GameCorrectText
-            AnswerState.WRONG -> GameWrongText
-            AnswerState.NONE -> GameTextSecondary
-            AnswerState.MISSED -> Color(0xFFFFB74D)
-        },
-        animationSpec = tween(250),
-        label = "answerText"
-    )
-
-    val shakeOffset = remember { Animatable(0f) }
-    LaunchedEffect(answerState) {
-        if (answerState == AnswerState.WRONG) {
-            repeat(3) {
-                shakeOffset.animateTo(8f, tween(50))
-                shakeOffset.animateTo(-8f, tween(50))
-            }
-            shakeOffset.animateTo(0f, tween(50))
-        }
-    }
-
-    Surface(
-        onClick = onClick,
-        enabled = answerState == AnswerState.NONE,
-        modifier = Modifier
-            .fillMaxWidth()
-            .aspectRatio(1.8f)
-            .graphicsLayer { translationX = shakeOffset.value },
-        shape = RoundedCornerShape(16.dp),
-        color = bgColor,
-        border = BorderStroke(1.5.dp, borderColor)
-    ) {
-        Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize().padding(10.dp)) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                if (answerState == AnswerState.CORRECT) {
-                    Text("✓ ", color = GameCorrectText, fontWeight = FontWeight.Bold)
-                } else if (answerState == AnswerState.WRONG) {
-                    Text("✗ ", color = GameWrongText, fontWeight = FontWeight.Bold)
-                }
-                Text(
-                    text = answer.text,
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = textColor,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
-        }
-    }
-}
+private data class OptionColors(
+    val bg: Color, val border: Color, val badgeBg: Color, val badgeFg: Color, val content: Color
+)
 
 @Composable
-fun AnswerExplanationCard(isCorrect: Boolean, explanation: String, onNext: () -> Unit) {
-    val bgColor = if (isCorrect) GameCorrectBg else GameWrongBg
-    val accentColor = if (isCorrect) GameCorrect else GameWrong
-    val textColor = if (isCorrect) GameCorrectText else GameWrongText
-    val title = if (isCorrect) "Правильно! ✓" else "Неверно ✗"
-
-    Surface(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-        color = bgColor,
-        border = BorderStroke(1.dp, accentColor.copy(alpha = 0.4f))
-    ) {
-        Column(modifier = Modifier.padding(20.dp)) {
-            Text(title, style = MaterialTheme.typography.titleMedium, color = textColor, fontWeight = FontWeight.Bold)
-            if (explanation.isNotEmpty()) {
-                Spacer(modifier = Modifier.height(6.dp))
-                Text(
-                    explanation,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = textColor.copy(alpha = 0.8f),
-                    lineHeight = 18.sp
-                )
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-            Button(
-                onClick = onNext,
-                modifier = Modifier.fillMaxWidth().height(48.dp),
-                shape = RoundedCornerShape(14.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = accentColor)
-            ) {
-                Text("Далее →", fontWeight = FontWeight.Bold, color = Color.White)
-            }
-        }
-    }
-}
-
-@Composable
-private fun GameOverScreen(
-    correctAnswers: Int,
-    totalQuestions: Int,
-    onFinish: () -> Unit,
-    onBack: () -> Unit
+private fun HintButton(
+    icon: String, label: String, count: Int, enabled: Boolean,
+    modifier: Modifier = Modifier, onClick: () -> Unit
 ) {
+    Box(modifier = modifier) {
+        Column(
+            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp))
+                .background(Kids.PrimarySoft)
+                .then(if (enabled) Modifier.clickable(onClick = onClick) else Modifier)
+                .alpha(if (enabled) 1f else 0.45f)
+                .padding(vertical = 10.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            Text(icon, fontSize = 20.sp)
+            Text(label, fontFamily = RubikFamily, fontWeight = FontWeight.Bold, fontSize = 12.sp,
+                color = Kids.PrimaryShadow)
+        }
+        Box(
+            modifier = Modifier.align(Alignment.TopEnd).size(20.dp).clip(CircleShape)
+                .background(Kids.Error).border(2.dp, Kids.Background, CircleShape),
+            contentAlignment = Alignment.Center
+        ) { Text("$count", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = Color.White) }
+    }
+}
+
+@Composable
+private fun AnswerPanel(outcome: AnswerOutcome, correctText: String, onContinue: () -> Unit) {
+    val (color, shadow, title) = when (outcome) {
+        AnswerOutcome.CORRECT -> Triple(Kids.Success, Kids.SuccessShadow,
+            listOf("Верно!", "Молодец!", "Супер!").random())
+        AnswerOutcome.WRONG -> Triple(Kids.Error, Kids.ErrorShadow, "Ой, не то!")
+        AnswerOutcome.TIMEOUT -> Triple(Kids.Error, Kids.ErrorShadow, "Время вышло!")
+        AnswerOutcome.NONE -> Triple(Kids.Success, Kids.SuccessShadow, "")
+    }
     Column(
-        modifier = Modifier.fillMaxSize().background(GameBackground).padding(24.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        modifier = Modifier.fillMaxWidth()
+            .clip(RoundedCornerShape(topStart = 26.dp, topEnd = 26.dp))
+            .background(color).padding(20.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Text("💔", style = MaterialTheme.typography.displayLarge)
-        Spacer(modifier = Modifier.height(16.dp))
-        Text("Жизни закончились!", style = MaterialTheme.typography.headlineMedium, color = GameTextPrimary, fontWeight = FontWeight.Bold)
-        Text("$correctAnswers из $totalQuestions правильных", style = MaterialTheme.typography.bodyLarge, color = GameTextMuted)
-        Spacer(modifier = Modifier.height(32.dp))
-        Button(onClick = onFinish, modifier = Modifier.fillMaxWidth(), colors = ButtonDefaults.buttonColors(containerColor = GamePurple)) {
-            Text("Посмотреть результат")
+        Text(title, fontFamily = UnboundedFamily, fontWeight = FontWeight.ExtraBold, fontSize = 22.sp,
+            color = Color.White)
+        if (outcome == AnswerOutcome.CORRECT) {
+            Text("+10 монет и +8 XP", fontFamily = RubikFamily, fontWeight = FontWeight.SemiBold,
+                fontSize = 14.sp, color = Color.White.copy(alpha = 0.95f))
+        } else {
+            Text("Правильный ответ: $correctText", fontFamily = RubikFamily,
+                fontWeight = FontWeight.SemiBold, fontSize = 14.sp, color = Color.White.copy(alpha = 0.95f))
         }
-        OutlinedButton(onClick = onBack, modifier = Modifier.fillMaxWidth(), border = BorderStroke(1.dp, GameBorder)) {
-            Text("Выйти", color = GameTextSecondary)
+        KidsButton(onClick = onContinue, modifier = Modifier.fillMaxWidth(),
+            color = Color.White, shadow = Color.White.copy(alpha = 0.5f), contentColor = color) {
+            Text("Продолжить")
         }
     }
 }
 
-// ─── Result Screen ───────────────────────────────────────────────────────────
+@Composable
+private fun KidsDialog(
+    title: String,
+    message: String,
+    confirmText: String,
+    dismissText: String?,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    Box(
+        modifier = Modifier.fillMaxSize().background(Color(0x99000000))
+            .clickable(enabled = false) {},
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier.padding(32.dp).fillMaxWidth().clip(RoundedCornerShape(24.dp))
+                .background(Kids.Card).padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(title, fontFamily = UnboundedFamily, fontWeight = FontWeight.ExtraBold, fontSize = 20.sp,
+                color = Kids.TextPrimary, textAlign = TextAlign.Center)
+            Text(message, fontFamily = RubikFamily, fontSize = 14.sp, color = Kids.TextSecondary,
+                textAlign = TextAlign.Center)
+            KidsButton(text = confirmText, onClick = onConfirm, modifier = Modifier.fillMaxWidth())
+            if (dismissText != null) {
+                Text(dismissText, fontFamily = RubikFamily, fontWeight = FontWeight.Bold, fontSize = 14.sp,
+                    color = Kids.TextSecondary,
+                    modifier = Modifier.clickable(onClick = onDismiss).padding(8.dp))
+            }
+        }
+    }
+}
 
+/** Экран результата уровня (ТЗ §5.6). */
 @Composable
 fun QuizResultScreen(
     correctAnswers: Int,
@@ -659,166 +453,77 @@ fun QuizResultScreen(
     currentLevel: Int,
     onBackToHome: () -> Unit,
     onPlayAgain: () -> Unit,
-    displayAds: Boolean
+    displayAds: Boolean = true,
+    topicId: String = "animals"
 ) {
-    val activity = LocalActivity.current ?: MainActivity()
-    val adsManager = rememberAdsManager(activity)
-    val xpEarned = correctAnswers * 5 * currentLevel.coerceAtLeast(1)
-
-    fun runWithInterstitial(action: () -> Unit) {
-        if (App.adsBase == AdsBase.AdsGooglePlay() && !displayAds) {
-            action()
-        } else {
-            adsManager.showInterstitial(action)
-        }
-    }
-
-    val percentage = if (totalQuestions > 0) correctAnswers.toFloat() / totalQuestions else 0f
+    val topic = topicById(topicId)
     val stars = when {
-        percentage == 1f -> 3
-        percentage >= 0.7f -> 2
-        else -> 1
+        totalQuestions <= 0 -> 0
+        correctAnswers >= totalQuestions -> 3
+        correctAnswers.toFloat() / totalQuestions >= 0.6f -> 2
+        correctAnswers >= 1 -> 1
+        else -> 0
     }
-    val (emoji, title) = when (stars) {
-        3 -> "🏆" to "Идеально!"
-        2 -> "⭐" to "Отлично!"
-        else -> "💪" to "Продолжай!"
+    val title = when (stars) {
+        3 -> "Потрясающе!"
+        2 -> "Отлично!"
+        1 -> "Неплохо!"
+        else -> "Попробуй ещё!"
     }
-    val isNewRecord = percentage >= 0.9f
+    Column(
+        modifier = Modifier.fillMaxSize().padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically)
+    ) {
+        Box(
+            modifier = Modifier.size(130.dp).clip(CircleShape).background(Kids.Avatar)
+                .border(6.dp, Color.White, CircleShape),
+            contentAlignment = Alignment.Center
+        ) { Text(topic.emoji, fontSize = 72.sp) }
 
-    Box(modifier = Modifier.fillMaxSize().background(GameBackground)) {
-        GameAdOverlays(
-            isAdLoading = adsManager.isAdLoading,
-            rewardCoins = null,
-            onDismissReward = {}
-        )
-
-        if (stars == 3) GameConfetti()
-
-        Column(
-            modifier = Modifier.fillMaxSize().padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(modifier = Modifier.weight(1f))
-            PulsingEmoji(emoji = emoji)
-            Spacer(modifier = Modifier.height(12.dp))
-            Text(title, style = MaterialTheme.typography.headlineLarge, color = GameTextPrimary)
-            Text("$correctAnswers из $totalQuestions правильных", style = MaterialTheme.typography.bodyLarge, color = GameTextMuted)
-            Spacer(modifier = Modifier.height(24.dp))
-            StarsRow(count = stars, total = 3)
-            Spacer(modifier = Modifier.height(24.dp))
-            AnimatedScoreCircle(score = correctAnswers, total = totalQuestions)
-            Spacer(modifier = Modifier.height(24.dp))
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                RewardChip(label = "+$coinsEarned монет", emoji = "🪙", color = GameGold)
-                RewardChip(label = "+$xpEarned ОП", emoji = "⚡", color = GameXP)
+        Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            repeat(3) { i ->
+                val earned = i < stars
+                Text("⭐", fontSize = if (i == 1) 52.sp else 40.sp,
+                    modifier = Modifier.alpha(if (earned) 1f else 0.25f))
             }
-            if (isNewRecord) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Surface(
-                    shape = RoundedCornerShape(20.dp),
-                    color = GameGold.copy(alpha = 0.2f),
-                    border = BorderStroke(1.dp, GameGold.copy(alpha = 0.5f))
-                ) {
-                    Text(
-                        "🎉 Новый рекорд!",
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
-                        color = GameGold,
-                        fontWeight = FontWeight.Bold
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.weight(1f))
-            Button(
-                onClick = { runWithInterstitial(onPlayAgain) },
-                enabled = !adsManager.isAdLoading,
-                modifier = Modifier.fillMaxWidth().height(54.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = GamePurple)
-            ) { Text("Играть ещё →", fontWeight = FontWeight.Bold) }
-            Spacer(modifier = Modifier.height(10.dp))
-            OutlinedButton(
-                onClick = { runWithInterstitial(onBackToHome) },
-                enabled = !adsManager.isAdLoading,
-                modifier = Modifier.fillMaxWidth().height(48.dp),
-                shape = RoundedCornerShape(16.dp),
-                border = BorderStroke(1.dp, GameBorder)
-            ) { Text("На главную", color = GameTextSecondary) }
         }
-    }
-}
+        Text(title, fontFamily = UnboundedFamily, fontWeight = FontWeight.ExtraBold, fontSize = 28.sp,
+            color = Kids.TextPrimary)
+        Text("${topic.name} · уровень $currentLevel пройден", fontFamily = RubikFamily,
+            fontSize = 14.sp, color = Kids.TextSecondary)
 
-@Composable
-private fun StarsRow(count: Int, total: Int) {
-    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        repeat(total) { i ->
-            val lit = i < count
-            val scale by animateFloatAsState(
-                targetValue = if (lit) 1f else 0.7f,
-                animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
-                label = "star"
-            )
-            var visible by remember { mutableStateOf(false) }
-            LaunchedEffect(Unit) { delay(i * 200L); visible = true }
-            AnimatedVisibility(visible = visible, enter = scaleIn(spring(Spring.DampingRatioLowBouncy))) {
-                Text(
-                    text = if (lit) "⭐" else "☆",
-                    style = MaterialTheme.typography.headlineMedium,
-                    modifier = Modifier.graphicsLayer(scaleX = scale, scaleY = scale),
-                    color = if (lit) GameGold else GameTextDisabled
-                )
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+            ResultStat("Верно", "$correctAnswers/$totalQuestions", Kids.Success, Modifier.weight(1f))
+            ResultStat("Монеты", "+$coinsEarned", Kids.CoinText, Modifier.weight(1f))
+            ResultStat("Опыт", "+${correctAnswers * 8}", Kids.Primary, Modifier.weight(1f))
+        }
+
+        Spacer(Modifier.height(4.dp))
+        KidsButton(text = "Следующий уровень", onClick = onBackToHome, modifier = Modifier.fillMaxWidth())
+        Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+            KidsButton(onClick = onPlayAgain, modifier = Modifier.weight(1f),
+                color = Kids.Card, shadow = Kids.CardShadow, contentColor = Kids.TextPrimary) {
+                Text("Ещё раз")
+            }
+            KidsButton(onClick = onBackToHome, modifier = Modifier.weight(1f),
+                color = Kids.Card, shadow = Kids.CardShadow, contentColor = Kids.TextPrimary) {
+                Text("На карту")
             }
         }
     }
 }
 
 @Composable
-private fun AnimatedScoreCircle(score: Int, total: Int) {
-    val percentage = if (total > 0) score.toFloat() / total else 0f
-    val animatedPct by animateFloatAsState(targetValue = percentage, animationSpec = tween(800), label = "score")
-
-    Box(contentAlignment = Alignment.Center, modifier = Modifier.size(120.dp)) {
-        CircularProgressIndicator(
-            progress = { animatedPct },
-            modifier = Modifier.fillMaxSize(),
-            strokeWidth = 8.dp,
-            color = GamePurple,
-            trackColor = GameBorder
-        )
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                "${(animatedPct * 100).toInt()}%",
-                style = MaterialTheme.typography.headlineMedium,
-                color = GameTextPrimary,
-                fontWeight = FontWeight.Bold
-            )
-        }
-    }
-}
-
-@Composable
-private fun GameConfetti() {
-    val colors = listOf(GamePurple, GameGold, GameCorrect, GameWrong, Color(0xFF2196F3))
-    val infiniteTransition = rememberInfiniteTransition(label = "confetti")
-    val time by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(3000, easing = LinearEasing)),
-        label = "confettiTime"
-    )
-    val particles = remember {
-        List(40) { i ->
-            Triple(
-                kotlin.random.Random.nextFloat(),
-                kotlin.random.Random.nextFloat(),
-                colors[i % colors.size]
-            )
-        }
-    }
-    androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
-        particles.forEach { (x, y, color) ->
-            val py = ((y + time * 0.5f) % 1.2f) * size.height
-            drawCircle(color = color, radius = 6f, center = androidx.compose.ui.geometry.Offset(x * size.width, py))
-        }
+private fun ResultStat(label: String, value: String, color: Color, modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier.clip(RoundedCornerShape(18.dp)).background(Kids.Card).padding(vertical = 14.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Text(value, fontFamily = UnboundedFamily, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp,
+            color = color)
+        Text(label, fontFamily = RubikFamily, fontWeight = FontWeight.SemiBold, fontSize = 12.sp,
+            color = Kids.TextSecondary)
     }
 }

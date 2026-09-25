@@ -1,9 +1,12 @@
 package ru.plumsoftware.game.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -11,13 +14,17 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.plumsoftware.game.data.GameState
-import ru.plumsoftware.game.ui.components.game.GameScreenTopBar
+import ru.plumsoftware.game.ui.components.kids.KidsBackButton
+import ru.plumsoftware.game.ui.components.kids.KidsButton
+import ru.plumsoftware.game.ui.components.kids.KidsProgressBar
 import ru.plumsoftware.game.ui.theme.*
 
 data class Achievement(
@@ -31,153 +38,113 @@ data class Achievement(
     val reward: Int = 0
 )
 
+/** Достижения (ТЗ §5.9): сводка + сетка 3 колонки, тап открывает окно с прогрессом. */
 @Composable
 fun AchievementsScreen(
     gameState: GameState,
     onBack: () -> Unit,
     onNavigateToSettings: () -> Unit
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(GameBackground)
-            .padding(horizontal = 16.dp)
-    ) {
-        GameScreenTopBar(
-            title = "Достижения",
-            onBack = onBack,
-            actions = {
-                IconButton(onClick = onNavigateToSettings) {
-                    Icon(Icons.Default.Settings, "Настройки", tint = GameTextPrimary)
+    val achievements = getAchievements(gameState)
+    val unlocked = achievements.count { it.current >= it.target }
+    var details by remember { mutableStateOf<Achievement?>(null) }
+
+    Box(Modifier.fillMaxSize()) {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(3),
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(18.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    KidsBackButton(onClick = onBack)
+                    Text("Достижения", fontFamily = UnboundedFamily, fontWeight = FontWeight.ExtraBold,
+                        fontSize = 26.sp, color = Kids.TextPrimary)
                 }
             }
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        // Achievements list
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            items(getAchievements(gameState)) { achievement ->
-                AchievementCard(achievement = achievement)
+            item(span = { GridItemSpan(maxLineSpan) }) {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Открыто $unlocked из ${achievements.size}", fontFamily = RubikFamily,
+                        fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Kids.TextSecondary)
+                    KidsProgressBar(
+                        if (achievements.isEmpty()) 0f else unlocked.toFloat() / achievements.size,
+                        Modifier.fillMaxWidth(), fill = Kids.Primary
+                    )
+                }
             }
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-            }
+            items(achievements) { a -> AchievementBadge(a) { details = a } }
         }
+    }
+
+    details?.let { a ->
+        AchievementDialog(a) { details = null }
     }
 }
 
 @Composable
-fun AchievementCard(achievement: Achievement) {
-    val progress = (achievement.current.toFloat() / achievement.target.toFloat()).coerceIn(0f, 1f)
-    val isCompleted = achievement.current >= achievement.target
-    
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isCompleted)
-                achievement.color.copy(alpha = 0.1f)
-            else
-                GameSurface,
-            contentColor = GameTextPrimary
-        )
+private fun AchievementBadge(achievement: Achievement, onClick: () -> Unit) {
+    val unlocked = achievement.current >= achievement.target
+    Column(
+        modifier = Modifier
+            .clip(RoundedCornerShape(20.dp))
+            .background(Kids.Card)
+            .clickable(onClick = onClick)
+            .padding(vertical = 14.dp, horizontal = 8.dp)
+            .alpha(if (unlocked) 1f else 0.45f),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+        Box(
+            modifier = Modifier.size(52.dp).clip(RoundedCornerShape(16.dp))
+                .background(achievement.color.copy(alpha = 0.18f)),
+            contentAlignment = Alignment.Center
         ) {
-            // Icon
-            Card(
-                modifier = Modifier.size(56.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = if (isCompleted) achievement.color else Color.Gray.copy(alpha = 0.3f)
-                ),
-                shape = RoundedCornerShape(12.dp)
-            ) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    if (isCompleted) {
-                        Icon(
-                            imageVector = Icons.Default.Check,
-                            contentDescription = "Completed",
-                            tint = Color.White,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    } else {
-                        Icon(
-                            imageVector = achievement.icon,
-                            contentDescription = achievement.title,
-                            tint = if (isCompleted) Color.White else Color.Gray,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-                }
-            }
-            
-            Spacer(modifier = Modifier.width(16.dp))
-            
-            // Content
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = achievement.title,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = if (isCompleted) achievement.color else GameTextPrimary
-                )
+            Icon(achievement.icon, contentDescription = achievement.title, tint = achievement.color,
+                modifier = Modifier.size(28.dp))
+        }
+        Text(achievement.title, fontFamily = RubikFamily, fontWeight = FontWeight.Bold, fontSize = 11.sp,
+            color = Kids.TextPrimary, textAlign = TextAlign.Center, maxLines = 2)
+    }
+}
 
-                Text(
-                    text = achievement.description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = GameTextSecondary
-                )
-                
-                Spacer(modifier = Modifier.height(8.dp))
-                
-                // Progress bar
-                LinearProgressIndicator(
-                    progress = progress,
-                    modifier = Modifier.fillMaxWidth(),
-                    color = if (isCompleted) achievement.color else MaterialTheme.colorScheme.primary,
-                    trackColor = MaterialTheme.colorScheme.surfaceVariant
-                )
-                
-                Spacer(modifier = Modifier.height(4.dp))
-                
-                Text(
-                    text = "${achievement.current}/${achievement.target}",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = GameTextMuted
-                )
-                
-                if (achievement.reward > 0 && isCompleted) {
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.MonetizationOn,
-                            contentDescription = "Reward",
-                            tint = Color(0xFFFFD700),
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Text(
-                            text = "+${achievement.reward}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = Color(0xFFFFD700),
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
-                }
+@Composable
+private fun AchievementDialog(achievement: Achievement, onDismiss: () -> Unit) {
+    val unlocked = achievement.current >= achievement.target
+    Box(
+        modifier = Modifier.fillMaxSize().background(Color(0x99000000)).clickable(onClick = onDismiss),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier.padding(32.dp).fillMaxWidth().clip(RoundedCornerShape(24.dp))
+                .background(Kids.Card).padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Box(
+                modifier = Modifier.size(72.dp).clip(RoundedCornerShape(20.dp))
+                    .background(achievement.color.copy(alpha = 0.18f)),
+                contentAlignment = Alignment.Center
+            ) { Icon(achievement.icon, null, tint = achievement.color, modifier = Modifier.size(38.dp)) }
+            Text(achievement.title, fontFamily = UnboundedFamily, fontWeight = FontWeight.ExtraBold,
+                fontSize = 20.sp, color = Kids.TextPrimary, textAlign = TextAlign.Center)
+            Text(achievement.description, fontFamily = RubikFamily, fontSize = 14.sp,
+                color = Kids.TextSecondary, textAlign = TextAlign.Center)
+            KidsProgressBar(
+                (achievement.current.toFloat() / achievement.target).coerceIn(0f, 1f),
+                Modifier.fillMaxWidth(), fill = achievement.color
+            )
+            Text("${achievement.current}/${achievement.target}", fontFamily = RubikFamily,
+                fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Kids.TextMuted)
+            if (achievement.reward > 0) {
+                Text(if (unlocked) "Награда получена: +${achievement.reward} 🪙"
+                    else "Награда: +${achievement.reward} 🪙",
+                    fontFamily = RubikFamily, fontWeight = FontWeight.SemiBold, fontSize = 13.sp,
+                    color = Kids.CoinText)
             }
+            KidsButton(text = "Закрыть", onClick = onDismiss, modifier = Modifier.fillMaxWidth())
         }
     }
 }

@@ -1,362 +1,185 @@
 package ru.plumsoftware.game.ui.screens
 
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import ru.plumsoftware.game.R
-import ru.plumsoftware.game.data.GameData
+import androidx.compose.ui.unit.sp
+import ru.plumsoftware.game.data.ALL_TOPICS
 import ru.plumsoftware.game.data.GameState
-import ru.plumsoftware.game.ui.components.AnimatedCounter
-import ru.plumsoftware.game.ui.components.game.GameScreenTopBar
-import ru.plumsoftware.game.ui.theme.*
+import ru.plumsoftware.game.data.LevelMap
+import ru.plumsoftware.game.data.avatarById
+import ru.plumsoftware.game.ui.components.kids.KidsCard
+import ru.plumsoftware.game.ui.components.kids.KidsProgressBar
+import ru.plumsoftware.game.ui.theme.Kids
+import ru.plumsoftware.game.ui.theme.RubikFamily
+import ru.plumsoftware.game.ui.theme.UnboundedFamily
+import ru.plumsoftware.game.ui.theme.topicColors
 
+/** Звания игрока (ТЗ §5.8). */
+private fun rankFor(level: Int): String = when {
+    level >= 15 -> "Профессор"
+    level >= 10 -> "Мудрец"
+    level >= 6 -> "Знаток"
+    level >= 3 -> "Ученик"
+    else -> "Новичок"
+}
+
+/** Профиль и статистика (ТЗ §5.8). */
 @Composable
 fun ProfileScreen(
     gameState: GameState,
-    stats: Map<String, Int>,
-    onBack: () -> Unit,
-    onNavigateToSettings: () -> Unit,
-    onUpdatePlayerName: (String) -> Unit
+    achievements: List<Achievement>,
+    onOpenSettings: () -> Unit,
+    onOpenAchievements: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(GameBackground)
-            .padding(horizontal = 16.dp)
-    ) {
-        GameScreenTopBar(
-            title = "Профиль",
-            onBack = onBack,
-            actions = {
-                IconButton(onClick = onNavigateToSettings) {
-                    Icon(Icons.Default.Settings, "Настройки", tint = GameTextPrimary)
-                }
-            }
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        LazyColumn(
-            contentPadding = PaddingValues(bottom = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            item { PlayerInfoCard(gameState, onUpdatePlayerName) }
-            item { StatsGrid(stats) }
-            item { AchievementsCarousel(gameState, stats) }
-            item { Spacer(modifier = Modifier.height(16.dp)) }
-        }
-    }
-}
-
-@Composable
-fun PlayerInfoCard(
-    gameState: GameState,
-    onUpdatePlayerName: (String) -> Unit
-) {
-    var showEditDialog by remember { mutableStateOf(false) }
-    var editedName by remember(gameState.playerName) { mutableStateOf(gameState.playerName) }
-
-    if (showEditDialog) {
-        AlertDialog(
-            onDismissRequest = { showEditDialog = false },
-            title = { Text("Изменить имя") },
-            text = {
-                OutlinedTextField(
-                    value = editedName,
-                    onValueChange = { if (it.length <= 24) editedName = it },
-                    singleLine = true,
-                    placeholder = { Text("Введите имя") },
-                    modifier = Modifier.fillMaxWidth()
-                )
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        val trimmed = editedName.trim()
-                        if (trimmed.isNotEmpty()) {
-                            onUpdatePlayerName(trimmed)
-                        }
-                        showEditDialog = false
-                    },
-                    enabled = editedName.trim().isNotEmpty()
-                ) {
-                    Text("Сохранить")
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showEditDialog = false }) {
-                    Text("Отмена")
-                }
-            }
-        )
-    }
-
+    val avatar = avatarById(gameState.avatarId)
     val expInLevel = gameState.experience % 100
-    val quizzesAtNextLevel = GameData.quizzesUnlockingAtPlayerLevel(gameState.level + 1)
-    val progressTarget = expInLevel / 100f
-    val progressAnim by animateFloatAsState(
-        targetValue = progressTarget,
-        animationSpec = tween(1000),
-        label = "levelProgress"
-    )
+    val accuracy = if (gameState.totalAnswers > 0)
+        gameState.correctAnswers * 100 / gameState.totalAnswers else 0
+    val starsTotal = gameState.levelStars.values.sum()
+    val unlocked = achievements.count { it.current >= it.target }
 
-    Card(
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)
-        )
+    Column(
+        modifier = modifier.fillMaxSize().verticalScroll(rememberScrollState())
+            .padding(horizontal = 18.dp, vertical = 6.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically) {
+            Text("Профиль", fontFamily = UnboundedFamily, fontWeight = FontWeight.ExtraBold,
+                fontSize = 26.sp, color = Kids.TextPrimary)
+            Box(
+                modifier = Modifier.size(40.dp).clip(RoundedCornerShape(13.dp)).background(Kids.Card)
+                    .clickable(onClick = onOpenSettings),
+                contentAlignment = Alignment.Center
+            ) { Text("⚙️", fontSize = 20.sp) }
+        }
+
+        // Фиолетовая карточка профиля.
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(24.dp))
+                .background(Kids.Primary).padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            Box(contentAlignment = Alignment.BottomEnd) {
-                Image(
-                    painter = painterResource(R.drawable.profile),
-                    contentDescription = "Аватар",
-                    modifier = Modifier
-                        .size(96.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surface)
-                )
-                SmallFloatingActionButton(
-                    onClick = {
-                        editedName = gameState.playerName
-                        showEditDialog = true
-                    },
-                    modifier = Modifier.size(32.dp),
-                    containerColor = MaterialTheme.colorScheme.primary
-                ) {
-                    Icon(Icons.Default.Edit, contentDescription = "Изменить", modifier = Modifier.size(16.dp))
+            Box(
+                modifier = Modifier.size(84.dp).clip(CircleShape).background(Kids.Avatar),
+                contentAlignment = Alignment.Center
+            ) { Text(avatar.emoji, fontSize = 46.sp) }
+            Text(gameState.playerName, fontFamily = UnboundedFamily, fontWeight = FontWeight.ExtraBold,
+                fontSize = 20.sp, color = Color.White)
+            Text("Уровень ${gameState.level} · ${rankFor(gameState.level)}", fontFamily = RubikFamily,
+                fontWeight = FontWeight.SemiBold, fontSize = 13.sp, color = Color.White.copy(alpha = 0.9f))
+            KidsProgressBar(expInLevel / 100f, Modifier.fillMaxWidth().padding(top = 4.dp),
+                track = Color.White.copy(alpha = 0.25f), fill = Color.White)
+            Text("$expInLevel / 100 XP до уровня ${gameState.level + 1}", fontFamily = RubikFamily,
+                fontSize = 12.sp, color = Color.White.copy(alpha = 0.9f))
+        }
+
+        // Статистика 2×2.
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+            StatTile("🎮", "${gameState.quizzesCompleted}", "игр сыграно", Modifier.weight(1f))
+            StatTile("🎯", "$accuracy%", "верных ответов", Modifier.weight(1f))
+        }
+        Row(horizontalArrangement = Arrangement.spacedBy(12.dp), modifier = Modifier.fillMaxWidth()) {
+            StatTile("🔥", "${gameState.streakDays}", "лучшая серия", Modifier.weight(1f))
+            StatTile("⭐", "$starsTotal", "звёзд собрано", Modifier.weight(1f))
+        }
+
+        // Прогресс по темам (до 5 с наибольшим прогрессом).
+        val topicProgress = ALL_TOPICS.map { t ->
+            val passed = (0..2).sumOf { d -> LevelMap.countPassed(t.id, d, gameState.levelStars) }
+            Triple(t, passed, passed / (LevelMap.LEVELS_PER_TOPIC * 3f))
+        }.filter { it.second > 0 }.sortedByDescending { it.second }.take(5)
+
+        if (topicProgress.isNotEmpty()) {
+            Text("Прогресс по темам", fontFamily = UnboundedFamily, fontWeight = FontWeight.Bold,
+                fontSize = 18.sp, color = Kids.TextPrimary)
+            KidsCard(modifier = Modifier.fillMaxWidth()) {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    topicProgress.forEach { (topic, _, fraction) ->
+                        val tc = topicColors(topic.id)
+                        Row(verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            Text(topic.emoji, fontSize = 20.sp)
+                            Text(topic.name, fontFamily = RubikFamily, fontWeight = FontWeight.SemiBold,
+                                fontSize = 13.sp, color = Kids.TextPrimary, modifier = Modifier.width(96.dp))
+                            KidsProgressBar(fraction, Modifier.weight(1f), height = 8.dp, fill = tc.primary)
+                            Text("${(fraction * 100).toInt()}%", fontFamily = RubikFamily,
+                                fontWeight = FontWeight.Bold, fontSize = 12.sp, color = tc.shadow)
+                        }
+                    }
                 }
             }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = gameState.playerName,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            AnimatedCounter(
-                target = gameState.level,
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = if (quizzesAtNextLevel > 0) {
-                    "На уровне ${gameState.level + 1}: +${GameData.quizzesUnlockingLabel(quizzesAtNextLevel)}"
-                } else {
-                    "На следующем уровне новых викторин нет"
-                },
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
-                textAlign = TextAlign.Center
-            )
-            Text(
-                text = "${gameState.experience} ОП",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f)
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Text(
-                    text = "До уровня ${gameState.level + 1}",
-                    style = MaterialTheme.typography.bodySmall
-                )
-                Text(
-                    text = "$expInLevel/100",
-                    style = MaterialTheme.typography.bodySmall
-                )
-            }
-            LinearProgressIndicator(
-                progress = { progressAnim },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(8.dp)
-                    .clip(RoundedCornerShape(4.dp))
-            )
         }
-    }
-}
 
-@Composable
-private fun StatsGrid(stats: Map<String, Int>) {
-    val items = listOf(
-        StatItem("Викторины", stats["quizzes_completed"] ?: 0, Icons.Default.Quiz),
-        StatItem("Ответов", stats["correct_answers"] ?: 0, Icons.Default.Check),
-        StatItem("Сыграно", stats["play_time_minutes"] ?: 0, Icons.Default.Timer, suffix = " мин"),
-        StatItem("Категорий", stats["categories_played"] ?: 0, Icons.Default.Category)
-    )
-
-    Column {
-        Text(
-            text = "Статистика",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            StatCard(items[0], modifier = Modifier.weight(1f))
-            StatCard(items[1], modifier = Modifier.weight(1f))
-        }
-        Spacer(modifier = Modifier.height(12.dp))
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            StatCard(items[2], modifier = Modifier.weight(1f))
-            StatCard(items[3], modifier = Modifier.weight(1f))
-        }
-    }
-}
-
-private data class StatItem(
-    val label: String,
-    val value: Int,
-    val icon: androidx.compose.ui.graphics.vector.ImageVector,
-    val suffix: String = ""
-)
-
-@Composable
-private fun StatCard(item: StatItem, modifier: Modifier = Modifier) {
-    ElevatedCard(modifier = modifier) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Icon(item.icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
-            Spacer(modifier = Modifier.height(8.dp))
-            AnimatedCounter(
-                target = item.value,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = item.label + item.suffix,
-                style = MaterialTheme.typography.bodySmall,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
-            )
-        }
-    }
-}
-
-@Composable
-fun AchievementsCarousel(gameState: GameState, stats: Map<String, Int>) {
-    val achievements = listOf(
-        AchievementProfile("Первые шаги", "1 викторина", Icons.Default.Star, (stats["quizzes_completed"] ?: 0) >= 1, Color(0xFFFFD700)),
-        AchievementProfile("Искатель", "10 викторин", Icons.Default.School, (stats["quizzes_completed"] ?: 0) >= 10, Color(0xFF4CAF50)),
-        AchievementProfile("Серия", "7 дней", Icons.Default.LocalFireDepartment, gameState.streakDays >= 7, Color(0xFFFF6B6B)),
-        AchievementProfile("Уровень 5", "Достигни 5 ур.", Icons.Default.TrendingUp, gameState.level >= 5, Color(0xFF2196F3)),
-        AchievementProfile("Богач", "1000 монет", Icons.Default.MonetizationOn, gameState.coins >= 1000, Color(0xFFFF9800)),
-        AchievementProfile("Мастер", "50 викторин", Icons.Default.EmojiEvents, (stats["quizzes_completed"] ?: 0) >= 50, Color(0xFF9C27B0))
-    )
-
-    Column {
-        Text(
-            text = "Достижения",
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 12.dp)
-        )
-        LazyRow(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            items(achievements) { achievement ->
-                AchievementCard(achievement)
+        // Достижения — сводка + последние.
+        Text("Достижения", fontFamily = UnboundedFamily, fontWeight = FontWeight.Bold,
+            fontSize = 18.sp, color = Kids.TextPrimary)
+        Box(Modifier.clickable(onClick = onOpenAchievements)) {
+            KidsCard(modifier = Modifier.fillMaxWidth()) {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text("Открыто $unlocked из ${achievements.size}", fontFamily = RubikFamily,
+                            fontWeight = FontWeight.Bold, fontSize = 13.sp, color = Kids.TextPrimary)
+                        Text("Все ›", fontFamily = RubikFamily, fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp, color = Kids.Primary)
+                    }
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        achievements.filter { it.current >= it.target }.take(4).forEach { a ->
+                            Box(
+                                modifier = Modifier.size(48.dp).clip(RoundedCornerShape(14.dp))
+                                    .background(a.color.copy(alpha = 0.18f)),
+                                contentAlignment = Alignment.Center
+                            ) { Icon(a.icon, contentDescription = a.title, tint = a.color,
+                                modifier = Modifier.size(26.dp)) }
+                        }
+                        if (unlocked == 0) {
+                            Text("Пока пусто — вперёд за наградами!", fontFamily = RubikFamily,
+                                fontSize = 12.sp, color = Kids.TextMuted)
+                        }
+                    }
+                }
             }
         }
+        Box(Modifier.height(12.dp))
     }
 }
 
 @Composable
-private fun AchievementCard(achievement: AchievementProfile) {
-    Card(
-        modifier = Modifier.width(120.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (achievement.isUnlocked)
-                achievement.color.copy(alpha = 0.15f)
-            else
-                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Icon(
-                achievement.icon,
-                contentDescription = achievement.title,
-                tint = if (achievement.isUnlocked) achievement.color else Color.Gray,
-                modifier = Modifier.size(32.dp)
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = achievement.title,
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                color = if (achievement.isUnlocked) MaterialTheme.colorScheme.onSurface else Color.Gray
-            )
-            Text(
-                text = achievement.description,
-                style = MaterialTheme.typography.labelSmall,
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-            )
-            if (achievement.isUnlocked) {
-                Icon(
-                    Icons.Default.CheckCircle,
-                    contentDescription = null,
-                    tint = Color(0xFF4CAF50),
-                    modifier = Modifier
-                        .padding(top = 4.dp)
-                        .size(16.dp)
-                )
-            }
+private fun StatTile(emoji: String, value: String, label: String, modifier: Modifier = Modifier) {
+    KidsCard(modifier = modifier) {
+        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text(emoji, fontSize = 24.sp)
+            Text(value, fontFamily = UnboundedFamily, fontWeight = FontWeight.ExtraBold, fontSize = 20.sp,
+                color = Kids.TextPrimary)
+            Text(label, fontFamily = RubikFamily, fontWeight = FontWeight.Medium, fontSize = 12.sp,
+                color = Kids.TextSecondary)
         }
     }
 }
-
-data class AchievementProfile(
-    val title: String,
-    val description: String,
-    val icon: androidx.compose.ui.graphics.vector.ImageVector,
-    val isUnlocked: Boolean,
-    val color: Color
-)

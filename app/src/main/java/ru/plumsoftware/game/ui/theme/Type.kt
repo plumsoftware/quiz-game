@@ -15,28 +15,41 @@ val provider = GoogleFont.Provider(
     certificates = R.array.com_google_android_gms_fonts_certs
 )
 
-val nunitoFont = GoogleFont("Nunito")
-val nunitoFontFamily = FontFamily(
-    Font(googleFont = nunitoFont, fontProvider = provider, weight = FontWeight.Normal),
-    Font(googleFont = nunitoFont, fontProvider = provider, weight = FontWeight.SemiBold),
-    Font(googleFont = nunitoFont, fontProvider = provider, weight = FontWeight.Bold),
-    Font(googleFont = nunitoFont, fontProvider = provider, weight = FontWeight.ExtraBold),
+// Заголовки, цифры, крупные кнопки (ТЗ §3.2)
+private val unboundedFont = GoogleFont("Unbounded")
+val UnboundedFamily = FontFamily(
+    Font(googleFont = unboundedFont, fontProvider = provider, weight = FontWeight.Bold),
+    Font(googleFont = unboundedFont, fontProvider = provider, weight = FontWeight.ExtraBold),
 )
 
+// Основной текст и подписи (ТЗ §3.2)
+private val rubikFont = GoogleFont("Rubik")
+val RubikFamily = FontFamily(
+    Font(googleFont = rubikFont, fontProvider = provider, weight = FontWeight.Normal),
+    Font(googleFont = rubikFont, fontProvider = provider, weight = FontWeight.Medium),
+    Font(googleFont = rubikFont, fontProvider = provider, weight = FontWeight.SemiBold),
+    Font(googleFont = rubikFont, fontProvider = provider, weight = FontWeight.Bold),
+)
+
+// Сохранён старый псевдоним, чтобы существующие экраны компилировались
+val nunitoFontFamily = RubikFamily
+
 val Typography = Typography(
-    displayLarge = TextStyle(fontFamily = nunitoFontFamily, fontWeight = FontWeight.ExtraBold, fontSize = 57.sp),
-    displayMedium = TextStyle(fontFamily = nunitoFontFamily, fontWeight = FontWeight.ExtraBold, fontSize = 45.sp),
-    displaySmall = TextStyle(fontFamily = nunitoFontFamily, fontWeight = FontWeight.Bold, fontSize = 36.sp),
-    headlineLarge = TextStyle(fontFamily = nunitoFontFamily, fontWeight = FontWeight.ExtraBold, fontSize = 32.sp),
-    headlineMedium = TextStyle(fontFamily = nunitoFontFamily, fontWeight = FontWeight.Bold, fontSize = 26.sp),
-    headlineSmall = TextStyle(fontFamily = nunitoFontFamily, fontWeight = FontWeight.Bold, fontSize = 20.sp),
-    titleLarge = TextStyle(fontFamily = nunitoFontFamily, fontWeight = FontWeight.Bold, fontSize = 18.sp),
-    titleMedium = TextStyle(fontFamily = nunitoFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 15.sp),
-    titleSmall = TextStyle(fontFamily = nunitoFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 13.sp),
-    bodyLarge = TextStyle(fontFamily = nunitoFontFamily, fontSize = 16.sp, lineHeight = 24.sp),
-    bodyMedium = TextStyle(fontFamily = nunitoFontFamily, fontSize = 14.sp, lineHeight = 20.sp),
-    bodySmall = TextStyle(fontFamily = nunitoFontFamily, fontSize = 12.sp),
-    labelLarge = TextStyle(fontFamily = nunitoFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 13.sp),
-    labelMedium = TextStyle(fontFamily = nunitoFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 11.sp),
-    labelSmall = TextStyle(fontFamily = nunitoFontFamily, fontWeight = FontWeight.SemiBold, fontSize = 10.sp),
+    // H1 — заголовок экрана (Unbounded 800 / 26)
+    headlineLarge = TextStyle(fontFamily = UnboundedFamily, fontWeight = FontWeight.ExtraBold, fontSize = 30.sp, lineHeight = 34.sp),
+    headlineMedium = TextStyle(fontFamily = UnboundedFamily, fontWeight = FontWeight.ExtraBold, fontSize = 26.sp, lineHeight = 30.sp),
+    // H2 (Unbounded 700 / 16–20)
+    headlineSmall = TextStyle(fontFamily = UnboundedFamily, fontWeight = FontWeight.Bold, fontSize = 20.sp, lineHeight = 24.sp),
+    titleLarge = TextStyle(fontFamily = UnboundedFamily, fontWeight = FontWeight.Bold, fontSize = 18.sp, lineHeight = 22.sp),
+    // Вопрос (Unbounded 700 / 19)
+    titleMedium = TextStyle(fontFamily = UnboundedFamily, fontWeight = FontWeight.Bold, fontSize = 16.sp, lineHeight = 20.sp),
+    titleSmall = TextStyle(fontFamily = UnboundedFamily, fontWeight = FontWeight.Bold, fontSize = 14.sp, lineHeight = 18.sp),
+    // Текст (Rubik 500–600 / 14–16)
+    bodyLarge = TextStyle(fontFamily = RubikFamily, fontWeight = FontWeight.Medium, fontSize = 16.sp, lineHeight = 22.sp),
+    bodyMedium = TextStyle(fontFamily = RubikFamily, fontWeight = FontWeight.Medium, fontSize = 14.sp, lineHeight = 20.sp),
+    bodySmall = TextStyle(fontFamily = RubikFamily, fontWeight = FontWeight.Normal, fontSize = 12.sp, lineHeight = 16.sp),
+    // Подпись (Rubik 600–700 / 11–13)
+    labelLarge = TextStyle(fontFamily = RubikFamily, fontWeight = FontWeight.SemiBold, fontSize = 13.sp),
+    labelMedium = TextStyle(fontFamily = RubikFamily, fontWeight = FontWeight.SemiBold, fontSize = 12.sp),
+    labelSmall = TextStyle(fontFamily = RubikFamily, fontWeight = FontWeight.SemiBold, fontSize = 11.sp),
 )

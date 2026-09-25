@@ -5,14 +5,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import ru.plumsoftware.game.ui.theme.GameBackground
+import ru.plumsoftware.game.ui.theme.Kids
 
 @Composable
 fun MainBack(content: @Composable () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(GameBackground)
+            .background(Kids.Background)
     ) {
         content()
     }

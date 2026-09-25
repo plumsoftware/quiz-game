@@ -123,6 +123,35 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         _currentQuizLevel.value = level
     }
 
+    // Активный уровень карты (тема, сложность, номер) — для записи звёзд после викторины.
+    private var activeMapLevel: Triple<String, Int, Int>? = null
+
+    fun setCurrentTopic(topicId: String) {
+        viewModelScope.launch { gameManager.setCurrentTopic(topicId) }
+    }
+
+    fun setDifficulty(difficulty: Int) {
+        viewModelScope.launch { gameManager.setCurrentDifficulty(difficulty) }
+    }
+
+    /** Запускает уровень карты: запоминает его и открывает викторину (ТЗ §5.3). */
+    fun playMapLevel(level: Int) {
+        val state = _gameState.value
+        activeMapLevel = Triple(state.currentTopicId, state.currentDifficulty, level)
+        setCurrentQuizLevel(level)
+        navigateTo(GameScreen.QUIZ)
+    }
+
+    /** Открывает сундук на карте и выдаёт награду (ТЗ §6.4). */
+    fun openChest(chestId: Int) {
+        viewModelScope.launch {
+            val state = _gameState.value
+            gameManager.openChest(state.currentTopicId, state.currentDifficulty, chestId)
+            // Случайная награда: 50–150 монет (упрощённо, без кристаллов/подсказок).
+            gameManager.addCoins((50..150).random())
+        }
+    }
+
     fun setRemoteConfigQuizLevel(remoteQuiz: RemoteConfigQuizModel) {
         _remoteQuiz.value = remoteQuiz
     }
@@ -164,6 +193,16 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             // Add categories played
             currentQuiz?.let { quiz ->
                 gameManager.addCategoryPlayed(quiz.category)
+            }
+
+            // Если играли уровень карты — записываем звёзды (ТЗ §6.3).
+            activeMapLevel?.let { (topicId, difficulty, level) ->
+                val boss = ru.plumsoftware.game.data.LevelMap.isBossLevel(level)
+                val stars = ru.plumsoftware.game.data.LevelMap.starsForResult(
+                    correctAnswers, totalQuestions, boss
+                )
+                gameManager.recordLevelStars(topicId, difficulty, level, stars)
+                activeMapLevel = null
             }
 
             _quizResult.value = QuizResult(correctAnswers, totalQuestions, coinsEarned)
@@ -243,6 +282,25 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
+    fun purchaseAvatar(avatarId: String, price: Int, onResult: (Boolean) -> Unit = {}) {
+        viewModelScope.launch { onResult(gameManager.purchaseAvatar(avatarId, price)) }
+    }
+
+    /** «Бесплатные монеты» за рекламу: +100, до 5 раз в сутки (ТЗ §5.7). */
+    fun claimFreeCoins(onResult: (Boolean) -> Unit = {}) {
+        viewModelScope.launch { onResult(gameManager.claimFreeCoins(100, 5)) }
+    }
+
+    /** Покупка кристаллов за реальные деньги. Пока заглушка (биллинг не подключён). */
+    fun grantGems(amount: Int) {
+        viewModelScope.launch { gameManager.addGems(amount) }
+    }
+
+    /** Отключение рекламы. Пока заглушка (биллинг не подключён). */
+    fun removeAds() {
+        viewModelScope.launch { gameManager.setAdsRemoved(true) }
+    }
+
     fun purchasePowerUp(type: PowerUpType, onResult: (Boolean) -> Unit = {}) {
         viewModelScope.launch {
             val success = gameManager.purchasePowerUp(type)
@@ -282,7 +340,17 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun onSplashComplete() {
-        _currentScreen.value = GameScreen.HOME
+        // Если профиля нет — на приветствие, иначе на главную (ТЗ §5.1).
+        _currentScreen.value =
+            if (_gameState.value.profileCreated) GameScreen.HOME else GameScreen.WELCOME
+    }
+
+    /** Создаёт профиль и переходит на главную (ТЗ §5.2). */
+    fun createProfile(name: String, avatarId: String, ageGroup: Int) {
+        viewModelScope.launch {
+            gameManager.createProfile(name, avatarId, ageGroup)
+            _currentScreen.value = GameScreen.HOME
+        }
     }
 
     fun navigateUp(activity: Activity) {
@@ -296,6 +364,10 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
             GameScreen.SETTINGS -> _currentScreen.value = GameScreen.HOME
             GameScreen.ACHIEVEMENTS -> _currentScreen.value = GameScreen.HOME
             GameScreen.CATEGORIES -> _currentScreen.value = GameScreen.HOME
+            GameScreen.TOPICS -> _currentScreen.value = GameScreen.HOME
+            GameScreen.PROFILE -> _currentScreen.value = GameScreen.HOME
+            GameScreen.STREAK -> _currentScreen.value = GameScreen.HOME
+            GameScreen.SIGNUP -> _currentScreen.value = GameScreen.WELCOME
             else -> {
                 activity.finish()
             }
@@ -332,11 +404,16 @@ class GameViewModel(application: Application) : AndroidViewModel(application) {
 
 enum class GameScreen {
     SPLASH,
+    WELCOME,
+    SIGNUP,
     HOME,
+    TOPICS,
     QUIZ_MENU,
     QUIZ,
     DAILY_TASKS,
     SHOP,
+    PROFILE,
+    STREAK,
     STATS,
     SETTINGS,
     ACHIEVEMENTS,

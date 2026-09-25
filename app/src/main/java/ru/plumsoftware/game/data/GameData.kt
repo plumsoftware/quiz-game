@@ -26,6 +26,17 @@ data class DailyTask(
 
 data class GameState(
     val playerName: String = "Игрок",
+    val avatarId: String = "fox",
+    val ageGroup: Int = 0,
+    val profileCreated: Boolean = false,
+    val currentTopicId: String = "animals",
+    val currentDifficulty: Int = 0,
+    val levelStars: Map<String, Int> = emptyMap(),
+    val openedChests: Set<String> = emptySet(),
+    val gems: Int = 0,
+    val ownedAvatars: Set<String> = setOf("fox", "panda"),
+    val adsRemoved: Boolean = false,
+    val freeCoinsClaimedToday: Int = 0,
     val coins: Int = 0,
     val level: Int = 1,
     val experience: Int = 0,

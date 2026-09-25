@@ -58,9 +58,16 @@ class MainActivity : ComponentActivity() {
         val keepSplash = mutableStateOf(true)
         splashScreen.setKeepOnScreenCondition { keepSplash.value }
 
+        // ТЗ: пока только светлая тема — тёмные иконки статус-бара на светлом фоне.
         enableEdgeToEdge(
-            statusBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT),
-            navigationBarStyle = SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+            statusBarStyle = SystemBarStyle.light(
+                android.graphics.Color.TRANSPARENT,
+                android.graphics.Color.TRANSPARENT
+            ),
+            navigationBarStyle = SystemBarStyle.light(
+                android.graphics.Color.TRANSPARENT,
+                android.graphics.Color.TRANSPARENT
+            )
         )
         MobileAds.initialize(this) {}
         FirebaseApp.initializeApp(this)
@@ -168,16 +175,26 @@ fun GameApp(
                     currentLevel = currentQuizLevel,
                     onBackToHome = viewModel::onBackToHome,
                     onPlayAgain = viewModel::onPlayAgain,
-                    displayAds = displayAds
+                    displayAds = displayAds,
+                    topicId = gameState.currentTopicId
                 )
             }
         } else {
+          val tabForScreen = when (currentScreen) {
+              GameScreen.HOME -> ru.plumsoftware.game.ui.components.kids.BottomTab.HOME
+              GameScreen.TOPICS -> ru.plumsoftware.game.ui.components.kids.BottomTab.TOPICS
+              GameScreen.SHOP -> ru.plumsoftware.game.ui.components.kids.BottomTab.SHOP
+              GameScreen.PROFILE -> ru.plumsoftware.game.ui.components.kids.BottomTab.PROFILE
+              else -> null
+          }
+          androidx.compose.foundation.layout.Column(
+              modifier = Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding()
+          ) {
             AnimatedContent(
                 targetState = currentScreen,
                 modifier = Modifier
-                    .fillMaxSize()
-                    .statusBarsPadding()
-                    .navigationBarsPadding(),
+                    .weight(1f)
+                    .fillMaxSize(),
                 transitionSpec = {
                     val slideDirection = if (targetState.ordinal > initialState.ordinal) {
                         AnimatedContentTransitionScope.SlideDirection.Left
@@ -191,22 +208,33 @@ fun GameApp(
             ) { screen ->
                 when (screen) {
                     GameScreen.SPLASH -> SplashScreen(onSplashComplete = viewModel::onSplashComplete)
-                    GameScreen.HOME -> HomeScreen(
-                        remoteQuiz = remoteQuiz,
-                        gameState = gameState,
-                        availableQuizzes = availableQuizzes,
-                        currentTierQuizTotal = currentTierQuizTotal,
-                        tasksProgress = tasksProgress,
-                        onNavigateToQuiz = { viewModel.navigateTo(GameScreen.QUIZ_MENU) },
-                        onNavigateToDailyTasks = { viewModel.navigateTo(GameScreen.DAILY_TASKS) },
-                        onNavigateToShop = { viewModel.navigateTo(GameScreen.SHOP) },
-                        onNavigateToAchievements = { viewModel.navigateTo(GameScreen.ACHIEVEMENTS) },
-                        onNavigateToStats = { viewModel.navigateTo(GameScreen.STATS) },
-                        onNavigateToSettings = { viewModel.navigateTo(GameScreen.SETTINGS) },
-                        onNavigateToRemoteConfigQuiz = { rq ->
-                            viewModel.setRemoteConfigQuizLevel(rq)
-                            viewModel.navigateTo(GameScreen.QUIZ)
+                    GameScreen.WELCOME -> WelcomeScreen(
+                        onStart = { viewModel.navigateTo(GameScreen.SIGNUP) },
+                        onRestore = { viewModel.navigateTo(GameScreen.SIGNUP) }
+                    )
+                    GameScreen.SIGNUP -> SignupScreen(
+                        onBack = { viewModel.navigateTo(GameScreen.WELCOME) },
+                        onFinish = { name, avatarId, ageGroup ->
+                            viewModel.createProfile(name, avatarId, ageGroup)
                         }
+                    )
+                    GameScreen.HOME -> HomeScreen(
+                        gameState = gameState,
+                        tasksProgress = tasksProgress,
+                        onOpenStreak = { viewModel.navigateTo(GameScreen.STATS) },
+                        onOpenTopics = { viewModel.navigateTo(GameScreen.TOPICS) },
+                        onOpenDailyTasks = { viewModel.navigateTo(GameScreen.DAILY_TASKS) },
+                        onPlayLevel = { level -> viewModel.playMapLevel(level) },
+                        onOpenChest = { chestId -> viewModel.openChest(chestId) }
+                    )
+                    GameScreen.TOPICS -> TopicsScreen(
+                        gameState = gameState,
+                        onSelectTopic = { topicId ->
+                            viewModel.setCurrentTopic(topicId)
+                            viewModel.navigateTo(GameScreen.HOME)
+                        },
+                        onSelectDifficulty = { viewModel.setDifficulty(it) },
+                        onBack = { viewModel.navigateTo(GameScreen.HOME) }
                     )
                     GameScreen.MORE -> MoreScreen(onNavigate = viewModel::navigateTo)
                     GameScreen.CATEGORIES -> CategoriesScreen(
@@ -225,16 +253,17 @@ fun GameApp(
                         onBack = { viewModel.navigateTo(GameScreen.HOME) }
                     )
                     GameScreen.QUIZ -> QuizScreen(
-                        currentLevel = currentQuizLevel,
+                        topicId = gameState.currentTopicId,
+                        difficulty = ru.plumsoftware.game.data.GameDifficulty.fromId(gameState.currentDifficulty),
+                        isBoss = ru.plumsoftware.game.data.LevelMap.isBossLevel(currentQuizLevel),
                         questions = viewModel.getQuestionsForCurrentQuiz(),
                         coins = gameState.coins,
                         powerUpInventory = gameState.powerUpInventory,
-                        onBack = {
+                        onExit = {
                             viewModel.setEmptyRemoteQuiz()
-                            viewModel.navigateTo(GameScreen.QUIZ_MENU)
+                            viewModel.navigateTo(GameScreen.HOME)
                         },
-                        onQuizComplete = viewModel::onQuizComplete,
-                        onPurchasePowerUp = viewModel::purchasePowerUp,
+                        onComplete = viewModel::onQuizComplete,
                         onConsumePowerUp = viewModel::consumePowerUp
                     )
                     GameScreen.DAILY_TASKS -> DailyTasksScreen(
@@ -243,11 +272,19 @@ fun GameApp(
                         onTaskCompleted = { _, reward -> viewModel.addCoins(reward) }
                     )
                     GameScreen.SHOP -> ShopScreen(
-                        coins = gameState.coins,
-                        inventory = gameState.powerUpInventory,
-                        addCoins = viewModel::onAdsRewarded,
+                        gameState = gameState,
                         onBack = viewModel::closeShop,
-                        onPurchasePowerUp = viewModel::purchasePowerUp
+                        onClaimFreeCoins = { onResult -> viewModel.claimFreeCoins(onResult) },
+                        onPurchasePowerUp = viewModel::purchasePowerUp,
+                        onPurchaseAvatar = { id, price, onResult -> viewModel.purchaseAvatar(id, price, onResult) },
+                        onGrantGems = { amount -> viewModel.grantGems(amount) },
+                        onRemoveAds = viewModel::removeAds
+                    )
+                    GameScreen.PROFILE -> ProfileScreen(
+                        gameState = gameState,
+                        achievements = getAchievements(gameState),
+                        onOpenSettings = { viewModel.navigateTo(GameScreen.SETTINGS) },
+                        onOpenAchievements = { viewModel.navigateTo(GameScreen.ACHIEVEMENTS) }
                     )
                     GameScreen.STATS -> StatsScreen(
                         gameState = gameState,
@@ -266,6 +303,20 @@ fun GameApp(
                     )
                 }
             }
+            if (tabForScreen != null) {
+                ru.plumsoftware.game.ui.components.kids.KidsBottomNav(
+                    selected = tabForScreen,
+                    onSelect = { tab ->
+                        when (tab) {
+                            ru.plumsoftware.game.ui.components.kids.BottomTab.HOME -> viewModel.navigateTo(GameScreen.HOME)
+                            ru.plumsoftware.game.ui.components.kids.BottomTab.TOPICS -> viewModel.navigateTo(GameScreen.TOPICS)
+                            ru.plumsoftware.game.ui.components.kids.BottomTab.SHOP -> viewModel.navigateTo(GameScreen.SHOP)
+                            ru.plumsoftware.game.ui.components.kids.BottomTab.PROFILE -> viewModel.navigateTo(GameScreen.PROFILE)
+                        }
+                    }
+                )
+            }
+          }
         }
 
         AchievementToastOverlay(
