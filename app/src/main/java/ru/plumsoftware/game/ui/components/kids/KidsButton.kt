@@ -61,9 +61,12 @@ fun KidsButton(
     val shape = RoundedCornerShape(cornerRadius)
     val alpha = if (enabled) 1f else 0.45f
 
+    // propagateMinConstraints: лицевой слой растягивается до размера, заданного снаружи
+    // (fillMaxWidth / weight / size), иначе он сжимается до текста, а тень остаётся широкой.
     Box(
         modifier = modifier.padding(bottom = depth),
-        contentAlignment = Alignment.TopCenter
+        contentAlignment = Alignment.TopCenter,
+        propagateMinConstraints = true
     ) {
         // Задний слой — тень, зафиксирована по нижней границе (смещена на depth вниз).
         // matchParentSize берёт размер родителя, который задаётся лицевым слоем.

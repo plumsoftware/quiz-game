@@ -1,6 +1,5 @@
 plugins {
     alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.google.gms.google.services)
     kotlin("plugin.serialization") version "2.0.0"
@@ -8,14 +7,14 @@ plugins {
 
 android {
     namespace = "ru.plumsoftware.game"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         applicationId = "ru.plumsoftware.game"
         minSdk = 26
-        targetSdk = 36
-        versionCode = 13
-        versionName = "1.3.1"
+        targetSdk = 37
+        versionCode = 14
+        versionName = "2.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -33,11 +32,26 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "11"
+    //noinspection WrongGradleMethod
+    kotlin {
+        compilerOptions {
+            jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_11)
+        }
     }
     buildFeatures {
         compose = true
+        buildConfig = true
+    }
+    flavorDimensions += "store"
+    productFlavors {
+        create("rustore") {
+            dimension = "store"
+            // ID блоков Yandex Mobile Ads для RuStore
+            buildConfigField("String", "REWARDED_AD_UNIT_ID", "\"R-M-16621058-1\"")
+            buildConfigField("String", "BANNER_AD_UNIT_ID", "\"R-M-16621058-3\"")
+            buildConfigField("String", "STORE_APP_URL", "\"https://www.rustore.ru/catalog/app/ru.plumsoftware.game\"")
+            buildConfigField("String", "STORE_NAME", "\"RuStore\"")
+        }
     }
     lint {
         disable += "NullSafeMutableLiveData"

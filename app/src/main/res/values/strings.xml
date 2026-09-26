@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Викторина</string>
+    <string name="app_name">Викторины для детей</string>
 
     <!-- Home Screen -->
     <string name="start_quiz">Начать Викторину</string>
@@ -74,8 +74,8 @@
     <!-- Notifications -->
     <string name="notification_title">Время для викторины!</string>
     <string name="notification_text">Не забудьте выполнить ежедневные задания</string>
-    <string name="notification_channel_name">Напоминания о викторине</string>
-    <string name="notification_channel_desc">Напоминания о ежедневных заданиях и викторинах</string>
+    <string name="notification_channel_name">Напоминания</string>
+    <string name="notification_channel_desc">Напоминание о серии дней и сундуках (не чаще раза в день)</string>
 
     <!-- Settings -->
     <string name="settings">Настройки</string>

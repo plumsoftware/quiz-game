@@ -1,0 +1,606 @@
+[
+ {
+  "id": "countries_h_001",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какая столица Бразилии?",
+  "image": null,
+  "options": [
+   "Буэнос-Айрес",
+   "Бразилиа",
+   "Сан-Паулу",
+   "Рио-де-Жанейро"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "countries_h_002",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какая столица Аргентины?",
+  "image": null,
+  "options": [
+   "Монтевидео",
+   "Буэнос-Айрес",
+   "Сантьяго",
+   "Лима"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "countries_h_003",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какая столица Южной Кореи?",
+  "image": null,
+  "options": [
+   "Сеул",
+   "Пусан",
+   "Пхеньян",
+   "Токио"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "countries_h_004",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какая столица Норвегии?",
+  "image": null,
+  "options": [
+   "Хельсинки",
+   "Осло",
+   "Копенгаген",
+   "Стокгольм"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "countries_h_005",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какая столица Швеции?",
+  "image": null,
+  "options": [
+   "Осло",
+   "Гётеборг",
+   "Стокгольм",
+   "Мальмё"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_h_006",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какая столица Финляндии?",
+  "image": null,
+  "options": [
+   "Хельсинки",
+   "Таллин",
+   "Осло",
+   "Турку"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "countries_h_007",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какая столица Индии?",
+  "image": null,
+  "options": [
+   "Мумбаи",
+   "Бангалор",
+   "Калькутта",
+   "Нью-Дели"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "countries_h_008",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какая столица Мексики?",
+  "image": null,
+  "options": [
+   "Мехико",
+   "Канкун",
+   "Гвадалахара",
+   "Мадрид"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "countries_h_009",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какая столица Швейцарии?",
+  "image": null,
+  "options": [
+   "Женева",
+   "Базель",
+   "Берн",
+   "Цюрих"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_h_010",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какая столица Нидерландов по конституции?",
+  "image": null,
+  "options": [
+   "Гаага",
+   "Амстердам",
+   "Утрехт",
+   "Роттердам"
+  ],
+  "answer": 1,
+  "explanation": "Правительство при этом находится в Гааге."
+ },
+ {
+  "id": "countries_h_011",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какой город — столица Новой Зеландии?",
+  "image": null,
+  "options": [
+   "Крайстчерч",
+   "Веллингтон",
+   "Сидней",
+   "Окленд"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "countries_h_012",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какая страна имеет наибольшее количество часовых поясов на своей территории?",
+  "image": null,
+  "options": [
+   "Россия",
+   "Франция",
+   "Китай",
+   "США"
+  ],
+  "answer": 1,
+  "explanation": "С учётом заморских территорий у Франции 12 поясов."
+ },
+ {
+  "id": "countries_h_013",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Сколько часовых поясов в России?",
+  "image": null,
+  "options": [
+   "9",
+   "7",
+   "13",
+   "11"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "countries_h_014",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какая самая глубокая точка Мирового океана?",
+  "image": null,
+  "options": [
+   "Мёртвое море",
+   "Байкал",
+   "Марианская впадина",
+   "Бермудский треугольник"
+  ],
+  "answer": 2,
+  "explanation": "Около 11 км в глубину."
+ },
+ {
+  "id": "countries_h_015",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какой полуостров самый большой в мире?",
+  "image": null,
+  "options": [
+   "Аравийский",
+   "Скандинавский",
+   "Крым",
+   "Камчатка"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "countries_h_016",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какая пустыня — одна из самых засушливых мест на Земле?",
+  "image": null,
+  "options": [
+   "Калахари",
+   "Сахара",
+   "Гоби",
+   "Атакама"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "countries_h_017",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какой пролив соединяет Средиземное море с Атлантическим океаном?",
+  "image": null,
+  "options": [
+   "Гибралтарский",
+   "Ла-Манш",
+   "Босфор",
+   "Берингов"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "countries_h_018",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какой город был столицей России до Москвы в XVIII–XX веках?",
+  "image": null,
+  "options": [
+   "Казань",
+   "Владимир",
+   "Санкт-Петербург",
+   "Новгород"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_h_019",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "На каком полуострове находится Долина гейзеров?",
+  "image": null,
+  "options": [
+   "Ямал",
+   "Таймыр",
+   "Камчатка",
+   "Кольский"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_h_020",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какая страна — крупнейшая в Африке по площади?",
+  "image": null,
+  "options": [
+   "Алжир",
+   "Нигерия",
+   "Египет",
+   "ЮАР"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "countries_h_021",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какая страна имеет форму «сапога»?",
+  "image": null,
+  "options": [
+   "Норвегия",
+   "Греция",
+   "Чили",
+   "Италия"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "countries_h_022",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какая страна самая длинная и узкая в мире?",
+  "image": null,
+  "options": [
+   "Вьетнам",
+   "Чили",
+   "Норвегия",
+   "Италия"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "countries_h_023",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какая река впадает в Каспийское море и является крупнейшей в Европе?",
+  "image": null,
+  "options": [
+   "Дон",
+   "Волга",
+   "Урал",
+   "Днепр"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "countries_h_024",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какой официальный язык в Бразилии?",
+  "image": null,
+  "options": [
+   "Португальский",
+   "Бразильский",
+   "Испанский",
+   "Английский"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "countries_h_025",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какой официальный язык в Египте?",
+  "image": null,
+  "options": [
+   "Египетский",
+   "Арабский",
+   "Французский",
+   "Английский"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "countries_h_026",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "В какой стране находится Ангкор-Ват?",
+  "image": null,
+  "options": [
+   "Камбоджа",
+   "Индия",
+   "Вьетнам",
+   "Таиланд"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "countries_h_027",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какой горный хребет самый длинный на суше?",
+  "image": null,
+  "options": [
+   "Анды",
+   "Гималаи",
+   "Альпы",
+   "Урал"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "countries_h_028",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Самый северный материк?",
+  "image": null,
+  "options": [
+   "Африка",
+   "Евразия",
+   "Антарктида",
+   "Северная Америка"
+  ],
+  "answer": 1,
+  "explanation": "Самая северная точка материка — мыс Челюскин."
+ },
+ {
+  "id": "countries_h_029",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какое озеро самое большое по площади в Африке?",
+  "image": null,
+  "options": [
+   "Виктория",
+   "Чад",
+   "Танганьика",
+   "Малави"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "countries_h_030",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "В какой стране находится Эльбрус?",
+  "image": null,
+  "options": [
+   "Турция",
+   "Грузия",
+   "Армения",
+   "Россия"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "countries_h_031",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какой город-порт на Тихом океане стоит на бухте Золотой Рог?",
+  "image": null,
+  "options": [
+   "Калининград",
+   "Мурманск",
+   "Владивосток",
+   "Хабаровск"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_h_032",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какой город России самый западный?",
+  "image": null,
+  "options": [
+   "Смоленск",
+   "Санкт-Петербург",
+   "Калининград",
+   "Псков"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_h_033",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какая валюта в Японии?",
+  "image": null,
+  "options": [
+   "Иена",
+   "Вона",
+   "Рупия",
+   "Юань"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "countries_h_034",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какая валюта в Великобритании?",
+  "image": null,
+  "options": [
+   "Доллар",
+   "Евро",
+   "Фунт стерлингов",
+   "Франк"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_h_035",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какое государство находится внутри Рима?",
+  "image": null,
+  "options": [
+   "Андорра",
+   "Сан-Марино",
+   "Ватикан",
+   "Монако"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_h_036",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какая страна — родина Олимпийских игр современности (первые игры 1896 года прошли там)?",
+  "image": null,
+  "options": [
+   "Франция",
+   "Англия",
+   "США",
+   "Греция"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "countries_h_037",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Как называется линия, делящая Землю на Северное и Южное полушария?",
+  "image": null,
+  "options": [
+   "Экватор",
+   "Полярный круг",
+   "Нулевой меридиан",
+   "Тропик Рака"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "countries_h_038",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Через какой английский город проходит нулевой меридиан?",
+  "image": null,
+  "options": [
+   "Манчестер",
+   "Оксфорд",
+   "Ливерпуль",
+   "Гринвич (Лондон)"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "countries_h_039",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какая страна — крупнейший остров-государство по населению?",
+  "image": null,
+  "options": [
+   "Индонезия",
+   "Филиппины",
+   "Япония",
+   "Великобритания"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "countries_h_040",
+  "topic": "countries",
+  "difficulty": 2,
+  "level": 0,
+  "text": "Какая страна граничит с Россией и имеет столицу Улан-Батор?",
+  "image": null,
+  "options": [
+   "Киргизия",
+   "Казахстан",
+   "Монголия",
+   "Китай"
+  ],
+  "answer": 2
+ }
+]

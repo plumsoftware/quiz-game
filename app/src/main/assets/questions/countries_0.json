@@ -1,0 +1,603 @@
+[
+ {
+  "id": "countries_e_001",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Какая столица России?",
+  "image": null,
+  "options": [
+   "Санкт-Петербург",
+   "Москва",
+   "Сочи",
+   "Казань"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "countries_e_002",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "В какой стране мы живём, если столица — Москва?",
+  "image": null,
+  "options": [
+   "Франция",
+   "Россия",
+   "Египет",
+   "Китай"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "countries_e_003",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "В какой стране стоят пирамиды?",
+  "image": null,
+  "options": [
+   "Япония",
+   "Египет",
+   "Франция",
+   "Россия"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "countries_e_004",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Где находится Эйфелева башня?",
+  "image": null,
+  "options": [
+   "В Италии",
+   "Во Франции",
+   "В Англии",
+   "В Китае"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "countries_e_005",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Какая страна самая большая по площади?",
+  "image": null,
+  "options": [
+   "Китай",
+   "США",
+   "Россия",
+   "Канада"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_e_006",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "В какой стране живут кенгуру?",
+  "image": null,
+  "options": [
+   "В Индии",
+   "В России",
+   "В Австралии",
+   "В Бразилии"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_e_007",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Где живут панды?",
+  "image": null,
+  "options": [
+   "В Китае",
+   "В Норвегии",
+   "В Египте",
+   "В Мексике"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "countries_e_008",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Какого цвета флаг России сверху вниз?",
+  "image": null,
+  "options": [
+   "Красный, синий, белый",
+   "Зелёный, белый, красный",
+   "Синий, белый, красный",
+   "Белый, синий, красный"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "countries_e_009",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Откуда родом матрёшка?",
+  "image": null,
+  "options": [
+   "Из Египта",
+   "Из Японии",
+   "Из Франции",
+   "Из России"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "countries_e_010",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "В какой стране придумали пиццу?",
+  "image": null,
+  "options": [
+   "В Италии",
+   "В России",
+   "В Японии",
+   "В Китае"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "countries_e_011",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Где стоит Биг-Бен?",
+  "image": null,
+  "options": [
+   "В Риме",
+   "В Москве",
+   "В Лондоне",
+   "В Париже"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_e_012",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Какая страна — родина суши?",
+  "image": null,
+  "options": [
+   "Италия",
+   "Бразилия",
+   "Япония",
+   "Египет"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_e_013",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Как называется главная площадь Москвы?",
+  "image": null,
+  "options": [
+   "Зелёная площадь",
+   "Синяя площадь",
+   "Белая площадь",
+   "Красная площадь"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "countries_e_014",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "В какой стране находится Великая Китайская стена?",
+  "image": null,
+  "options": [
+   "В Японии",
+   "В Индии",
+   "В России",
+   "В Китае"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "countries_e_015",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "На каком материке мы живём, если живём в Москве?",
+  "image": null,
+  "options": [
+   "Евразия",
+   "Африка",
+   "Антарктида",
+   "Австралия"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "countries_e_016",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Где живут пингвины и почти нет людей?",
+  "image": null,
+  "options": [
+   "В Азии",
+   "В Европе",
+   "В Антарктиде",
+   "В Африке"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_e_017",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Какой океан самый большой?",
+  "image": null,
+  "options": [
+   "Индийский",
+   "Атлантический",
+   "Тихий",
+   "Северный Ледовитый"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_e_018",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Какой материк самый жаркий?",
+  "image": null,
+  "options": [
+   "Антарктида",
+   "Европа",
+   "Австралия",
+   "Африка"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "countries_e_019",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Где находится статуя Свободы?",
+  "image": null,
+  "options": [
+   "Во Франции",
+   "В Англии",
+   "В США",
+   "В России"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_e_020",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "В какой стране много тюльпанов и ветряных мельниц?",
+  "image": null,
+  "options": [
+   "Китай",
+   "Нидерланды",
+   "Бразилия",
+   "Египет"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "countries_e_021",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "На каком языке говорят в Испании?",
+  "image": null,
+  "options": [
+   "На английском",
+   "На испанском",
+   "На китайском",
+   "На русском"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "countries_e_022",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "На каком языке говорят во Франции?",
+  "image": null,
+  "options": [
+   "На испанском",
+   "На японском",
+   "На французском",
+   "На немецком"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_e_023",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Какая страна — родина футбольного «самба-стиля» и карнавала?",
+  "image": null,
+  "options": [
+   "Египет",
+   "Япония",
+   "Норвегия",
+   "Бразилия"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "countries_e_024",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Какой город — столица Франции?",
+  "image": null,
+  "options": [
+   "Лондон",
+   "Париж",
+   "Берлин",
+   "Рим"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "countries_e_025",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Где живут белые медведи?",
+  "image": null,
+  "options": [
+   "В Индии",
+   "В Африке",
+   "В Арктике",
+   "В Австралии"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_e_026",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Какую реку в России ласково называют «матушкой»?",
+  "image": null,
+  "options": [
+   "Дон",
+   "Кама",
+   "Нева",
+   "Волга"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "countries_e_027",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Какая страна — сосед России?",
+  "image": null,
+  "options": [
+   "Бразилия",
+   "Египет",
+   "Китай",
+   "Австралия"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_e_028",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Столица Японии — это...",
+  "image": null,
+  "options": [
+   "Токио",
+   "Пекин",
+   "Сеул",
+   "Бангкок"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "countries_e_029",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Какого цвета флаг Японии?",
+  "image": null,
+  "options": [
+   "Синий с белым крестом",
+   "Зелёный",
+   "Красный с жёлтой звездой",
+   "Белый с красным кругом"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "countries_e_030",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Где находится Кремль?",
+  "image": null,
+  "options": [
+   "В Париже",
+   "В Пекине",
+   "В Лондоне",
+   "В Москве"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "countries_e_031",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "В какой стране живут слоны и есть Тадж-Махал?",
+  "image": null,
+  "options": [
+   "Франция",
+   "Канада",
+   "Индия",
+   "Россия"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_e_032",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Сколько материков на Земле?",
+  "image": null,
+  "options": [
+   "4",
+   "8",
+   "6",
+   "10"
+  ],
+  "answer": 2,
+  "explanation": "Евразия, Африка, Северная и Южная Америка, Австралия, Антарктида."
+ },
+ {
+  "id": "countries_e_033",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Какой город называют Северной столицей России?",
+  "image": null,
+  "options": [
+   "Санкт-Петербург",
+   "Мурманск",
+   "Архангельск",
+   "Москва"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "countries_e_034",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Где на карте север — сверху или снизу?",
+  "image": null,
+  "options": [
+   "Слева",
+   "Справа",
+   "Сверху",
+   "Снизу"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_e_035",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Что показывает глобус?",
+  "image": null,
+  "options": [
+   "Время",
+   "Погоду",
+   "Модель Земли",
+   "Карту Луны"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_e_036",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Какая самая высокая гора в мире?",
+  "image": null,
+  "options": [
+   "Эльбрус",
+   "Эверест",
+   "Монблан",
+   "Килиманджаро"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "countries_e_037",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "В какой стране жил Дед Мороз, если его дом — Великий Устюг?",
+  "image": null,
+  "options": [
+   "В Канаде",
+   "В России",
+   "В Финляндии",
+   "В Норвегии"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "countries_e_038",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Какое озеро в России самое глубокое в мире?",
+  "image": null,
+  "options": [
+   "Селигер",
+   "Онежское",
+   "Ладожское",
+   "Байкал"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "countries_e_039",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "В какой стране на флаге есть кленовый лист?",
+  "image": null,
+  "options": [
+   "Россия",
+   "Япония",
+   "Канада",
+   "Италия"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_e_040",
+  "topic": "countries",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Столица Италии — это...",
+  "image": null,
+  "options": [
+   "Венеция",
+   "Париж",
+   "Милан",
+   "Рим"
+  ],
+  "answer": 3
+ }
+]

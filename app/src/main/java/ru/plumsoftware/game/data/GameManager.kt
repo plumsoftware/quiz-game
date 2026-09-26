@@ -2,391 +2,313 @@ package ru.plumsoftware.game.data
 
 import android.content.Context
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.*
+import androidx.datastore.preferences.core.MutablePreferences
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.doublePreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.intOrNull
 import java.time.LocalDate
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "game_preferences")
 
-class GameManager(private val context: Context) {
-    
-    private object PreferencesKeys {
-        val COINS = intPreferencesKey("coins")
-        val LEVEL = intPreferencesKey("level")
-        val EXPERIENCE = intPreferencesKey("experience")
-        val LAST_PLAY_DATE = stringPreferencesKey("last_play_date")
-        val DAILY_TASKS_COMPLETED = intPreferencesKey("daily_tasks_completed")
-        val STREAK_DAYS = intPreferencesKey("streak_days")
-        val TOTAL_QUIZZES_COMPLETED = intPreferencesKey("total_quizzes_completed")
-        val TOTAL_CORRECT_ANSWERS = intPreferencesKey("total_correct_answers")
-        val TOTAL_ANSWERS = intPreferencesKey("total_answers")
-        val PLAY_TIME_MINUTES = intPreferencesKey("play_time_minutes")
-        val CATEGORIES_PLAYED = stringSetPreferencesKey("categories_played")
-        val UNLOCKED_QUIZ_LEVELS = intPreferencesKey("unlocked_quiz_levels")
-        val COMPLETED_QUIZZES = stringSetPreferencesKey("completed_quizzes")
-        val PLAYER_NAME = stringPreferencesKey("player_name")
-        val AVATAR_ID = stringPreferencesKey("avatar_id")
-        val AGE_GROUP = intPreferencesKey("age_group")
+/**
+ * Хранилище прогресса (ТЗ §2.1) поверх Preferences DataStore.
+ * Вся логика изменений — в [GameRules]; здесь только чтение/запись [GameState] целиком.
+ */
+class GameManager(context: Context) {
+
+    private val dataStore = context.applicationContext.dataStore
+
+    private object K {
+        // profile
+        val NAME = stringPreferencesKey("player_name")
+        val AVATAR = stringPreferencesKey("avatar_id")
+        val AGE = intPreferencesKey("age_group")
         val PROFILE_CREATED = booleanPreferencesKey("profile_created")
-        val CURRENT_TOPIC = stringPreferencesKey("current_topic")
-        val CURRENT_DIFFICULTY = intPreferencesKey("current_difficulty")
+        val CREATED_AT = longPreferencesKey("created_at")
+
+        // wallet / inventory
+        val COINS = intPreferencesKey("coins")
+        val GEMS = intPreferencesKey("gems")
+        val STREAK_FREEZES = intPreferencesKey("streak_freezes")
+        val OWNED_AVATARS = stringSetPreferencesKey("owned_avatars")
+        fun hint(id: String) = intPreferencesKey("power_up_$id")
+
+        // progress
+        val TOPIC = stringPreferencesKey("current_topic")
+        val DIFFICULTY = intPreferencesKey("current_difficulty")
         val LEVEL_STARS = stringPreferencesKey("level_stars_json")
         val OPENED_CHESTS = stringSetPreferencesKey("opened_chests")
-        val GEMS = intPreferencesKey("gems")
-        val OWNED_AVATARS = stringSetPreferencesKey("owned_avatars")
+        val TOPICS_PLAYED = stringSetPreferencesKey("topics_played")
+        val XP = intPreferencesKey(SaveCodec.XP_KEY) // "experience" — суммарный XP
+
+        // stats
+        val GAMES = intPreferencesKey("total_quizzes_completed")
+        val ANSWERS_TOTAL = intPreferencesKey("total_answers")
+        val ANSWERS_CORRECT = intPreferencesKey("total_correct_answers")
+        val DAILY_ANSWERS = stringPreferencesKey("daily_answers_json")
+        val TOPIC_CORRECT = stringPreferencesKey("topic_correct_json")
+        val TOPIC_TOTAL = stringPreferencesKey("topic_total_json")
+
+        // streak
+        val STREAK = intPreferencesKey("streak_days")
+        val BEST_STREAK = intPreferencesKey("best_streak")
+        val LAST_PLAYED = stringPreferencesKey("last_play_date")
+        val PLAYED_DATES = stringSetPreferencesKey("played_dates")
+        val FROZEN_DATES = stringSetPreferencesKey("frozen_dates")
+        val STREAK_REWARDS = stringSetPreferencesKey("streak_rewards_claimed")
+        val GOLDEN_FRAME = booleanPreferencesKey("golden_frame")
+
+        // achievements
+        val ACHIEVEMENTS = stringPreferencesKey("achievements_json")
+        val CHESTS_OPENED = intPreferencesKey("chests_opened")
+        val PERFECT_LEVELS = intPreferencesKey("perfect_levels")
+        val FAST_ANSWER = booleanPreferencesKey("fast_answer")
+        val LIFETIME_COINS = intPreferencesKey("lifetime_coins")
+
+        // daily quest
+        val QUEST_DATE = stringPreferencesKey("quest_date")
+        val QUEST_PROGRESS = intPreferencesKey("quest_progress")
+        val QUEST_CLAIMED = booleanPreferencesKey("quest_claimed")
+
+        // settings
+        val S_SOUND = booleanPreferencesKey("set_sound")
+        val S_MUSIC = booleanPreferencesKey("set_music")
+        val S_VIBRO = booleanPreferencesKey("set_vibro")
+        val S_VOICE = booleanPreferencesKey("set_voice")
+        val S_NOTIF = booleanPreferencesKey("set_notifications")
+        val S_PARENT = booleanPreferencesKey("set_parent_control")
+        val S_LIMIT = intPreferencesKey("set_daily_limit_min")
+        val S_DIFF = intPreferencesKey("set_default_difficulty")
+        val S_LANG = stringPreferencesKey("set_language")
+
+        // purchases / ads / per-day counters
         val ADS_REMOVED = booleanPreferencesKey("ads_removed")
-        val FREE_COINS_CLAIMED = intPreferencesKey("free_coins_claimed_today")
-        val FREE_COINS_DATE = stringPreferencesKey("free_coins_date")
-        val UNLOCKED_ACHIEVEMENTS = stringSetPreferencesKey("unlocked_achievements")
+        val DAY_STAMP = stringPreferencesKey("day_stamp")
+        val FREE_COINS = intPreferencesKey("free_coins_claimed_today")
+        val PLAY_SECONDS = intPreferencesKey("play_seconds_today")
+        val EXTRA_MINUTES = intPreferencesKey("extra_minutes_today")
 
-        fun powerUpKey(type: PowerUpType) = intPreferencesKey("power_up_${type.id}")
+        // служебное (не входит в GameState)
+        val LAST_NOTIFICATION = stringPreferencesKey("last_notification_date")
     }
 
-    val gameState: Flow<GameState> = context.dataStore.data.map { preferences ->
-        GameState(
-            playerName = preferences[PreferencesKeys.PLAYER_NAME] ?: "Игрок",
-            avatarId = preferences[PreferencesKeys.AVATAR_ID] ?: "fox",
-            ageGroup = preferences[PreferencesKeys.AGE_GROUP] ?: 0,
-            profileCreated = preferences[PreferencesKeys.PROFILE_CREATED] ?: false,
-            currentTopicId = preferences[PreferencesKeys.CURRENT_TOPIC] ?: "animals",
-            currentDifficulty = preferences[PreferencesKeys.CURRENT_DIFFICULTY]
-                ?: (preferences[PreferencesKeys.AGE_GROUP] ?: 0),
-            levelStars = decodeLevelStars(preferences[PreferencesKeys.LEVEL_STARS]),
-            openedChests = preferences[PreferencesKeys.OPENED_CHESTS] ?: emptySet(),
-            gems = preferences[PreferencesKeys.GEMS] ?: 0,
-            ownedAvatars = preferences[PreferencesKeys.OWNED_AVATARS] ?: setOf("fox", "panda"),
-            adsRemoved = preferences[PreferencesKeys.ADS_REMOVED] ?: false,
-            freeCoinsClaimedToday = if (preferences[PreferencesKeys.FREE_COINS_DATE] == LocalDate.now().toString())
-                preferences[PreferencesKeys.FREE_COINS_CLAIMED] ?: 0 else 0,
-            coins = preferences[PreferencesKeys.COINS] ?: 0,
-            level = preferences[PreferencesKeys.LEVEL] ?: 1,
-            experience = preferences[PreferencesKeys.EXPERIENCE] ?: 0,
-            lastPlayDate = preferences[PreferencesKeys.LAST_PLAY_DATE]?.let { LocalDate.parse(it) },
-            dailyTasksCompleted = preferences[PreferencesKeys.DAILY_TASKS_COMPLETED] ?: 0,
-            streakDays = preferences[PreferencesKeys.STREAK_DAYS] ?: 0,
-            unlockedQuizLevels = preferences[PreferencesKeys.UNLOCKED_QUIZ_LEVELS] ?: 1,
-            quizzesCompleted = preferences[PreferencesKeys.TOTAL_QUIZZES_COMPLETED] ?: 0,
-            correctAnswers = preferences[PreferencesKeys.TOTAL_CORRECT_ANSWERS] ?: 0,
-            totalAnswers = preferences[PreferencesKeys.TOTAL_ANSWERS] ?: 0,
-            streak = preferences[PreferencesKeys.STREAK_DAYS] ?: 0,
-            playTimeMinutes = preferences[PreferencesKeys.PLAY_TIME_MINUTES] ?: 0,
-            categoriesPlayed = preferences[PreferencesKeys.CATEGORIES_PLAYED] ?: emptySet(),
-            powerUpInventory = PowerUpType.entries.associate { type ->
-                type.id to (preferences[PreferencesKeys.powerUpKey(type)] ?: 0)
+    val gameState: Flow<GameState> = dataStore.data.map { read(it) }
+
+    suspend fun current(): GameState = gameState.first()
+
+    /** Атомарно меняет состояние. */
+    suspend fun update(transform: (GameState) -> GameState): GameState {
+        var result = GameState()
+        dataStore.edit { p ->
+            val next = transform(read(p))
+            write(p, next)
+            result = next
+        }
+        return result
+    }
+
+    /** Атомарно меняет состояние и возвращает дополнительный результат. null из transform — ничего не менять. */
+    suspend fun <R> updateWith(transform: (GameState) -> Pair<GameState, R>?): R? {
+        var out: R? = null
+        dataStore.edit { p ->
+            val res = transform(read(p)) ?: return@edit
+            write(p, res.first)
+            out = res.second
+        }
+        return out
+    }
+
+    // ---------- уведомления ----------
+
+    suspend fun lastNotificationDate(): String? = dataStore.data.first()[K.LAST_NOTIFICATION]
+
+    suspend fun setLastNotificationDate(date: String) {
+        dataStore.edit { it[K.LAST_NOTIFICATION] = date }
+    }
+
+    // ---------- облачная копия (§2.2) ----------
+
+    /** Все значения хранилища как «ключ → значение» для облака. */
+    suspend fun exportRaw(): Map<String, Any> =
+        dataStore.data.first().asMap().mapKeys { it.key.name }.filterKeys { it != K.LAST_NOTIFICATION.name }
+
+    /** Полностью заменяет локальные данные снимком из облака. */
+    suspend fun importRaw(values: Map<String, Any>) {
+        dataStore.edit { p ->
+            p.clear()
+            values.forEach { (name, v) ->
+                when (v) {
+                    is Int -> p[intPreferencesKey(name)] = v
+                    is Long -> p[longPreferencesKey(name)] = v
+                    is Boolean -> p[booleanPreferencesKey(name)] = v
+                    is Float -> p[floatPreferencesKey(name)] = v
+                    is Double -> p[doublePreferencesKey(name)] = v
+                    is String -> p[stringPreferencesKey(name)] = v
+                    is Set<*> -> p[stringSetPreferencesKey(name)] = v.filterIsInstance<String>().toSet()
+                }
             }
+        }
+    }
+
+    // ---------- чтение / запись ----------
+
+    private fun read(p: Preferences): GameState {
+        val today = LocalDate.now().toString()
+        val sameDay = p[K.DAY_STAMP] == today
+        val age = p[K.AGE] ?: 0
+        val defaultDifficulty = p[K.S_DIFF] ?: AgeGroup.fromId(age).difficulty.id
+        return GameState(
+            loaded = true,
+            playerName = p[K.NAME] ?: "Игрок",
+            avatarId = p[K.AVATAR] ?: "fox",
+            ageGroup = age,
+            profileCreated = p[K.PROFILE_CREATED] ?: false,
+            createdAt = p[K.CREATED_AT] ?: 0L,
+            coins = p[K.COINS] ?: 0,
+            gems = p[K.GEMS] ?: 0,
+            powerUpInventory = HintIds.ALL.associateWith { p[K.hint(it)] ?: 0 },
+            streakFreezes = p[K.STREAK_FREEZES] ?: 0,
+            ownedAvatars = (p[K.OWNED_AVATARS] ?: emptySet()) + Economy.START_AVATARS,
+            currentTopicId = p[K.TOPIC] ?: "animals",
+            currentDifficulty = p[K.DIFFICULTY] ?: defaultDifficulty,
+            levelStars = decodeIntMap(p[K.LEVEL_STARS]),
+            openedChests = p[K.OPENED_CHESTS] ?: emptySet(),
+            topicsPlayed = p[K.TOPICS_PLAYED] ?: emptySet(),
+            totalXp = p[K.XP] ?: 0,
+            gamesPlayed = p[K.GAMES] ?: 0,
+            answersTotal = p[K.ANSWERS_TOTAL] ?: 0,
+            answersCorrect = p[K.ANSWERS_CORRECT] ?: 0,
+            dailyAnswers = decodeIntMap(p[K.DAILY_ANSWERS]),
+            topicCorrect = decodeIntMap(p[K.TOPIC_CORRECT]),
+            topicTotal = decodeIntMap(p[K.TOPIC_TOTAL]),
+            streakDays = p[K.STREAK] ?: 0,
+            bestStreak = p[K.BEST_STREAK] ?: 0,
+            lastPlayedDate = p[K.LAST_PLAYED]?.let { parseDate(it) },
+            playedDates = (p[K.PLAYED_DATES] ?: emptySet()).mapNotNull { parseDate(it) }.toSet(),
+            frozenDates = (p[K.FROZEN_DATES] ?: emptySet()).mapNotNull { parseDate(it) }.toSet(),
+            streakRewardsClaimed = p[K.STREAK_REWARDS] ?: emptySet(),
+            goldenFrame = p[K.GOLDEN_FRAME] ?: false,
+            unlockedAchievements = decodeStringMap(p[K.ACHIEVEMENTS]),
+            chestsOpened = p[K.CHESTS_OPENED] ?: 0,
+            perfectLevels = p[K.PERFECT_LEVELS] ?: 0,
+            fastAnswer = p[K.FAST_ANSWER] ?: false,
+            lifetimeCoins = p[K.LIFETIME_COINS] ?: 0,
+            questDate = p[K.QUEST_DATE] ?: "",
+            questProgress = p[K.QUEST_PROGRESS] ?: 0,
+            questClaimed = p[K.QUEST_CLAIMED] ?: false,
+            settings = GameSettings(
+                sound = p[K.S_SOUND] ?: true,
+                music = p[K.S_MUSIC] ?: true,
+                vibro = p[K.S_VIBRO] ?: true,
+                voice = p[K.S_VOICE] ?: false,
+                notifications = p[K.S_NOTIF] ?: true,
+                parentControl = p[K.S_PARENT] ?: false,
+                dailyLimitMin = p[K.S_LIMIT] ?: 0,
+                defaultDifficulty = defaultDifficulty,
+                language = p[K.S_LANG] ?: "ru"
+            ),
+            adsRemoved = p[K.ADS_REMOVED] ?: false,
+            freeCoinsClaimedToday = if (sameDay) p[K.FREE_COINS] ?: 0 else 0,
+            playSecondsToday = if (sameDay) p[K.PLAY_SECONDS] ?: 0 else 0,
+            extraMinutesToday = if (sameDay) p[K.EXTRA_MINUTES] ?: 0 else 0
         )
     }
 
-    suspend fun purchasePowerUp(type: PowerUpType): Boolean {
-        var success = false
-        context.dataStore.edit { preferences ->
-            val coins = preferences[PreferencesKeys.COINS] ?: 0
-            if (coins >= type.price) {
-                preferences[PreferencesKeys.COINS] = coins - type.price
-                val key = PreferencesKeys.powerUpKey(type)
-                preferences[key] = (preferences[key] ?: 0) + 1
-                success = true
-            }
-        }
-        return success
+    private fun write(p: MutablePreferences, s: GameState) {
+        p[K.NAME] = s.playerName
+        p[K.AVATAR] = s.avatarId
+        p[K.AGE] = s.ageGroup
+        p[K.PROFILE_CREATED] = s.profileCreated
+        p[K.CREATED_AT] = s.createdAt
+        p[K.COINS] = s.coins
+        p[K.GEMS] = s.gems
+        HintIds.ALL.forEach { p[K.hint(it)] = s.hint(it) }
+        p[K.STREAK_FREEZES] = s.streakFreezes
+        p[K.OWNED_AVATARS] = s.ownedAvatars
+        p[K.TOPIC] = s.currentTopicId
+        p[K.DIFFICULTY] = s.currentDifficulty
+        p[K.LEVEL_STARS] = encodeIntMap(s.levelStars)
+        p[K.OPENED_CHESTS] = s.openedChests
+        p[K.TOPICS_PLAYED] = s.topicsPlayed
+        p[K.XP] = s.totalXp
+        p[K.GAMES] = s.gamesPlayed
+        p[K.ANSWERS_TOTAL] = s.answersTotal
+        p[K.ANSWERS_CORRECT] = s.answersCorrect
+        p[K.DAILY_ANSWERS] = encodeIntMap(s.dailyAnswers)
+        p[K.TOPIC_CORRECT] = encodeIntMap(s.topicCorrect)
+        p[K.TOPIC_TOTAL] = encodeIntMap(s.topicTotal)
+        p[K.STREAK] = s.streakDays
+        p[K.BEST_STREAK] = s.bestStreak
+        val last = s.lastPlayedDate
+        if (last != null) p[K.LAST_PLAYED] = last.toString() else p.remove(K.LAST_PLAYED)
+        p[K.PLAYED_DATES] = s.playedDates.map { it.toString() }.toSet()
+        p[K.FROZEN_DATES] = s.frozenDates.map { it.toString() }.toSet()
+        p[K.STREAK_REWARDS] = s.streakRewardsClaimed
+        p[K.GOLDEN_FRAME] = s.goldenFrame
+        p[K.ACHIEVEMENTS] = encodeStringMap(s.unlockedAchievements)
+        p[K.CHESTS_OPENED] = s.chestsOpened
+        p[K.PERFECT_LEVELS] = s.perfectLevels
+        p[K.FAST_ANSWER] = s.fastAnswer
+        p[K.LIFETIME_COINS] = s.lifetimeCoins
+        p[K.QUEST_DATE] = s.questDate
+        p[K.QUEST_PROGRESS] = s.questProgress
+        p[K.QUEST_CLAIMED] = s.questClaimed
+        p[K.S_SOUND] = s.settings.sound
+        p[K.S_MUSIC] = s.settings.music
+        p[K.S_VIBRO] = s.settings.vibro
+        p[K.S_VOICE] = s.settings.voice
+        p[K.S_NOTIF] = s.settings.notifications
+        p[K.S_PARENT] = s.settings.parentControl
+        p[K.S_LIMIT] = s.settings.dailyLimitMin
+        p[K.S_DIFF] = s.settings.defaultDifficulty
+        p[K.S_LANG] = s.settings.language
+        p[K.ADS_REMOVED] = s.adsRemoved
+        p[K.DAY_STAMP] = LocalDate.now().toString()
+        p[K.FREE_COINS] = s.freeCoinsClaimedToday
+        p[K.PLAY_SECONDS] = s.playSecondsToday
+        p[K.EXTRA_MINUTES] = s.extraMinutesToday
     }
 
-    suspend fun consumePowerUp(type: PowerUpType): Boolean {
-        var consumed = false
-        context.dataStore.edit { preferences ->
-            val key = PreferencesKeys.powerUpKey(type)
-            val count = preferences[key] ?: 0
-            if (count > 0) {
-                preferences[key] = count - 1
-                consumed = true
-            }
-        }
-        return consumed
+    private fun parseDate(raw: String): LocalDate? = try {
+        LocalDate.parse(raw)
+    } catch (e: Exception) {
+        null
     }
 
-    suspend fun addPowerUp(type: PowerUpType, amount: Int = 1) {
-        context.dataStore.edit { preferences ->
-            val key = PreferencesKeys.powerUpKey(type)
-            preferences[key] = (preferences[key] ?: 0) + amount
-        }
-    }
+    private fun encodeIntMap(map: Map<String, Int>): String =
+        JsonObject(map.mapValues { JsonPrimitive(it.value) }).toString()
 
-    suspend fun getUnlockedAchievements(): Set<String> {
-        return context.dataStore.data.map { preferences ->
-            preferences[PreferencesKeys.UNLOCKED_ACHIEVEMENTS] ?: emptySet()
-        }.firstOrNull() ?: emptySet()
-    }
-
-    suspend fun unlockAchievement(id: String) {
-        context.dataStore.edit { preferences ->
-            val current = preferences[PreferencesKeys.UNLOCKED_ACHIEVEMENTS] ?: emptySet()
-            preferences[PreferencesKeys.UNLOCKED_ACHIEVEMENTS] = current + id
-        }
-    }
-
-    /**
-     * Создаёт профиль и выдаёт стартовый набор (ТЗ §6.8).
-     * Идемпотентно: стартовый набор начисляется только один раз.
-     */
-    suspend fun createProfile(name: String, avatarId: String, ageGroup: Int) {
-        val trimmed = name.trim().take(14)
-        context.dataStore.edit { preferences ->
-            val alreadyCreated = preferences[PreferencesKeys.PROFILE_CREATED] ?: false
-            preferences[PreferencesKeys.PLAYER_NAME] = trimmed.ifEmpty { "Игрок" }
-            preferences[PreferencesKeys.AVATAR_ID] = avatarId
-            preferences[PreferencesKeys.AGE_GROUP] = ageGroup
-            if (!alreadyCreated) {
-                preferences[PreferencesKeys.PROFILE_CREATED] = true
-                // Стартовый набор (§6.8): 300 монет, 5 кристаллов, базовые подсказки, лиса+панда.
-                preferences[PreferencesKeys.COINS] = (preferences[PreferencesKeys.COINS] ?: 0) + 300
-                preferences[PreferencesKeys.GEMS] = (preferences[PreferencesKeys.GEMS] ?: 0) + 5
-                preferences[PreferencesKeys.OWNED_AVATARS] =
-                    (preferences[PreferencesKeys.OWNED_AVATARS] ?: emptySet()) + setOf("fox", "panda")
-                fun addPowerUp(type: PowerUpType, amount: Int) {
-                    val key = PreferencesKeys.powerUpKey(type)
-                    preferences[key] = (preferences[key] ?: 0) + amount
-                }
-                addPowerUp(PowerUpType.FIFTY_FIFTY, 2)
-                addPowerUp(PowerUpType.FREEZE_TIME, 1)
-                addPowerUp(PowerUpType.SKIP_QUESTION, 1)
-            }
-        }
-    }
-
-    suspend fun updatePlayerName(name: String) {
-        val trimmed = name.trim().take(24)
-        if (trimmed.isEmpty()) return
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.PLAYER_NAME] = trimmed
-        }
-    }
-
-    suspend fun addCoins(amount: Int) {
-        context.dataStore.edit { preferences ->
-            val currentCoins = preferences[PreferencesKeys.COINS] ?: 0
-            preferences[PreferencesKeys.COINS] = currentCoins + amount
-        }
-    }
-
-    suspend fun addExperience(amount: Int) {
-        context.dataStore.edit { preferences ->
-            val currentExp = preferences[PreferencesKeys.EXPERIENCE] ?: 0
-            val currentLevel = preferences[PreferencesKeys.LEVEL] ?: 1
-            val newExp = currentExp + amount
-            
-            // Level up every 100 experience points
-            val newLevel = (newExp / 100) + 1
-            preferences[PreferencesKeys.EXPERIENCE] = newExp
-            preferences[PreferencesKeys.LEVEL] = newLevel
-            
-            // Give bonus coins for leveling up
-            if (newLevel > currentLevel) {
-                val currentCoins = preferences[PreferencesKeys.COINS] ?: 0
-                preferences[PreferencesKeys.COINS] = currentCoins + (newLevel - currentLevel) * 50
-            }
-            
-            // Check if new quiz levels should be unlocked
-            checkAndUnlockQuizLevels(newLevel, preferences)
-        }
-    }
-
-    private suspend fun checkAndUnlockQuizLevels(playerLevel: Int, preferences: MutablePreferences) {
-        val currentUnlockedLevels = preferences[PreferencesKeys.UNLOCKED_QUIZ_LEVELS] ?: 1
-        val newUnlockedLevels = GameData.unlockedQuizTiersForPlayerLevel(playerLevel)
-        if (newUnlockedLevels > currentUnlockedLevels) {
-            preferences[PreferencesKeys.UNLOCKED_QUIZ_LEVELS] = newUnlockedLevels
-        }
-    }
-
-    suspend fun updateLastPlayDate() {
-        context.dataStore.edit { preferences ->
-            val today = LocalDate.now().toString()
-            val lastPlayDate = preferences[PreferencesKeys.LAST_PLAY_DATE]
-            
-            preferences[PreferencesKeys.LAST_PLAY_DATE] = today
-            
-            // Update streak
-            if (lastPlayDate != null) {
-                val lastDate = LocalDate.parse(lastPlayDate)
-                val todayDate = LocalDate.now()
-                
-                if (lastDate.plusDays(1) == todayDate) {
-                    val currentStreak = preferences[PreferencesKeys.STREAK_DAYS] ?: 0
-                    preferences[PreferencesKeys.STREAK_DAYS] = currentStreak + 1
-                } else if (lastDate != todayDate) {
-                    preferences[PreferencesKeys.STREAK_DAYS] = 1
-                }
-            } else {
-                preferences[PreferencesKeys.STREAK_DAYS] = 1
-            }
-        }
-    }
-
-    suspend fun incrementQuizzesCompleted() {
-        context.dataStore.edit { preferences ->
-            val current = preferences[PreferencesKeys.TOTAL_QUIZZES_COMPLETED] ?: 0
-            preferences[PreferencesKeys.TOTAL_QUIZZES_COMPLETED] = current + 1
-        }
-    }
-
-    suspend fun addCorrectAnswers(count: Int) {
-        context.dataStore.edit { preferences ->
-            val current = preferences[PreferencesKeys.TOTAL_CORRECT_ANSWERS] ?: 0
-            preferences[PreferencesKeys.TOTAL_CORRECT_ANSWERS] = current + count
-        }
-    }
-
-    suspend fun addTotalAnswers(count: Int) {
-        context.dataStore.edit { preferences ->
-            val current = preferences[PreferencesKeys.TOTAL_ANSWERS] ?: 0
-            preferences[PreferencesKeys.TOTAL_ANSWERS] = current + count
-        }
-    }
-
-    suspend fun addPlayTime(minutes: Int) {
-        context.dataStore.edit { preferences ->
-            val current = preferences[PreferencesKeys.PLAY_TIME_MINUTES] ?: 0
-            preferences[PreferencesKeys.PLAY_TIME_MINUTES] = current + minutes
-        }
-    }
-
-    suspend fun addCategoryPlayed(category: String) {
-        context.dataStore.edit { preferences ->
-            val currentCategories = preferences[PreferencesKeys.CATEGORIES_PLAYED] ?: emptySet()
-            preferences[PreferencesKeys.CATEGORIES_PLAYED] = currentCategories + category
-        }
-    }
-
-    suspend fun resetDailyTasks() {
-        context.dataStore.edit { preferences ->
-            preferences[PreferencesKeys.DAILY_TASKS_COMPLETED] = 0
-        }
-    }
-
-    suspend fun addGems(amount: Int) {
-        context.dataStore.edit { it[PreferencesKeys.GEMS] = (it[PreferencesKeys.GEMS] ?: 0) + amount }
-    }
-
-    /** Покупка персонажа за монеты и его выбор (ТЗ §5.7). */
-    suspend fun purchaseAvatar(avatarId: String, price: Int): Boolean {
-        var ok = false
-        context.dataStore.edit { preferences ->
-            val owned = preferences[PreferencesKeys.OWNED_AVATARS] ?: emptySet()
-            if (avatarId in owned) {
-                preferences[PreferencesKeys.AVATAR_ID] = avatarId // уже куплен — просто выбрать
-                ok = true
-            } else {
-                val coins = preferences[PreferencesKeys.COINS] ?: 0
-                if (coins >= price) {
-                    preferences[PreferencesKeys.COINS] = coins - price
-                    preferences[PreferencesKeys.OWNED_AVATARS] = owned + avatarId
-                    preferences[PreferencesKeys.AVATAR_ID] = avatarId
-                    ok = true
-                }
-            }
-        }
-        return ok
-    }
-
-    /** Начисление «бесплатных монет» за рекламу с суточным лимитом (ТЗ §5.7, §8). */
-    suspend fun claimFreeCoins(amount: Int, dailyLimit: Int): Boolean {
-        var ok = false
-        context.dataStore.edit { preferences ->
-            val today = LocalDate.now().toString()
-            val claimed = if (preferences[PreferencesKeys.FREE_COINS_DATE] == today)
-                preferences[PreferencesKeys.FREE_COINS_CLAIMED] ?: 0 else 0
-            if (claimed < dailyLimit) {
-                preferences[PreferencesKeys.FREE_COINS_DATE] = today
-                preferences[PreferencesKeys.FREE_COINS_CLAIMED] = claimed + 1
-                preferences[PreferencesKeys.COINS] = (preferences[PreferencesKeys.COINS] ?: 0) + amount
-                ok = true
-            }
-        }
-        return ok
-    }
-
-    suspend fun setAdsRemoved(removed: Boolean) {
-        context.dataStore.edit { it[PreferencesKeys.ADS_REMOVED] = removed }
-    }
-
-    suspend fun setCurrentTopic(topicId: String) {
-        context.dataStore.edit { it[PreferencesKeys.CURRENT_TOPIC] = topicId }
-    }
-
-    suspend fun setCurrentDifficulty(difficulty: Int) {
-        context.dataStore.edit { it[PreferencesKeys.CURRENT_DIFFICULTY] = difficulty }
-    }
-
-    /** Записывает звёзды за уровень карты, сохраняя лучший результат (ТЗ §6.3). */
-    suspend fun recordLevelStars(topicId: String, difficulty: Int, level: Int, stars: Int) {
-        if (stars < 1) return
-        context.dataStore.edit { preferences ->
-            val map = decodeLevelStars(preferences[PreferencesKeys.LEVEL_STARS]).toMutableMap()
-            val key = LevelMap.levelKey(topicId, difficulty, level)
-            if (stars > (map[key] ?: 0)) {
-                map[key] = stars
-                preferences[PreferencesKeys.LEVEL_STARS] = encodeLevelStars(map)
-            }
-        }
-    }
-
-    suspend fun openChest(topicId: String, difficulty: Int, chestId: Int) {
-        context.dataStore.edit { preferences ->
-            val current = preferences[PreferencesKeys.OPENED_CHESTS] ?: emptySet()
-            preferences[PreferencesKeys.OPENED_CHESTS] =
-                current + LevelMap.chestKey(topicId, difficulty, chestId)
-        }
-    }
-
-    suspend fun completeQuiz(quizId: Int) {
-        context.dataStore.edit { preferences ->
-            val completedQuizzes = preferences[PreferencesKeys.COMPLETED_QUIZZES] ?: emptySet()
-            preferences[PreferencesKeys.COMPLETED_QUIZZES] = completedQuizzes + quizId.toString()
-        }
-    }
-
-    fun getDailyTasksProgress(): Flow<Map<String, Int>> = context.dataStore.data.map { preferences ->
-        mapOf(
-            "quizzes_completed" to (preferences[PreferencesKeys.TOTAL_QUIZZES_COMPLETED] ?: 0),
-            "correct_answers" to (preferences[PreferencesKeys.TOTAL_CORRECT_ANSWERS] ?: 0),
-            "play_time_minutes" to (preferences[PreferencesKeys.PLAY_TIME_MINUTES] ?: 0),
-            "categories_played" to (preferences[PreferencesKeys.CATEGORIES_PLAYED]?.size ?: 0),
-            "coins_earned" to (preferences[PreferencesKeys.COINS] ?: 0),
-            "quizzes_completed" to (preferences[PreferencesKeys.COMPLETED_QUIZZES]?.size ?: 0)
-        )
-    }
-
-    suspend fun shouldResetDailyTasks(): Boolean {
-        val lastPlayDate = context.dataStore.data.map { preferences ->
-            preferences[PreferencesKeys.LAST_PLAY_DATE]?.let { LocalDate.parse(it) }
-        }
-        val today = LocalDate.now()
-        return lastPlayDate.map { it != today }.firstOrNull() ?: true
-    }
-
-    fun isQuizLevelUnlocked(level: Int): Flow<Boolean> = context.dataStore.data.map { preferences ->
-        val unlockedLevels = preferences[PreferencesKeys.UNLOCKED_QUIZ_LEVELS] ?: 1
-        level <= unlockedLevels
-    }
-
-    fun isQuizCompleted(quizId: Int): Flow<Boolean> = context.dataStore.data.map { preferences ->
-        val completedQuizzes = preferences[PreferencesKeys.COMPLETED_QUIZZES] ?: emptySet()
-        quizId.toString() in completedQuizzes
-    }
-
-    private fun encodeLevelStars(map: Map<String, Int>): String =
-        Json.encodeToString(map)
-
-    private fun decodeLevelStars(raw: String?): Map<String, Int> =
-        if (raw.isNullOrEmpty()) emptyMap()
-        else try {
-            Json.decodeFromString<Map<String, Int>>(raw)
+    private fun decodeIntMap(raw: String?): Map<String, Int> =
+        if (raw.isNullOrEmpty()) emptyMap() else try {
+            (Json.parseToJsonElement(raw) as JsonObject)
+                .mapNotNull { (k, v) -> (v as? JsonPrimitive)?.intOrNull?.let { k to it } }.toMap()
         } catch (e: Exception) {
             emptyMap()
         }
-} 
+
+    private fun encodeStringMap(map: Map<String, String>): String =
+        JsonObject(map.mapValues { JsonPrimitive(it.value) }).toString()
+
+    private fun decodeStringMap(raw: String?): Map<String, String> =
+        if (raw.isNullOrEmpty()) emptyMap() else try {
+            (Json.parseToJsonElement(raw) as JsonObject)
+                .mapNotNull { (k, v) -> (v as? JsonPrimitive)?.contentOrNull?.let { k to it } }.toMap()
+        } catch (e: Exception) {
+            emptyMap()
+        }
+}

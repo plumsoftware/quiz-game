@@ -1,5 +1,7 @@
 package ru.plumsoftware.game.ui.components.kids
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -36,7 +39,11 @@ fun KidsCard(
     content: @Composable () -> Unit
 ) {
     val shape = RoundedCornerShape(cornerRadius)
-    Box(modifier = modifier.padding(bottom = depth), contentAlignment = Alignment.TopCenter) {
+    Box(
+        modifier = modifier.padding(bottom = depth),
+        contentAlignment = Alignment.TopCenter,
+        propagateMinConstraints = true
+    ) {
         Box(
             modifier = Modifier
                 .matchParentSize()
@@ -69,7 +76,7 @@ fun KidsBackButton(onClick: () -> Unit, modifier: Modifier = Modifier) {
         cornerRadius = 13.dp,
         contentPadding = PaddingValues(0.dp)
     ) {
-        Text("‹", fontFamily = UnboundedFamily, fontWeight = FontWeight.Bold, fontSize = 24.sp)
+        UiIconView(UiIcon.BACK, tint = Kids.TextPrimary, size = 22.dp)
     }
 }
 
@@ -110,7 +117,8 @@ fun KidsProgressBar(
     track: Color = Kids.TrackBackground,
     fill: Color = Kids.Success
 ) {
-    val clamped = progress.coerceIn(0f, 1f)
+    // Плавное заполнение прогресс-баров (§10).
+    val clamped by animateFloatAsState(progress.coerceIn(0f, 1f), tween(400), label = "progress")
     Box(
         modifier = modifier
             .height(height)

@@ -1,0 +1,644 @@
+[
+ {
+  "id": "animals_e_001",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Какое животное самое большое на Земле?",
+  "image": null,
+  "options": [
+   "Слон",
+   "Бегемот",
+   "Синий кит",
+   "Жираф"
+  ],
+  "answer": 2,
+  "explanation": "Синий кит вырастает до 30 метров."
+ },
+ {
+  "id": "animals_e_002",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Кто говорит «му-у»?",
+  "image": null,
+  "options": [
+   "Корова",
+   "Собака",
+   "Кошка",
+   "Утка"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "animals_e_003",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Кто говорит «гав-гав»?",
+  "image": null,
+  "options": [
+   "Овца",
+   "Собака",
+   "Корова",
+   "Петух"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "animals_e_004",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "У кого самая длинная шея?",
+  "image": null,
+  "options": [
+   "У лошади",
+   "У зебры",
+   "У верблюда",
+   "У жирафа"
+  ],
+  "answer": 3,
+  "explanation": "Шея жирафа длиной около двух метров."
+ },
+ {
+  "id": "animals_e_005",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Кто живёт в улье?",
+  "image": null,
+  "options": [
+   "Пчёлы",
+   "Жуки",
+   "Бабочки",
+   "Муравьи"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "animals_e_006",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Какое животное носит домик на спине?",
+  "image": null,
+  "options": [
+   "Заяц",
+   "Лягушка",
+   "Улитка",
+   "Ёжик"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "animals_e_007",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Кто из них умеет летать?",
+  "image": null,
+  "options": [
+   "Курица",
+   "Пингвин",
+   "Страус",
+   "Воробей"
+  ],
+  "answer": 3,
+  "explanation": "Пингвин, страус и курица почти не летают."
+ },
+ {
+  "id": "animals_e_008",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Сколько ног у паука?",
+  "image": null,
+  "options": [
+   "6",
+   "8",
+   "4",
+   "10"
+  ],
+  "answer": 1,
+  "explanation": "У всех пауков по восемь ног."
+ },
+ {
+  "id": "animals_e_009",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Сколько ног у жука?",
+  "image": null,
+  "options": [
+   "10",
+   "8",
+   "4",
+   "6"
+  ],
+  "answer": 3,
+  "explanation": "Жуки — насекомые, а у насекомых шесть ног."
+ },
+ {
+  "id": "animals_e_010",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Кто из детёнышей — котёнок?",
+  "image": null,
+  "options": [
+   "Детёныш коровы",
+   "Детёныш курицы",
+   "Детёныш собаки",
+   "Детёныш кошки"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "animals_e_011",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Как называют детёныша собаки?",
+  "image": null,
+  "options": [
+   "Цыплёнок",
+   "Телёнок",
+   "Щенок",
+   "Котёнок"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "animals_e_012",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Какое животное прыгает и носит малыша в сумке?",
+  "image": null,
+  "options": [
+   "Лиса",
+   "Заяц",
+   "Белка",
+   "Кенгуру"
+  ],
+  "answer": 3,
+  "explanation": "Кенгурёнок живёт в маминой сумке."
+ },
+ {
+  "id": "animals_e_013",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Что больше всего любит есть заяц?",
+  "image": null,
+  "options": [
+   "Мясо",
+   "Рыбу",
+   "Мёд",
+   "Морковку"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "animals_e_014",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Кто спит зимой в берлоге?",
+  "image": null,
+  "options": [
+   "Волк",
+   "Лиса",
+   "Медведь",
+   "Заяц"
+  ],
+  "answer": 2,
+  "explanation": "Медведь всю зиму спит в берлоге."
+ },
+ {
+  "id": "animals_e_015",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Какого цвета белый медведь?",
+  "image": null,
+  "options": [
+   "Чёрного",
+   "Белого",
+   "Бурого",
+   "Рыжего"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "animals_e_016",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Кто из них живёт в воде?",
+  "image": null,
+  "options": [
+   "Корова",
+   "Рыба",
+   "Курица",
+   "Кошка"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "animals_e_017",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Кто плетёт паутину?",
+  "image": null,
+  "options": [
+   "Паук",
+   "Бабочка",
+   "Муха",
+   "Муравей"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "animals_e_018",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "У какого животного есть хобот?",
+  "image": null,
+  "options": [
+   "У тигра",
+   "У жирафа",
+   "У слона",
+   "У медведя"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "animals_e_019",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Кто квакает?",
+  "image": null,
+  "options": [
+   "Кошка",
+   "Мышь",
+   "Лягушка",
+   "Утка"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "animals_e_020",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Кто из них хищник?",
+  "image": null,
+  "options": [
+   "Овца",
+   "Корова",
+   "Волк",
+   "Кролик"
+  ],
+  "answer": 2,
+  "explanation": "Волк охотится на других животных."
+ },
+ {
+  "id": "animals_e_021",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Что делает белка на зиму?",
+  "image": null,
+  "options": [
+   "Улетает на юг",
+   "Спит в воде",
+   "Меняет хвост",
+   "Запасает орехи"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "animals_e_022",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Кто из птиц не умеет летать, но отлично плавает?",
+  "image": null,
+  "options": [
+   "Пингвин",
+   "Воробей",
+   "Ласточка",
+   "Голубь"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "animals_e_023",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Какое животное полосатое?",
+  "image": null,
+  "options": [
+   "Бегемот",
+   "Слон",
+   "Зебра",
+   "Носорог"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "animals_e_024",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Кого называют царём зверей?",
+  "image": null,
+  "options": [
+   "Льва",
+   "Медведя",
+   "Волка",
+   "Слона"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "animals_e_025",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Кто даёт нам шерсть для свитеров?",
+  "image": null,
+  "options": [
+   "Утка",
+   "Овца",
+   "Свинья",
+   "Курица"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "animals_e_026",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Кто несёт яйца?",
+  "image": null,
+  "options": [
+   "Лошадь",
+   "Корова",
+   "Курица",
+   "Кошка"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "animals_e_027",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Где живёт крот?",
+  "image": null,
+  "options": [
+   "В реке",
+   "В гнезде",
+   "На дереве",
+   "Под землёй"
+  ],
+  "answer": 3,
+  "explanation": "Крот роет норы и ходы под землёй."
+ },
+ {
+  "id": "animals_e_028",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Кто из них самый маленький?",
+  "image": null,
+  "options": [
+   "Кошка",
+   "Муравей",
+   "Заяц",
+   "Собака"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "animals_e_029",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Какое животное может менять цвет?",
+  "image": null,
+  "options": [
+   "Хамелеон",
+   "Утка",
+   "Корова",
+   "Лошадь"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "animals_e_030",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Чем покрыт ёжик?",
+  "image": null,
+  "options": [
+   "Панцирем",
+   "Перьями",
+   "Иголками",
+   "Чешуёй"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "animals_e_031",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Кто вылупляется из гусеницы?",
+  "image": null,
+  "options": [
+   "Пчела",
+   "Муха",
+   "Жук",
+   "Бабочка"
+  ],
+  "answer": 3,
+  "explanation": "Гусеница превращается в куколку, а потом в бабочку."
+ },
+ {
+  "id": "animals_e_032",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Как называется дом собаки?",
+  "image": null,
+  "options": [
+   "Будка",
+   "Берлога",
+   "Гнездо",
+   "Нора"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "animals_e_033",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Где птицы выводят птенцов?",
+  "image": null,
+  "options": [
+   "В будке",
+   "В улье",
+   "В берлоге",
+   "В гнезде"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "animals_e_034",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Какое животное самое быстрое на суше?",
+  "image": null,
+  "options": [
+   "Медведь",
+   "Черепаха",
+   "Гепард",
+   "Слон"
+  ],
+  "answer": 2,
+  "explanation": "Гепард бегает быстрее 100 км/ч."
+ },
+ {
+  "id": "animals_e_035",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Кто из них медленно ползает?",
+  "image": null,
+  "options": [
+   "Лошадь",
+   "Заяц",
+   "Черепаха",
+   "Гепард"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "animals_e_036",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "У кого есть грива?",
+  "image": null,
+  "options": [
+   "У ежа",
+   "У льва",
+   "У волка",
+   "У зайца"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "animals_e_037",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Какое морское животное с восемью щупальцами?",
+  "image": null,
+  "options": [
+   "Дельфин",
+   "Акула",
+   "Осьминог",
+   "Кит"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "animals_e_038",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Кто из них мяукает?",
+  "image": null,
+  "options": [
+   "Корова",
+   "Лошадь",
+   "Собака",
+   "Кошка"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "animals_e_039",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Что ест панда?",
+  "image": null,
+  "options": [
+   "Рыбу",
+   "Орехи",
+   "Мясо",
+   "Бамбук"
+  ],
+  "answer": 3,
+  "explanation": "Панда почти всё время жуёт бамбук."
+ },
+ {
+  "id": "animals_e_040",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Какая птица ухает ночью?",
+  "image": null,
+  "options": [
+   "Воробей",
+   "Голубь",
+   "Курица",
+   "Сова"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "animals_e_041",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Кто из них живёт в Африке?",
+  "image": null,
+  "options": [
+   "Белый медведь",
+   "Жираф",
+   "Пингвин",
+   "Лось"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "animals_e_042",
+  "topic": "animals",
+  "difficulty": 0,
+  "level": 0,
+  "text": "Кто из них поёт «кукареку»?",
+  "image": null,
+  "options": [
+   "Индюк",
+   "Гусь",
+   "Петух",
+   "Утка"
+  ],
+  "answer": 2
+ }
+]

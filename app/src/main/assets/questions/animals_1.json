@@ -1,0 +1,642 @@
+[
+ {
+  "id": "animals_m_001",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какое млекопитающее умеет летать?",
+  "image": null,
+  "options": [
+   "Летучая мышь",
+   "Белка-летяга",
+   "Страус",
+   "Пингвин"
+  ],
+  "answer": 0,
+  "explanation": "Белка-летяга только планирует, а летучая мышь машет крыльями."
+ },
+ {
+  "id": "animals_m_002",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Сколько горбов у двугорбого верблюда?",
+  "image": null,
+  "options": [
+   "4",
+   "2",
+   "1",
+   "3"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "animals_m_003",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Как называется детёныш лошади?",
+  "image": null,
+  "options": [
+   "Ягнёнок",
+   "Козлёнок",
+   "Телёнок",
+   "Жеребёнок"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "animals_m_004",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Чем дышат рыбы?",
+  "image": null,
+  "options": [
+   "Ноздрями",
+   "Жабрами",
+   "Кожей",
+   "Лёгкими"
+  ],
+  "answer": 1,
+  "explanation": "Жабры берут кислород из воды."
+ },
+ {
+  "id": "animals_m_005",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Кто из них — земноводное?",
+  "image": null,
+  "options": [
+   "Ящерица",
+   "Черепаха",
+   "Лягушка",
+   "Змея"
+  ],
+  "answer": 2,
+  "explanation": "Земноводные живут и в воде, и на суше."
+ },
+ {
+  "id": "animals_m_006",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какое животное может жить без воды дольше всех из перечисленных?",
+  "image": null,
+  "options": [
+   "Собака",
+   "Лошадь",
+   "Корова",
+   "Верблюд"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "animals_m_007",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Зачем зебре полоски?",
+  "image": null,
+  "options": [
+   "Чтобы плавать",
+   "Чтобы путать хищников и насекомых",
+   "Чтобы летать",
+   "Для тепла"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "animals_m_008",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какая птица самая большая в мире?",
+  "image": null,
+  "options": [
+   "Пеликан",
+   "Лебедь",
+   "Страус",
+   "Орёл"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "animals_m_009",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Кто из них не насекомое?",
+  "image": null,
+  "options": [
+   "Муравей",
+   "Бабочка",
+   "Паук",
+   "Муха"
+  ],
+  "answer": 2,
+  "explanation": "Паук — паукообразное, у него 8 ног."
+ },
+ {
+  "id": "animals_m_010",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какое животное — символ Австралии и ест листья эвкалипта?",
+  "image": null,
+  "options": [
+   "Енот",
+   "Панда",
+   "Ленивец",
+   "Коала"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "animals_m_011",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Как называют животных, которые едят только растения?",
+  "image": null,
+  "options": [
+   "Травоядные",
+   "Насекомоядные",
+   "Хищники",
+   "Всеядные"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "animals_m_012",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Кто из них всеядный?",
+  "image": null,
+  "options": [
+   "Медведь",
+   "Корова",
+   "Заяц",
+   "Лев"
+  ],
+  "answer": 0,
+  "explanation": "Медведь ест и ягоды, и рыбу, и мёд."
+ },
+ {
+  "id": "animals_m_013",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какой зверь строит плотины на реках?",
+  "image": null,
+  "options": [
+   "Бобр",
+   "Ондатра",
+   "Выдра",
+   "Енот"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "animals_m_014",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Сколько лап у насекомых?",
+  "image": null,
+  "options": [
+   "6",
+   "8",
+   "4",
+   "10"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "animals_m_015",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какой хищник живёт стаей и воет на луну?",
+  "image": null,
+  "options": [
+   "Рысь",
+   "Лиса",
+   "Волк",
+   "Тигр"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "animals_m_016",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какая птица умеет повторять слова?",
+  "image": null,
+  "options": [
+   "Попугай",
+   "Воробей",
+   "Цапля",
+   "Ворона"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "animals_m_017",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Кто из них — рептилия?",
+  "image": null,
+  "options": [
+   "Крокодил",
+   "Дельфин",
+   "Лягушка",
+   "Тюлень"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "animals_m_018",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Дельфин — это...",
+  "image": null,
+  "options": [
+   "Рыба",
+   "Птица",
+   "Млекопитающее",
+   "Земноводное"
+  ],
+  "answer": 2,
+  "explanation": "Дельфины дышат воздухом и кормят детёнышей молоком."
+ },
+ {
+  "id": "animals_m_019",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какая самая большая кошка в мире?",
+  "image": null,
+  "options": [
+   "Лев",
+   "Леопард",
+   "Тигр",
+   "Рысь"
+  ],
+  "answer": 2,
+  "explanation": "Амурский тигр — крупнейшая кошка."
+ },
+ {
+  "id": "animals_m_020",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какое животное может спать стоя?",
+  "image": null,
+  "options": [
+   "Собака",
+   "Кошка",
+   "Лошадь",
+   "Кролик"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "animals_m_021",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Как называется жилище бобра?",
+  "image": null,
+  "options": [
+   "Хатка",
+   "Нора",
+   "Берлога",
+   "Дупло"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "animals_m_022",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Кто откладывает икру?",
+  "image": null,
+  "options": [
+   "Корова",
+   "Кошка",
+   "Курица",
+   "Рыба"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "animals_m_023",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какой орган помогает летучей мыши находить путь в темноте?",
+  "image": null,
+  "options": [
+   "Нос",
+   "Глаза",
+   "Хвост",
+   "Уши"
+  ],
+  "answer": 3,
+  "explanation": "Летучие мыши «видят» ушами — эхолокацией."
+ },
+ {
+  "id": "animals_m_024",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какая змея самая длинная?",
+  "image": null,
+  "options": [
+   "Кобра",
+   "Гадюка",
+   "Уж",
+   "Сетчатый питон"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "animals_m_025",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какое животное меняет шубку на белую зимой?",
+  "image": null,
+  "options": [
+   "Заяц-беляк",
+   "Белка",
+   "Волк",
+   "Кабан"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "animals_m_026",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Сколько сердец у осьминога?",
+  "image": null,
+  "options": [
+   "2",
+   "1",
+   "4",
+   "3"
+  ],
+  "answer": 3,
+  "explanation": "У осьминога три сердца."
+ },
+ {
+  "id": "animals_m_027",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Где живут пингвины в дикой природе?",
+  "image": null,
+  "options": [
+   "В Южном полушарии",
+   "В пустыне Сахара",
+   "В джунглях Амазонки",
+   "На Северном полюсе"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "animals_m_028",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какая птица самая маленькая?",
+  "image": null,
+  "options": [
+   "Ласточка",
+   "Колибри",
+   "Синица",
+   "Воробей"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "animals_m_029",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какое животное называют «кораблём пустыни»?",
+  "image": null,
+  "options": [
+   "Лошадь",
+   "Осёл",
+   "Слон",
+   "Верблюд"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "animals_m_030",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Что помогает кошке видеть в темноте?",
+  "image": null,
+  "options": [
+   "Особое строение глаз",
+   "Длинный хвост",
+   "Светящийся нос",
+   "Усы-фонарики"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "animals_m_031",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Кто из них линяет — сбрасывает кожу целиком?",
+  "image": null,
+  "options": [
+   "Змея",
+   "Ёж",
+   "Собака",
+   "Кошка"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "animals_m_032",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какая рыба самая большая в мире?",
+  "image": null,
+  "options": [
+   "Щука",
+   "Сом",
+   "Тунец",
+   "Китовая акула"
+  ],
+  "answer": 3,
+  "explanation": "Кит — не рыба, а китовая акула — рыба."
+ },
+ {
+  "id": "animals_m_033",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Каких птиц называют перелётными?",
+  "image": null,
+  "options": [
+   "Которые не летают",
+   "Улетающих зимой в тёплые края",
+   "Ночных птиц",
+   "Живущих в городе"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "animals_m_034",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Что делают ёжики зимой?",
+  "image": null,
+  "options": [
+   "Впадают в спячку",
+   "Меняют иголки",
+   "Улетают",
+   "Строят плотины"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "animals_m_035",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какое животное — самый близкий родственник домашней собаки?",
+  "image": null,
+  "options": [
+   "Волк",
+   "Гиена",
+   "Шакал",
+   "Лиса"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "animals_m_036",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Кто из них — сумчатое животное?",
+  "image": null,
+  "options": [
+   "Коала",
+   "Белка",
+   "Енот",
+   "Панда"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "animals_m_037",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какой длины может быть язык хамелеона?",
+  "image": null,
+  "options": [
+   "Как у кошки",
+   "1 миллиметр",
+   "У него нет языка",
+   "Длиннее его тела"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "animals_m_038",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Кто самый крупный наземный хищник?",
+  "image": null,
+  "options": [
+   "Лев",
+   "Тигр",
+   "Волк",
+   "Белый медведь"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "animals_m_039",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Как называется группа рыб, плывущих вместе?",
+  "image": null,
+  "options": [
+   "Табун",
+   "Стадо",
+   "Стая",
+   "Косяк"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "animals_m_040",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Как называется группа лошадей?",
+  "image": null,
+  "options": [
+   "Рой",
+   "Прайд",
+   "Косяк",
+   "Табун"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "animals_m_041",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Как называется семья львов?",
+  "image": null,
+  "options": [
+   "Табун",
+   "Стая",
+   "Рой",
+   "Прайд"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "animals_m_042",
+  "topic": "animals",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какое животное умеет «смеяться»?",
+  "image": null,
+  "options": [
+   "Гиена",
+   "Носорог",
+   "Бегемот",
+   "Жираф"
+  ],
+  "answer": 0
+ }
+]

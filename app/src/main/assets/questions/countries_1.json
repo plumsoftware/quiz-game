@@ -1,0 +1,606 @@
+[
+ {
+  "id": "countries_m_001",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какая столица Германии?",
+  "image": null,
+  "options": [
+   "Мюнхен",
+   "Вена",
+   "Берлин",
+   "Гамбург"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_m_002",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какая столица Великобритании?",
+  "image": null,
+  "options": [
+   "Манчестер",
+   "Эдинбург",
+   "Лондон",
+   "Дублин"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_m_003",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какая столица Китая?",
+  "image": null,
+  "options": [
+   "Пекин",
+   "Токио",
+   "Гонконг",
+   "Шанхай"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "countries_m_004",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какая столица Испании?",
+  "image": null,
+  "options": [
+   "Барселона",
+   "Лиссабон",
+   "Мадрид",
+   "Севилья"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_m_005",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какая столица Египта?",
+  "image": null,
+  "options": [
+   "Дубай",
+   "Каир",
+   "Александрия",
+   "Луксор"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "countries_m_006",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какая столица США?",
+  "image": null,
+  "options": [
+   "Нью-Йорк",
+   "Лос-Анджелес",
+   "Вашингтон",
+   "Чикаго"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_m_007",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какая столица Канады?",
+  "image": null,
+  "options": [
+   "Монреаль",
+   "Оттава",
+   "Торонто",
+   "Ванкувер"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "countries_m_008",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какая столица Австралии?",
+  "image": null,
+  "options": [
+   "Мельбурн",
+   "Сидней",
+   "Канберра",
+   "Перт"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_m_009",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какая столица Турции?",
+  "image": null,
+  "options": [
+   "Измир",
+   "Анталья",
+   "Стамбул",
+   "Анкара"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "countries_m_010",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какая страна самая населённая в мире?",
+  "image": null,
+  "options": [
+   "Индия",
+   "США",
+   "Россия",
+   "Бразилия"
+  ],
+  "answer": 0,
+  "explanation": "В 2023 году Индия обогнала Китай."
+ },
+ {
+  "id": "countries_m_011",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какая самая длинная река в мире?",
+  "image": null,
+  "options": [
+   "Волга",
+   "Енисей",
+   "Дунай",
+   "Нил"
+  ],
+  "answer": 3,
+  "explanation": "Иногда первенство отдают Амазонке."
+ },
+ {
+  "id": "countries_m_012",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какая река самая полноводная в мире?",
+  "image": null,
+  "options": [
+   "Миссисипи",
+   "Волга",
+   "Нил",
+   "Амазонка"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "countries_m_013",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какая самая высокая гора России?",
+  "image": null,
+  "options": [
+   "Казбек",
+   "Белуха",
+   "Эльбрус",
+   "Эверест"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_m_014",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какие горы разделяют Европу и Азию?",
+  "image": null,
+  "options": [
+   "Уральские",
+   "Кавказские",
+   "Альпы",
+   "Анды"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "countries_m_015",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какая пустыня самая большая жаркая пустыня в мире?",
+  "image": null,
+  "options": [
+   "Гоби",
+   "Атакама",
+   "Сахара",
+   "Каракумы"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_m_016",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "На каком материке находится Бразилия?",
+  "image": null,
+  "options": [
+   "Южная Америка",
+   "Европа",
+   "Африка",
+   "Австралия"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "countries_m_017",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какой океан омывает Россию с севера?",
+  "image": null,
+  "options": [
+   "Атлантический",
+   "Индийский",
+   "Северный Ледовитый",
+   "Тихий"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_m_018",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какое море самое солёное (озеро-море)?",
+  "image": null,
+  "options": [
+   "Чёрное",
+   "Мёртвое",
+   "Белое",
+   "Балтийское"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "countries_m_019",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "В какой стране находится Колизей?",
+  "image": null,
+  "options": [
+   "Италия",
+   "Испания",
+   "Греция",
+   "Франция"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "countries_m_020",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "В какой стране проходили первые Олимпийские игры древности?",
+  "image": null,
+  "options": [
+   "Греция",
+   "Китай",
+   "Италия",
+   "Египет"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "countries_m_021",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какая валюта в России?",
+  "image": null,
+  "options": [
+   "Юань",
+   "Евро",
+   "Доллар",
+   "Рубль"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "countries_m_022",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какой город стоит на двух материках?",
+  "image": null,
+  "options": [
+   "Москва",
+   "Стамбул",
+   "Каир",
+   "Париж"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "countries_m_023",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какая река протекает через Москву?",
+  "image": null,
+  "options": [
+   "Нева",
+   "Москва-река",
+   "Ока",
+   "Волга"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "countries_m_024",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "На какой реке стоит Санкт-Петербург?",
+  "image": null,
+  "options": [
+   "Москва-река",
+   "Дон",
+   "Нева",
+   "Волга"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_m_025",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какая страна — родина кенгуру и коал?",
+  "image": null,
+  "options": [
+   "Индия",
+   "Австралия",
+   "ЮАР",
+   "Новая Зеландия"
+  ],
+  "answer": 1
+ },
+ {
+  "id": "countries_m_026",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "В какой стране находится Мачу-Пикчу?",
+  "image": null,
+  "options": [
+   "Бразилия",
+   "Мексика",
+   "Перу",
+   "Чили"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_m_027",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какой самый холодный материк?",
+  "image": null,
+  "options": [
+   "Северная Америка",
+   "Евразия",
+   "Африка",
+   "Антарктида"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "countries_m_028",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Самое большое озеро в мире по площади?",
+  "image": null,
+  "options": [
+   "Каспийское море",
+   "Виктория",
+   "Байкал",
+   "Верхнее"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "countries_m_029",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какая страна состоит из тысяч островов и называется Страной восходящего солнца?",
+  "image": null,
+  "options": [
+   "Филиппины",
+   "Новая Зеландия",
+   "Япония",
+   "Индонезия"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_m_030",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "В какой стране находится водопад Анхель — самый высокий в мире?",
+  "image": null,
+  "options": [
+   "Бразилия",
+   "США",
+   "Венесуэла",
+   "Канада"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_m_031",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какая страна самая маленькая в мире?",
+  "image": null,
+  "options": [
+   "Сан-Марино",
+   "Монако",
+   "Ватикан",
+   "Люксембург"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_m_032",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Где находится Ниагарский водопад?",
+  "image": null,
+  "options": [
+   "На границе США и Канады",
+   "В Бразилии",
+   "В Африке",
+   "В России"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "countries_m_033",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какой город — столица Беларуси?",
+  "image": null,
+  "options": [
+   "Минск",
+   "Витебск",
+   "Брест",
+   "Гомель"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "countries_m_034",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какой город — столица Казахстана?",
+  "image": null,
+  "options": [
+   "Астана",
+   "Алма-Ата",
+   "Шымкент",
+   "Караганда"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "countries_m_035",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "В какой стране говорят на португальском больше всего людей?",
+  "image": null,
+  "options": [
+   "Аргентина",
+   "Испания",
+   "Бразилия",
+   "Португалия"
+  ],
+  "answer": 2
+ },
+ {
+  "id": "countries_m_036",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какой пролив отделяет Россию от Аляски?",
+  "image": null,
+  "options": [
+   "Берингов",
+   "Ла-Манш",
+   "Босфор",
+   "Гибралтарский"
+  ],
+  "answer": 0
+ },
+ {
+  "id": "countries_m_037",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какое море омывает Крым?",
+  "image": null,
+  "options": [
+   "Белое",
+   "Балтийское",
+   "Каспийское",
+   "Чёрное"
+  ],
+  "answer": 3
+ },
+ {
+  "id": "countries_m_038",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Самый большой остров в мире?",
+  "image": null,
+  "options": [
+   "Мадагаскар",
+   "Сахалин",
+   "Гренландия",
+   "Великобритания"
+  ],
+  "answer": 2,
+  "explanation": "Австралию считают материком."
+ },
+ {
+  "id": "countries_m_039",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Сколько океанов на Земле (по традиционному делению)?",
+  "image": null,
+  "options": [
+   "4",
+   "6",
+   "2",
+   "7"
+  ],
+  "answer": 0,
+  "explanation": "Иногда выделяют пятый — Южный."
+ },
+ {
+  "id": "countries_m_040",
+  "topic": "countries",
+  "difficulty": 1,
+  "level": 0,
+  "text": "Какая страна знаменита часами, сыром и Альпами?",
+  "image": null,
+  "options": [
+   "Индия",
+   "Швейцария",
+   "Египет",
+   "Бразилия"
+  ],
+  "answer": 1
+ }
+]

@@ -24,11 +24,11 @@ import ru.plumsoftware.game.ui.theme.Kids
 import ru.plumsoftware.game.ui.theme.RubikFamily
 
 /** Вкладки нижнего меню (ТЗ §3.3). */
-enum class BottomTab(val emoji: String, val label: String) {
-    HOME("🏠", "Главная"),
-    TOPICS("📚", "Темы"),
-    SHOP("🛒", "Магазин"),
-    PROFILE("👤", "Профиль"),
+enum class BottomTab(val emoji: String, val iconKey: String, val label: String) {
+    HOME("🏠", "tab_home", "Главная"),
+    TOPICS("📚", "tab_topics", "Темы"),
+    SHOP("🛒", "tab_shop", "Магазин"),
+    PROFILE("👤", "tab_profile", "Профиль"),
 }
 
 /**
@@ -61,7 +61,13 @@ fun KidsBottomNav(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(2.dp)
             ) {
-                Text(tab.emoji, fontSize = 22.sp, modifier = Modifier.alpha(if (active) 1f else 0.6f))
+                GameIcon(
+                    key = tab.iconKey,
+                    fallback = tab.emoji,
+                    size = 26.dp,
+                    colorFilter = if (active) null else desaturate(0.6f),
+                    modifier = Modifier.alpha(if (active) 1f else 0.75f)
+                )
                 Text(
                     tab.label,
                     fontFamily = RubikFamily,

@@ -1,428 +1,488 @@
 package ru.plumsoftware.game.ui
 
-import android.app.Activity
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import ru.plumsoftware.game.data.AchievementProgress
+import ru.plumsoftware.game.data.Avatar
+import ru.plumsoftware.game.data.ChestReward
+import ru.plumsoftware.game.data.Economy
+import ru.plumsoftware.game.data.GameDifficulty
 import ru.plumsoftware.game.data.GameManager
-import ru.plumsoftware.game.data.findQuizIdForCategory
+import ru.plumsoftware.game.data.GameRules
+import ru.plumsoftware.game.data.GameSettings
 import ru.plumsoftware.game.data.GameState
-import ru.plumsoftware.game.data.GameData
+import ru.plumsoftware.game.data.GemShopItem
+import ru.plumsoftware.game.data.LevelMap
+import ru.plumsoftware.game.data.LevelOutcome
+import ru.plumsoftware.game.data.NameFilter
 import ru.plumsoftware.game.data.PowerUpType
-import ru.plumsoftware.game.data.Question
-import ru.plumsoftware.game.data.Quiz
-import ru.plumsoftware.game.data.firebase.RemoteConfigQuizModel
+import ru.plumsoftware.game.data.QuestionRepository
+import ru.plumsoftware.game.data.QuizQuestion
+import ru.plumsoftware.game.data.StreakMilestone
+import ru.plumsoftware.game.data.topicById
 import ru.plumsoftware.game.notifications.NotificationScheduler
-import ru.plumsoftware.game.ui.components.game.AchievementToast
-import ru.plumsoftware.game.ui.components.game.toToast
-import ru.plumsoftware.game.ui.screens.getAchievements
+import java.time.LocalDate
 import java.util.ArrayDeque
+
+/** Экраны приложения. Порядок определяет направление анимации перехода. */
+enum class GameScreen {
+    SPLASH,
+    WELCOME,
+    SIGNUP,
+    HOME,
+    STREAK,
+    QUIZ,
+    TOPICS,
+    SHOP,
+    PROFILE,
+    ACHIEVEMENTS,
+    SETTINGS,
+    PRIVACY
+}
+
+/** Запущенный уровень карты. [sessionId] меняется при каждом старте — экран викторины сбрасывает состояние. */
+data class QuizSession(
+    val sessionId: Long,
+    val topicId: String,
+    val difficulty: GameDifficulty,
+    val level: Int,
+    val boss: Boolean,
+    val questions: List<QuizQuestion>
+)
+
+/** Итог прохождения уровня экраном викторины. */
+data class QuizRunStats(
+    val correct: Int,
+    val total: Int,
+    val skipped: Int,
+    val mistakes: Int,
+    val usedHints: Boolean,
+    val fastAnswer: Boolean
+)
+
+/** Данные для экрана результата (§5.6). */
+data class LevelResultUi(
+    val topicId: String,
+    val level: Int,
+    val boss: Boolean,
+    val stars: Int,
+    val correct: Int,
+    val total: Int,
+    val coins: Int,
+    val xp: Int,
+    val gems: Int,
+    val doubled: Boolean = false,
+    val hasNextLevel: Boolean = true
+)
+
+/** Тост о достижении (§5.9). */
+data class AchievementToast(
+    val id: String,
+    val emoji: String,
+    val iconKey: String,
+    val title: String,
+    val description: String,
+    val reward: Int,
+    val rewardEmoji: String
+)
 
 class GameViewModel(application: Application) : AndroidViewModel(application) {
 
     private val gameManager = GameManager(application)
+    private val questions = QuestionRepository(application)
     private val notificationScheduler = NotificationScheduler(application)
 
     private val _gameState = MutableStateFlow(GameState())
     val gameState: StateFlow<GameState> = _gameState.asStateFlow()
 
-    private val _tasksProgress = MutableStateFlow<Map<String, Int>>(emptyMap())
-    val tasksProgress: StateFlow<Map<String, Int>> = _tasksProgress.asStateFlow()
-
     private val _currentScreen = MutableStateFlow(GameScreen.SPLASH)
     val currentScreen: StateFlow<GameScreen> = _currentScreen.asStateFlow()
 
-    private val _showQuizResult = MutableStateFlow(false)
-    val showQuizResult: StateFlow<Boolean> = _showQuizResult.asStateFlow()
+    val playableTopics: Set<String> get() = questions.playableTopics
 
-    private val _quizResult = MutableStateFlow(QuizResult(0, 0, 0))
-    val quizResult: StateFlow<QuizResult> = _quizResult.asStateFlow()
+    private val _session = MutableStateFlow<QuizSession?>(null)
+    val session: StateFlow<QuizSession?> = _session.asStateFlow()
 
-    private val _currentQuizLevel = MutableStateFlow(1)
-    val currentQuizLevel: StateFlow<Int> = _currentQuizLevel.asStateFlow()
+    private val _result = MutableStateFlow<LevelResultUi?>(null)
+    val result: StateFlow<LevelResultUi?> = _result.asStateFlow()
 
-    private val _availableQuizzes =
-        MutableStateFlow<List<Quiz>>(emptyList())
-    val availableQuizzes: StateFlow<List<Quiz>> =
-        _availableQuizzes.asStateFlow()
+    /** Новый уровень игрока → окно «Новый уровень!» (§6.5). */
+    private val _levelUp = MutableStateFlow<Int?>(null)
+    val levelUp: StateFlow<Int?> = _levelUp.asStateFlow()
 
-    private val _completedQuizzes = MutableStateFlow<Set<Int>>(emptySet())
-    val completedQuizzes: StateFlow<Set<Int>> = _completedQuizzes.asStateFlow()
+    private val _chestReward = MutableStateFlow<ChestReward?>(null)
+    val chestReward: StateFlow<ChestReward?> = _chestReward.asStateFlow()
 
-    private val _finishedQuizzes = MutableStateFlow<List<Quiz>>(emptyList())
-    val finishedQuizzes: StateFlow<List<Quiz>> = _finishedQuizzes.asStateFlow()
+    private val _milestone = MutableStateFlow<StreakMilestone?>(null)
+    val milestone: StateFlow<StreakMilestone?> = _milestone.asStateFlow()
 
-    private val _currentTierQuizTotal = MutableStateFlow(0)
-    val currentTierQuizTotal: StateFlow<Int> = _currentTierQuizTotal.asStateFlow()
+    private val _toast = MutableStateFlow<String?>(null)
+    val toast: StateFlow<String?> = _toast.asStateFlow()
 
-    private val _remoteQuiz = MutableStateFlow(
-        RemoteConfigQuizModel(
-            cardTitle = "",
-            dateStart = "",
-            dateEnd = "",
-            quiz = Quiz(
-                0, "", "", "", 0, 0, emptyList()
-            )
-        )
-    )
-    val remoteQuiz: StateFlow<RemoteConfigQuizModel> =
-        _remoteQuiz.asStateFlow()
-
-    private val _shopOpenedFromQuiz = MutableStateFlow(false)
-    val shopOpenedFromQuiz: StateFlow<Boolean> = _shopOpenedFromQuiz.asStateFlow()
 
     private val _pendingAchievementToast = MutableStateFlow<AchievementToast?>(null)
     val pendingAchievementToast: StateFlow<AchievementToast?> = _pendingAchievementToast.asStateFlow()
+    private val achievementQueue = ArrayDeque<AchievementToast>()
+    private var showingAchievement = false
 
-    private val achievementToastQueue = ArrayDeque<AchievementToast>()
-    private var isShowingAchievementToast = false
+    private var sessionCounter = 0L
+    private var toastCounter = 0L
 
     init {
         viewModelScope.launch {
-            gameManager.gameState.collect { state ->
-                _gameState.value = state
-                refreshQuizLists(state.unlockedQuizLevels)
-            }
+            gameManager.gameState.collect { _gameState.value = it }
         }
-
         viewModelScope.launch {
-            gameManager.getDailyTasksProgress().collect { progress ->
-                _tasksProgress.value = progress
-            }
+            val state = gameManager.gameState.filter { it.loaded }.first()
+            // Заморозки/сброс серии при запуске (§6.6).
+            if (state.profileCreated) gameManager.update { GameRules.onAppOpen(it, LocalDate.now()) }
+            _currentScreen.value = if (state.profileCreated) GameScreen.HOME else GameScreen.WELCOME
+            if (state.profileCreated) notificationScheduler.setEnabled(state.settings.notifications)
         }
     }
 
-    private suspend fun refreshQuizLists(unlockedTier: Int) {
-        val completedIds = mutableSetOf<Int>()
-        val finished = mutableListOf<Quiz>()
-        for (quiz in GameData.getAllQuizzes()) {
-            if (gameManager.isQuizCompleted(quiz.id).first()) {
-                completedIds.add(quiz.id)
-                finished.add(quiz)
-            }
-        }
-        _completedQuizzes.value = completedIds
-        _finishedQuizzes.value = finished.sortedBy { it.requiredLevel }
-
-        val tierQuizzes = GameData.getAllQuizzes().filter { it.requiredLevel == unlockedTier }
-        _currentTierQuizTotal.value = tierQuizzes.size
-        _availableQuizzes.value = tierQuizzes.filter { it.id !in completedIds }
-    }
+    // ---------- навигация ----------
 
     fun navigateTo(screen: GameScreen) {
         _currentScreen.value = screen
     }
 
-    fun setCurrentQuizLevel(level: Int) {
-        _currentQuizLevel.value = level
+    /** Системная кнопка «Назад». Возвращает false, если нужно закрыть приложение. */
+    fun navigateUp(): Boolean {
+        if (_result.value != null) {
+            backToMap(); return true
+        }
+        val parent = when (_currentScreen.value) {
+            GameScreen.SIGNUP -> GameScreen.WELCOME
+            GameScreen.STREAK, GameScreen.TOPICS, GameScreen.SHOP, GameScreen.PROFILE, GameScreen.QUIZ -> GameScreen.HOME
+            GameScreen.ACHIEVEMENTS, GameScreen.SETTINGS -> GameScreen.PROFILE
+            GameScreen.PRIVACY -> GameScreen.SETTINGS
+            else -> null
+        } ?: return false
+        _currentScreen.value = parent
+        return true
     }
 
-    // Активный уровень карты (тема, сложность, номер) — для записи звёзд после викторины.
-    private var activeMapLevel: Triple<String, Int, Int>? = null
+    fun showToast(message: String) {
+        val id = ++toastCounter
+        _toast.value = message
+        viewModelScope.launch {
+            delay(2000)
+            if (toastCounter == id) _toast.value = null
+        }
+    }
+
+    // ---------- профиль ----------
+
+    /** Создаёт профиль (§5.2). Возвращает false, если имя не прошло фильтр. */
+    fun createProfile(name: String, avatarId: String, ageGroup: Int): Boolean {
+        if (!NameFilter.isAllowed(name)) return false
+        viewModelScope.launch {
+            val s = gameManager.update { GameRules.createProfile(it, name, avatarId, ageGroup, System.currentTimeMillis()) }
+            notificationScheduler.setEnabled(s.settings.notifications)
+            _currentScreen.value = GameScreen.HOME
+        }
+        return true
+    }
 
     fun setCurrentTopic(topicId: String) {
-        viewModelScope.launch { gameManager.setCurrentTopic(topicId) }
+        if (!questions.hasContent(topicId)) {
+            showToast("Скоро! Вопросы этой темы готовятся")
+            return
+        }
+        viewModelScope.launch {
+            gameManager.update { it.copy(currentTopicId = topicId) }
+            _currentScreen.value = GameScreen.HOME
+        }
     }
 
     fun setDifficulty(difficulty: Int) {
-        viewModelScope.launch { gameManager.setCurrentDifficulty(difficulty) }
+        viewModelScope.launch { gameManager.update { it.copy(currentDifficulty = difficulty) } }
     }
 
-    /** Запускает уровень карты: запоминает его и открывает викторину (ТЗ §5.3). */
-    fun playMapLevel(level: Int) {
-        val state = _gameState.value
-        activeMapLevel = Triple(state.currentTopicId, state.currentDifficulty, level)
-        setCurrentQuizLevel(level)
-        navigateTo(GameScreen.QUIZ)
+    // ---------- карта и викторина ----------
+
+    /** Нажатие на узел карты (§5.3). */
+    fun onMapLevelClick(node: LevelMap.Node) {
+        when (node.state) {
+            LevelMap.NodeState.CURRENT, LevelMap.NodeState.PASSED -> startLevel(node.level)
+            else -> showToast("Сначала пройди предыдущие уровни")
+        }
     }
 
-    /** Открывает сундук на карте и выдаёт награду (ТЗ §6.4). */
-    fun openChest(chestId: Int) {
+    fun startLevel(level: Int) {
+        val s = _gameState.value
+        val topicId = s.currentTopicId
+        val difficulty = s.currentDifficulty
         viewModelScope.launch {
-            val state = _gameState.value
-            gameManager.openChest(state.currentTopicId, state.currentDifficulty, chestId)
-            // Случайная награда: 50–150 монет (упрощённо, без кристаллов/подсказок).
-            gameManager.addCoins((50..150).random())
+            val list = withContext(Dispatchers.IO) { questions.questionsForLevel(topicId, difficulty, level) }
+            if (list.isEmpty()) {
+                showToast("Вопросы этой темы скоро появятся")
+                return@launch
+            }
+            _result.value = null
+            _session.value = QuizSession(
+                sessionId = ++sessionCounter,
+                topicId = topicId,
+                difficulty = GameDifficulty.fromId(difficulty),
+                level = level,
+                boss = LevelMap.isBossLevel(level),
+                questions = list
+            )
+            _currentScreen.value = GameScreen.QUIZ
         }
     }
 
-    fun setRemoteConfigQuizLevel(remoteQuiz: RemoteConfigQuizModel) {
-        _remoteQuiz.value = remoteQuiz
+    fun exitQuiz() {
+        // Сессию не очищаем: экран викторины должен доанимировать уход.
+        _currentScreen.value = GameScreen.HOME
     }
 
-    fun onQuizComplete(correctAnswers: Int, totalQuestions: Int) {
+    /** Уровень закончен — начисляем награды и показываем результат (§5.6, §6). */
+    fun onLevelFinished(stats: QuizRunStats) {
+        val session = _session.value ?: return
         viewModelScope.launch {
-            val currentQuizId = _currentQuizLevel.value
-            val currentQuiz = GameData.getQuiz(currentQuizId)
-            val difficultyMultiplier = when (currentQuiz?.difficulty) {
-                1 -> 1.0
-                2 -> 1.5
-                3 -> 2.0
-                4 -> 2.5
-                5 -> 3.0
-                6 -> 3.5
-                else -> 1.0
-            }
-
-            val baseCoins = correctAnswers * 10
-            val bonusCoins = if (correctAnswers == totalQuestions) 50 else 0
-            val coinsEarned = ((baseCoins + bonusCoins) * difficultyMultiplier).toInt()
-
-            // Update game state
-            gameManager.addCoins(coinsEarned)
-            gameManager.addExperience(correctAnswers * 5 * (currentQuiz?.difficulty ?: 1))
-            gameManager.incrementQuizzesCompleted()
-            gameManager.addCorrectAnswers(correctAnswers)
-            gameManager.addTotalAnswers(totalQuestions)
-            gameManager.updateLastPlayDate()
-
-            // Mark quiz as completed if all answers are correct
-            if (correctAnswers == totalQuestions) {
-                gameManager.completeQuiz(currentQuizId)
-            }
-
-            // Add play time (estimate 2 minutes per quiz)
-            gameManager.addPlayTime(2)
-
-            // Add categories played
-            currentQuiz?.let { quiz ->
-                gameManager.addCategoryPlayed(quiz.category)
-            }
-
-            // Если играли уровень карты — записываем звёзды (ТЗ §6.3).
-            activeMapLevel?.let { (topicId, difficulty, level) ->
-                val boss = ru.plumsoftware.game.data.LevelMap.isBossLevel(level)
-                val stars = ru.plumsoftware.game.data.LevelMap.starsForResult(
-                    correctAnswers, totalQuestions, boss
-                )
-                gameManager.recordLevelStars(topicId, difficulty, level, stars)
-                activeMapLevel = null
-            }
-
-            _quizResult.value = QuizResult(correctAnswers, totalQuestions, coinsEarned)
-            _showQuizResult.value = true
-            checkNewAchievements()
+            val today = LocalDate.now()
+            val outcome = LevelOutcome(
+                topicId = session.topicId,
+                difficulty = session.difficulty.id,
+                level = session.level,
+                boss = session.boss,
+                correct = stats.correct,
+                total = stats.total,
+                stars = 0,
+                usedHints = stats.usedHints,
+                newTopic = false,
+                fastAnswer = stats.fastAnswer,
+                mistakes = stats.mistakes
+            )
+            val applied = gameManager.updateWith { s ->
+                val r = GameRules.applyLevel(s, outcome, stats.skipped, today)
+                val (withAch, unlocked) = GameRules.unlockAchievements(r.state, playableTopics, today)
+                withAch to (r to unlocked)
+            } ?: return@launch
+            val (levelResult, unlocked) = applied
+            val reward = levelResult.reward
+            _result.value = LevelResultUi(
+                topicId = session.topicId,
+                level = session.level,
+                boss = session.boss,
+                stars = reward.stars,
+                correct = stats.correct,
+                total = stats.total,
+                coins = reward.coins,
+                xp = reward.xp,
+                gems = reward.gems,
+                hasNextLevel = session.level < LevelMap.LEVELS_PER_TOPIC || !reward.passed
+            )
+            levelResult.newPlayerLevels.lastOrNull()?.let { _levelUp.value = it }
+            levelResult.milestones.lastOrNull()?.let { _milestone.value = it }
+            enqueueAchievements(unlocked)
+            if (levelResult.questJustCompleted) showToast("Задание дня выполнено! Забери награду на главной")
         }
     }
 
-    private suspend fun checkNewAchievements() {
-        val state = gameManager.gameState.first()
-        val unlocked = gameManager.getUnlockedAchievements()
-        getAchievements(state)
-            .filter { it.current >= it.target && it.id !in unlocked }
-            .forEach { achievement ->
-                gameManager.unlockAchievement(achievement.id)
-                if (achievement.reward > 0) {
-                    gameManager.addCoins(achievement.reward)
-                }
-                achievementToastQueue.addLast(achievement.toToast())
-            }
-        if (!isShowingAchievementToast) {
-            showNextAchievementToast()
-        }
-    }
-
-    private fun showNextAchievementToast() {
-        if (achievementToastQueue.isEmpty()) {
-            isShowingAchievementToast = false
+    /** «Следующий уровень» — текущий уровень карты после прохождения. */
+    fun nextLevel() {
+        val s = _gameState.value
+        val passed = LevelMap.countPassed(s.currentTopicId, s.currentDifficulty, s.levelStars)
+        if (passed >= LevelMap.LEVELS_PER_TOPIC) {
+            backToMap()
+            showToast("Тема пройдена! Выбери новую 🎉")
             return
         }
-        isShowingAchievementToast = true
-        _pendingAchievementToast.value = achievementToastQueue.removeFirst()
+        startLevel(LevelMap.currentLevel(s.currentTopicId, s.currentDifficulty, s.levelStars))
+    }
+
+    fun replayLevel() {
+        val session = _session.value ?: return backToMap()
+        startLevel(session.level)
+    }
+
+    fun backToMap() {
+        _result.value = null
+        _currentScreen.value = GameScreen.HOME
+    }
+
+    /** Вызывается ТОЛЬКО из колбэка onRewarded rewarded-рекламы (§8). */
+    fun onDoubleRewardEarned() {
+        val r = _result.value ?: return
+        if (r.doubled || r.coins <= 0) return
+        _result.value = r.copy(doubled = true)
+        viewModelScope.launch { gameManager.update { GameRules.doubleReward(it, r.coins) } }
+    }
+
+    fun dismissLevelUp() {
+        _levelUp.value = null
+    }
+
+    fun dismissMilestone() {
+        _milestone.value = null
+    }
+
+    // ---------- сундуки ----------
+
+    fun openChest(chestId: Int) {
+        val s = _gameState.value
+        val key = LevelMap.chestKey(s.currentTopicId, s.currentDifficulty, chestId)
+        if (key in s.openedChests) return
+        val reward = ChestReward.roll()
+        viewModelScope.launch {
+            val today = LocalDate.now()
+            val unlocked = gameManager.updateWith { st ->
+                val opened = GameRules.openChest(st, key, reward)
+                GameRules.unlockAchievements(opened, playableTopics, today)
+            }
+            _chestReward.value = reward
+            unlocked?.let { enqueueAchievements(it) }
+        }
+    }
+
+    fun dismissChest() {
+        _chestReward.value = null
+    }
+
+    // ---------- задание дня ----------
+
+    fun claimDailyQuest() {
+        viewModelScope.launch {
+            val today = LocalDate.now()
+            val quest = ru.plumsoftware.game.data.DailyQuests.questFor(today)
+            val reward = gameManager.updateWith { GameRules.claimQuest(it, today) }
+            if (reward != null) showToast("+$reward ${quest.currency.emoji} за задание дня!")
+        }
+    }
+
+    // ---------- магазин ----------
+
+    fun buyHint(type: PowerUpType, onResult: (Boolean) -> Unit = {}) {
+        viewModelScope.launch {
+            val ok = gameManager.updateWith { s -> GameRules.buyHint(s, type.id, type.price)?.let { it to true } } ?: false
+            onResult(ok)
+        }
+    }
+
+    /** Использование подсказки во время викторины. */
+    fun consumeHint(type: PowerUpType, onResult: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            val ok = gameManager.updateWith { s ->
+                if (s.hint(type.id) > 0) GameRules.addHint(s, type.id, -1) to true else null
+            } ?: false
+            onResult(ok)
+        }
+    }
+
+    /** Покупка за кристаллы. */
+    fun buyGemItem(item: GemShopItem, onResult: (Boolean) -> Unit = {}) {
+        viewModelScope.launch {
+            val ok = gameManager.updateWith { s -> GameRules.buyGemItem(s, item)?.let { it to true } } ?: false
+            onResult(ok)
+        }
+    }
+
+    fun buyStreakFreeze(onResult: (Boolean) -> Unit = {}) {
+        viewModelScope.launch {
+            val ok = gameManager.updateWith { s -> GameRules.buyStreakFreeze(s)?.let { it to true } } ?: false
+            onResult(ok)
+        }
+    }
+
+    fun buyOrSelectAvatar(avatar: Avatar, onResult: (Boolean) -> Unit = {}) {
+        viewModelScope.launch {
+            val ok = gameManager.updateWith { s -> GameRules.buyOrSelectAvatar(s, avatar)?.let { it to true } } ?: false
+            onResult(ok)
+        }
+    }
+
+    /** Вызывается ТОЛЬКО из колбэка onRewarded (§8). */
+    fun onFreeCoinsEarned() {
+        viewModelScope.launch {
+            val ok = gameManager.updateWith { s -> GameRules.claimFreeCoins(s)?.let { it to true } } ?: false
+            showToast(if (ok) "+${Economy.FREE_COINS_REWARD} 🪙" else "На сегодня всё")
+        }
+    }
+
+    // ---------- настройки ----------
+
+    fun updateSettings(transform: (GameSettings) -> GameSettings) {
+        viewModelScope.launch {
+            val before = _gameState.value.settings
+            val s = gameManager.update { st ->
+                val next = transform(st.settings)
+                val diffChanged = next.defaultDifficulty != st.settings.defaultDifficulty
+                st.copy(
+                    settings = next,
+                    currentDifficulty = if (diffChanged) next.defaultDifficulty else st.currentDifficulty
+                )
+            }
+            if (before.notifications != s.settings.notifications) notificationScheduler.setEnabled(s.settings.notifications)
+        }
+    }
+
+    // ---------- лимит времени (§9.2) ----------
+
+    fun addPlayTime(seconds: Int) {
+        if (!_gameState.value.profileCreated) return
+        viewModelScope.launch { gameManager.update { it.copy(playSecondsToday = it.playSecondsToday + seconds) } }
+    }
+
+    /** Продление после родительского барьера. */
+    fun extendTimeLimit(minutes: Int = 15) {
+        viewModelScope.launch {
+            gameManager.update { s ->
+                // Если лимит уже превышен, продлеваем от фактически сыгранного времени.
+                val playedMin = s.playSecondsToday / 60
+                val base = maxOf(0, playedMin - s.settings.dailyLimitMin)
+                s.copy(extraMinutesToday = maxOf(s.extraMinutesToday, base) + minutes)
+            }
+        }
+    }
+
+    // ---------- достижения ----------
+
+    private fun enqueueAchievements(list: List<AchievementProgress>) {
+        list.forEach { a ->
+            achievementQueue.addLast(
+                AchievementToast(
+                    id = a.def.id,
+                    emoji = a.def.emoji,
+                    iconKey = a.def.iconKey,
+                    title = a.def.title,
+                    description = a.def.condition,
+                    reward = a.def.reward,
+                    rewardEmoji = a.def.currency.emoji
+                )
+            )
+        }
+        if (!showingAchievement) showNextAchievement()
+    }
+
+    private fun showNextAchievement() {
+        if (achievementQueue.isEmpty()) {
+            showingAchievement = false
+            return
+        }
+        showingAchievement = true
+        _pendingAchievementToast.value = achievementQueue.removeFirst()
     }
 
     fun dismissAchievementToast() {
         viewModelScope.launch {
             _pendingAchievementToast.value = null
             delay(400)
-            showNextAchievementToast()
+            showNextAchievement()
         }
     }
 
-    fun startQuizForCategory(categoryId: String) {
-        val quizId = findQuizIdForCategory(categoryId)
-        if (quizId != null) {
-            setCurrentQuizLevel(quizId)
-            navigateTo(GameScreen.QUIZ)
-        } else {
-            navigateTo(GameScreen.QUIZ_MENU)
-        }
-    }
-
-    fun onAdsRewarded(reward: Int) {
-        viewModelScope.launch {
-            if (reward == 1)
-                gameManager.addCoins(50)
-            else
-                gameManager.addCoins(reward)
-        }
-    }
-
-    fun addCoins(coinsEarned: Int) {
-        viewModelScope.launch {
-            gameManager.addCoins(coinsEarned)
-        }
-    }
-
-    fun updatePlayerName(name: String) {
-        viewModelScope.launch {
-            gameManager.updatePlayerName(name)
-        }
-    }
-
-    fun onPurchaseItem(itemId: Int, price: Int) {
-        viewModelScope.launch {
-            gameManager.addCoins(-price)
-        }
-    }
-
-    fun purchaseAvatar(avatarId: String, price: Int, onResult: (Boolean) -> Unit = {}) {
-        viewModelScope.launch { onResult(gameManager.purchaseAvatar(avatarId, price)) }
-    }
-
-    /** «Бесплатные монеты» за рекламу: +100, до 5 раз в сутки (ТЗ §5.7). */
-    fun claimFreeCoins(onResult: (Boolean) -> Unit = {}) {
-        viewModelScope.launch { onResult(gameManager.claimFreeCoins(100, 5)) }
-    }
-
-    /** Покупка кристаллов за реальные деньги. Пока заглушка (биллинг не подключён). */
-    fun grantGems(amount: Int) {
-        viewModelScope.launch { gameManager.addGems(amount) }
-    }
-
-    /** Отключение рекламы. Пока заглушка (биллинг не подключён). */
-    fun removeAds() {
-        viewModelScope.launch { gameManager.setAdsRemoved(true) }
-    }
-
-    fun purchasePowerUp(type: PowerUpType, onResult: (Boolean) -> Unit = {}) {
-        viewModelScope.launch {
-            val success = gameManager.purchasePowerUp(type)
-            onResult(success)
-        }
-    }
-
-    fun consumePowerUp(type: PowerUpType, onResult: (Boolean) -> Unit) {
-        viewModelScope.launch {
-            val success = gameManager.consumePowerUp(type)
-            onResult(success)
-        }
-    }
-
-    fun openShopFromQuiz() {
-        _shopOpenedFromQuiz.value = true
-        _currentScreen.value = GameScreen.SHOP
-    }
-
-    fun closeShop() {
-        if (_shopOpenedFromQuiz.value) {
-            _shopOpenedFromQuiz.value = false
-            _currentScreen.value = GameScreen.QUIZ
-        } else {
-            _currentScreen.value = GameScreen.HOME
-        }
-    }
-
-    fun onBackToHome() {
-        _showQuizResult.value = false
-        _currentScreen.value = GameScreen.HOME
-    }
-
-    fun onPlayAgain() {
-        _showQuizResult.value = false
-        _currentScreen.value = GameScreen.QUIZ
-    }
-
-    fun onSplashComplete() {
-        // Если профиля нет — на приветствие, иначе на главную (ТЗ §5.1).
-        _currentScreen.value =
-            if (_gameState.value.profileCreated) GameScreen.HOME else GameScreen.WELCOME
-    }
-
-    /** Создаёт профиль и переходит на главную (ТЗ §5.2). */
-    fun createProfile(name: String, avatarId: String, ageGroup: Int) {
-        viewModelScope.launch {
-            gameManager.createProfile(name, avatarId, ageGroup)
-            _currentScreen.value = GameScreen.HOME
-        }
-    }
-
-    fun navigateUp(activity: Activity) {
-        when (_currentScreen.value) {
-            GameScreen.QUIZ -> _currentScreen.value = GameScreen.QUIZ_MENU
-            GameScreen.QUIZ_MENU -> _currentScreen.value = GameScreen.HOME
-            GameScreen.MORE -> _currentScreen.value = GameScreen.HOME
-            GameScreen.DAILY_TASKS -> _currentScreen.value = GameScreen.HOME
-            GameScreen.SHOP -> closeShop()
-            GameScreen.STATS -> _currentScreen.value = GameScreen.HOME
-            GameScreen.SETTINGS -> _currentScreen.value = GameScreen.HOME
-            GameScreen.ACHIEVEMENTS -> _currentScreen.value = GameScreen.HOME
-            GameScreen.CATEGORIES -> _currentScreen.value = GameScreen.HOME
-            GameScreen.TOPICS -> _currentScreen.value = GameScreen.HOME
-            GameScreen.PROFILE -> _currentScreen.value = GameScreen.HOME
-            GameScreen.STREAK -> _currentScreen.value = GameScreen.HOME
-            GameScreen.SIGNUP -> _currentScreen.value = GameScreen.WELCOME
-            else -> {
-                activity.finish()
-            }
-        }
-    }
-
-    fun getNotificationScheduler(): NotificationScheduler {
-        return notificationScheduler
-    }
-
-    fun getQuestionsForCurrentQuiz(): List<ru.plumsoftware.game.data.Question> {
-        return _remoteQuiz.value.quiz.questions.ifEmpty {
-            GameData.getQuestionsForQuiz(_currentQuizLevel.value)
-        }
-    }
-
-    fun setEmptyRemoteQuiz() {
-        _remoteQuiz.value = RemoteConfigQuizModel(
-            "",
-            "",
-            "",
-            Quiz(
-                0, "", "", "", 0, 0, emptyList()
-            )
-        )
-    }
-
-    fun canPlayQuiz(quizId: Int): Boolean {
-        val gameState = _gameState.value
-        val quiz = GameData.getQuiz(quizId)
-        return quiz?.requiredLevel ?: 0 <= gameState.unlockedQuizLevels
-    }
+    fun topicName(topicId: String): String = topicById(topicId).name
 }
-
-enum class GameScreen {
-    SPLASH,
-    WELCOME,
-    SIGNUP,
-    HOME,
-    TOPICS,
-    QUIZ_MENU,
-    QUIZ,
-    DAILY_TASKS,
-    SHOP,
-    PROFILE,
-    STREAK,
-    STATS,
-    SETTINGS,
-    ACHIEVEMENTS,
-    MORE,
-    CATEGORIES
-}
-
-data class QuizResult(
-    val correctAnswers: Int,
-    val totalQuestions: Int,
-    val coinsEarned: Int
-) 

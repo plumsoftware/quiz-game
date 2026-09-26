@@ -35,6 +35,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.plumsoftware.game.data.ALL_AVATARS
 import ru.plumsoftware.game.data.AgeGroup
+import ru.plumsoftware.game.data.NameFilter
+import ru.plumsoftware.game.ui.components.kids.GameIcon
 import ru.plumsoftware.game.ui.components.kids.KidsBackButton
 import ru.plumsoftware.game.ui.components.kids.KidsButton
 import ru.plumsoftware.game.ui.theme.Kids
@@ -45,7 +47,7 @@ import ru.plumsoftware.game.ui.theme.UnboundedFamily
 @Composable
 fun SignupScreen(
     onBack: () -> Unit,
-    onFinish: (name: String, avatarId: String, ageGroup: Int) -> Unit,
+    onFinish: (name: String, avatarId: String, ageGroup: Int) -> Boolean,
     modifier: Modifier = Modifier
 ) {
     var name by remember { mutableStateOf("") }
@@ -54,6 +56,7 @@ fun SignupScreen(
 
     val avatar = ALL_AVATARS[avatarIndex]
     val canFinish = name.trim().isNotEmpty()
+    var nameError by remember { mutableStateOf(false) }
 
     Column(
         modifier = modifier
@@ -89,7 +92,7 @@ fun SignupScreen(
                     .background(Kids.Avatar)
                     .border(5.dp, Color.White, CircleShape),
                 contentAlignment = Alignment.Center
-            ) { Text(avatar.emoji, fontSize = 62.sp) }
+            ) { GameIcon("avatar_${avatar.id}", avatar.emoji, 78.dp) }
             Text(
                 name.trim().ifEmpty { " " },
                 fontFamily = UnboundedFamily,
@@ -106,7 +109,7 @@ fun SignupScreen(
                 .fillMaxWidth()
                 .clip(RoundedCornerShape(18.dp))
                 .background(Kids.Card)
-                .border(3.dp, Kids.InputBorder, RoundedCornerShape(18.dp))
+                .border(3.dp, if (nameError) Kids.Error else Kids.InputBorder, RoundedCornerShape(18.dp))
                 .padding(horizontal = 16.dp, vertical = 15.dp)
         ) {
             if (name.isEmpty()) {
@@ -120,7 +123,7 @@ fun SignupScreen(
             }
             BasicTextField(
                 value = name,
-                onValueChange = { if (it.length <= 14) name = it },
+                onValueChange = { if (it.length <= NameFilter.MAX_LENGTH) { name = it; nameError = false } },
                 singleLine = true,
                 textStyle = TextStyle(
                     fontFamily = RubikFamily,
@@ -130,6 +133,16 @@ fun SignupScreen(
                 ),
                 cursorBrush = SolidColor(Kids.Primary),
                 modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        if (nameError) {
+            Text(
+                "Давай выберем другое имя 🙂",
+                fontFamily = RubikFamily,
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 12.sp,
+                color = Kids.Error
             )
         }
 
@@ -151,7 +164,7 @@ fun SignupScreen(
                         )
                         .clickable { avatarIndex = index },
                     contentAlignment = Alignment.Center
-                ) { Text(a.emoji, fontSize = 26.sp) }
+                ) { GameIcon("avatar_${a.id}", a.emoji, 38.dp) }
             }
         }
 
@@ -192,7 +205,7 @@ fun SignupScreen(
         )
 
         KidsButton(
-            onClick = { onFinish(name.trim(), avatar.id, AgeGroup.entries[ageIndex].id) },
+            onClick = { nameError = !onFinish(name.trim(), avatar.id, AgeGroup.entries[ageIndex].id) },
             enabled = canFinish,
             color = Kids.Success,
             shadow = Kids.SuccessShadow,

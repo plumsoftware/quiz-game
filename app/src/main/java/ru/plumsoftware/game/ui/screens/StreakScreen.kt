@@ -1,16 +1,18 @@
 package ru.plumsoftware.game.ui.screens
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
@@ -26,140 +28,128 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.plumsoftware.game.data.GameState
+import ru.plumsoftware.game.data.StreakLogic
+import ru.plumsoftware.game.data.StreakMilestone
+import ru.plumsoftware.game.ui.components.kids.GameIcon
 import ru.plumsoftware.game.ui.components.kids.KidsBackButton
 import ru.plumsoftware.game.ui.components.kids.KidsCard
 import ru.plumsoftware.game.ui.theme.Kids
 import ru.plumsoftware.game.ui.theme.RubikFamily
 import ru.plumsoftware.game.ui.theme.UnboundedFamily
-
-private data class StreakReward(val days: Int, val title: String)
-
-private val STREAK_REWARDS = listOf(
-    StreakReward(3, "100 🪙"),
-    StreakReward(7, "Сундук с подсказками"),
-    StreakReward(14, "Персонаж 🦄 Единорог"),
-    StreakReward(30, "Золотая рамка + 20 💎"),
-)
+import java.time.LocalDate
 
 /** Экран серии (ТЗ §5.10). */
 @Composable
 fun StreakScreen(
     gameState: GameState,
     onBack: () -> Unit,
+    onOpenShop: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val streak = gameState.streakDays
-    val best = gameState.streakDays // отдельного «лучшего» пока нет — берём текущий
-    val days = listOf("Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс")
-    val today = ((java.time.LocalDate.now().dayOfWeek.value) - 1).coerceIn(0, 6)
-    val nextReward = STREAK_REWARDS.firstOrNull { it.days > streak }
+    val best = maxOf(gameState.bestStreak, streak)
+    val today = LocalDate.now()
+    val week = StreakLogic.week(today, gameState.playedDates, gameState.frozenDates)
+    val next = StreakLogic.nextMilestone(streak, gameState.streakRewardsClaimed)
 
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(Brush.verticalGradient(listOf(Color(0xFFFFE7D6), Kids.Background)))
+            .background(Brush.verticalGradient(listOf(Color(0xFFFFE2CC), Color(0xFFFFEFE4), Kids.Background)))
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = 18.dp, vertical = 6.dp),
+            .padding(horizontal = 18.dp, vertical = 8.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             KidsBackButton(onClick = onBack)
-            Text("Серия", fontFamily = UnboundedFamily, fontWeight = FontWeight.ExtraBold,
-                fontSize = 26.sp, color = Kids.TextPrimary)
+            Text("Серия", fontFamily = UnboundedFamily, fontWeight = FontWeight.ExtraBold, fontSize = 26.sp, color = Kids.TextPrimary)
         }
 
         Column(
-            Modifier.fillMaxWidth().padding(top = 8.dp),
+            Modifier.fillMaxWidth().padding(top = 4.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(2.dp)
         ) {
-            Text("🔥", fontSize = 72.sp)
-            Text("$streak", fontFamily = UnboundedFamily, fontWeight = FontWeight.ExtraBold,
-                fontSize = 48.sp, color = Kids.StreakChipText)
-            Text("дней подряд", fontFamily = RubikFamily, fontWeight = FontWeight.SemiBold,
-                fontSize = 15.sp, color = Kids.TextSecondary)
+            GameIcon("streak_fire", "🔥", 96.dp)
+            Text("$streak", fontFamily = UnboundedFamily, fontWeight = FontWeight.ExtraBold, fontSize = 52.sp, color = Kids.StreakChipText)
+            Text(
+                "${StreakLogic.daysWord(streak)} подряд", fontFamily = RubikFamily, fontWeight = FontWeight.SemiBold,
+                fontSize = 16.sp, color = Kids.TextSecondary
+            )
+            Spacer(Modifier.height(4.dp))
             Text(
                 buildString {
-                    append("Лучшая серия — $best дней.")
-                    if (nextReward != null) append(" Ещё ${nextReward.days - streak} до награды.")
+                    append("Лучшая серия — $best ${StreakLogic.daysWord(best)}.")
+                    if (next != null) {
+                        val left = next.days - streak
+                        append(" Ещё $left ${StreakLogic.daysWord(left)} до награды «${next.title}».")
+                    }
                 },
-                fontFamily = RubikFamily, fontSize = 13.sp, color = Kids.TextMuted,
-                textAlign = TextAlign.Center
+                fontFamily = RubikFamily, fontSize = 13.sp, color = Kids.TextSecondary, textAlign = TextAlign.Center
             )
         }
 
-        // Календарь недели.
-        KidsCard(modifier = Modifier.fillMaxWidth()) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                days.forEachIndexed { i, d ->
-                    val passed = i < today && (today - i) <= streak
-                    val isToday = i == today
-                    Column(horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                        Box(
-                            modifier = Modifier.size(32.dp).clip(CircleShape)
-                                .background(when {
-                                    isToday -> Kids.StreakChip
-                                    passed -> Kids.SuccessSoft
-                                    else -> Kids.TrackBackground
-                                }),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(if (isToday) "🔥" else if (passed) "✓" else "",
-                                fontSize = 14.sp, fontWeight = FontWeight.Bold, color = Kids.Success)
-                        }
-                        Text(d, fontSize = 11.sp, fontWeight = FontWeight.SemiBold, color = Kids.TextSecondary)
-                    }
-                }
-            }
-        }
+        KidsCard(modifier = Modifier.fillMaxWidth()) { WeekRow(week, onGradient = false) }
 
-        // Награды за серию.
-        Text("Награды за серию", fontFamily = UnboundedFamily, fontWeight = FontWeight.Bold,
-            fontSize = 18.sp, color = Kids.TextPrimary)
-        STREAK_REWARDS.forEach { reward ->
-            val achieved = streak >= reward.days
-            KidsCard(modifier = Modifier.fillMaxWidth()) {
-                Row(verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    modifier = Modifier.alpha(if (achieved || streak >= reward.days - 7) 1f else 0.55f)) {
-                    Box(Modifier.size(44.dp).clip(RoundedCornerShape(14.dp)).background(Kids.StreakChip),
-                        contentAlignment = Alignment.Center) {
-                        Text("${reward.days}", fontFamily = UnboundedFamily, fontWeight = FontWeight.Bold,
-                            fontSize = 16.sp, color = Kids.StreakChipText)
+        Text("Награды за серию", fontFamily = UnboundedFamily, fontWeight = FontWeight.Bold, fontSize = 18.sp, color = Kids.TextPrimary)
+        StreakMilestone.entries.forEach { m ->
+            val claimed = m.key in gameState.streakRewardsClaimed
+            val left = (m.days - streak).coerceAtLeast(0)
+            // Недоступные (следующие после ближайшей) — прозрачность 55 %.
+            val reachable = claimed || m == next
+            KidsCard(modifier = Modifier.fillMaxWidth().alpha(if (reachable) 1f else 0.55f)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Box(
+                        Modifier.size(46.dp).clip(RoundedCornerShape(14.dp)).background(Kids.StreakChip),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        when (m) {
+                            StreakMilestone.D3 -> GameIcon("currency_coin", "🪙", 30.dp)
+                            StreakMilestone.D7 -> GameIcon("map_chest", "🎁", 30.dp)
+                            StreakMilestone.D14 -> GameIcon("avatar_unicorn", "🦄", 30.dp)
+                            StreakMilestone.D30 -> GameIcon("trophy", "👑", 30.dp)
+                        }
                     }
                     Column(Modifier.weight(1f)) {
-                        Text("${reward.days} дней", fontFamily = RubikFamily, fontWeight = FontWeight.Bold,
-                            fontSize = 13.sp, color = Kids.TextPrimary)
-                        Text(reward.title, fontFamily = RubikFamily, fontSize = 12.sp,
-                            color = Kids.TextSecondary)
+                        Text("${m.days} ${StreakLogic.daysWord(m.days)}", fontFamily = RubikFamily, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Kids.TextPrimary)
+                        Text(m.title, fontFamily = RubikFamily, fontSize = 12.sp, color = Kids.TextSecondary)
                     }
                     Text(
-                        if (achieved) "Получено" else "через ${reward.days - streak} дн.",
+                        if (claimed) "Получено" else "через $left ${StreakLogic.daysWord(left)}",
                         fontFamily = RubikFamily, fontWeight = FontWeight.Bold, fontSize = 12.sp,
-                        color = if (achieved) Kids.Success else Kids.TextMuted
+                        color = if (claimed) Kids.Success else Kids.TextMuted
                     )
                 }
             }
         }
 
         // Заморозка серии.
-        KidsCard(modifier = Modifier.fillMaxWidth()) {
-            Row(verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                Box(Modifier.size(44.dp).clip(RoundedCornerShape(14.dp)).background(Color(0xFFE1F2FF)),
-                    contentAlignment = Alignment.Center) { Text("🧊", fontSize = 22.sp) }
-                Column(Modifier.weight(1f)) {
-                    Text("Заморозка серии", fontFamily = RubikFamily, fontWeight = FontWeight.Bold,
-                        fontSize = 13.sp, color = Kids.TextPrimary)
-                    Text("Сохранит серию, если пропустишь день", fontFamily = RubikFamily,
-                        fontSize = 12.sp, color = Kids.TextSecondary)
+        Box(Modifier.clip(RoundedCornerShape(22.dp))) {
+            KidsCard(modifier = Modifier.fillMaxWidth()) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Box(
+                        Modifier.size(46.dp).clip(RoundedCornerShape(14.dp)).background(Color(0xFFE1F2FF)),
+                        contentAlignment = Alignment.Center
+                    ) { GameIcon("streak_freeze", "🧊", 30.dp) }
+                    Column(Modifier.weight(1f)) {
+                        Text("Заморозка серии", fontFamily = RubikFamily, fontWeight = FontWeight.Bold, fontSize = 14.sp, color = Kids.TextPrimary)
+                        Text(
+                            "Сама сработает, если пропустишь день", fontFamily = RubikFamily, fontSize = 12.sp,
+                            color = Kids.TextSecondary
+                        )
+                    }
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text("×${gameState.streakFreezes}", fontFamily = UnboundedFamily, fontWeight = FontWeight.Bold, fontSize = 16.sp, color = Kids.GemShadow)
+                        Text(
+                            "Купить", fontFamily = RubikFamily, fontWeight = FontWeight.Bold, fontSize = 12.sp, color = Kids.Primary,
+                            modifier = Modifier.clip(RoundedCornerShape(8.dp))
+                                .clickable(onClick = onOpenShop)
+                                .padding(horizontal = 4.dp, vertical = 2.dp)
+                        )
+                    }
                 }
-                Text("×0", fontFamily = UnboundedFamily, fontWeight = FontWeight.Bold, fontSize = 14.sp,
-                    color = Kids.Gem)
             }
         }
-        Box(Modifier.size(12.dp))
+        Spacer(Modifier.height(12.dp))
     }
 }
