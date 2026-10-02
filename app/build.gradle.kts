@@ -52,6 +52,14 @@ android {
             buildConfigField("String", "STORE_APP_URL", "\"https://www.rustore.ru/catalog/app/ru.plumsoftware.game\"")
             buildConfigField("String", "STORE_NAME", "\"RuStore\"")
         }
+        create("huawei") {
+            dimension = "store"
+            // ID блоков Yandex Mobile Ads для Huawei App Gallery
+            buildConfigField("String", "REWARDED_AD_UNIT_ID", "\"R-M-16661603-2\"")
+            buildConfigField("String", "BANNER_AD_UNIT_ID", "\"R-M-16661603-3\"")
+            buildConfigField("String", "STORE_APP_URL", "\"https://appgallery.huawei.ru/app/C114939201\"")
+            buildConfigField("String", "STORE_NAME", "\"Huawei App Gallery\"")
+        }
     }
     lint {
         disable += "NullSafeMutableLiveData"
